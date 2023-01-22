@@ -1,0 +1,24 @@
+{
+  "devDependencies": {
+    "electron": "^22.0.3",
+    "eslint": "^8.32.0"
+  },
+  "dependencies": {
+    "chroma-js": "^2.4.2",
+    "leaflet": "^1.9.3"
+  },
+  "name": "rts-map",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "run": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ExpTechTW/TREM/rts-map"
+  },
+  "author": "ExpTechTW",
+  "license": "AGPL-3.0",
+  "description": ""
+}

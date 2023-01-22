@@ -1,0 +1,110 @@
+@font-face {
+  font-family: "Google Sans";
+  src: url("../resources/fonts/GoogleSans-Bold.ttf");
+}
+
+@font-face {
+  font-family: "Noto Sans TC";
+  src: url("../resources/fonts/NotoSansTC-Medium.otf");
+}
+
+html, body {
+  margin: 0px;
+  height: 100%;
+  background-color: #1C1B1F;
+  overflow: hidden;
+  -webkit-app-region: drag;
+  font-family: "Google Sans", "Noto Sans TC", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+
+  background-color: #1C1B1F;
+}
+
+#map .station-marker {
+  border: 1px solid #938f99;
+  border-radius: 8px;
+}
+
+body.alert #map .station-marker.max {
+  border: 4px solid #ffffff;
+  z-index: 9999 !important;
+}
+
+.leaflet-overlay-pane { z-index: 5; }
+.leaflet-marker-pane { z-index: 4; }
+
+#max-int {
+	position: absolute;
+  top: 16px;
+  left: 16px;
+	display: flex;
+  visibility: hidden;
+	height: 48px;
+	width: 140px;
+	align-items: center;
+	border: 4px solid white;
+  background-color: #1C1B1F;
+	border-radius: 48px;
+	overflow: hidden;
+  z-index: 100000;
+}
+
+body.alert #max-int {
+  visibility: visible;
+}
+
+#max-int .int-container {
+	padding: 20px 10px;
+	background-color: #fff;
+}
+
+#int-value {
+	font-size: 40px;
+	font-weight: 600;
+  letter-spacing: -4px;
+}
+
+#int-scale {
+	font-size: 20px;
+  vertical-align: 1.4px;
+}
+
+#max-int .loc-container {
+	display: flex;
+	flex-direction: column;
+	padding: 20px 8px;
+	color: #fff;
+}
+
+#max-int .loc-container > span {
+	line-height: 20px;
+}
+
+#time {
+  position: fixed;
+  left: 8px;
+  bottom: 8px;
+  color: #CAC4D0;
+  z-index: 100000;
+}
+
+#legend {
+  position: fixed;
+  right: 8px;
+  bottom: 8px;
+  height: 240px;
+  width: 20px;
+  background: linear-gradient(360deg, #0500A3 0%, #00ceff 14%, #33ff34 29%, #fdff32 43%, #ff8532 57%, #fc5235 71%, #c03e3c 78%, #9b4544 86%, #9a4c86 93%, #b720e9 100%);
+  border-radius: 4px;
+  z-index: 100000;
+}
