@@ -67,7 +67,7 @@ const ready = async () => {
   map.setView([23.61, 120.65], 7.5);
 
   window.addEventListener("resize", () => {
-    window.resizeTo(420, 560);
+    window.resizeTo(400, 560);
     map.setView([23.61, 120.65], 7.5);
   });
 

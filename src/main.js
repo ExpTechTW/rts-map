@@ -3,21 +3,16 @@ const path = require("path");
 
 const createWindow = () => {
   const win = new BrowserWindow({
-    width           : 420,
+    width           : 400,
     height          : 560,
     resizable       : false,
     autoHideMenuBar : true,
-    titleBarOverlay : true,
-    titleBarStyle   : "default",
     frame           : false,
     webPreferences  : {
       contextIsolation : false,
-      nodeIntegration  : true,
-      devTools         : true
+      nodeIntegration  : true
     },
   });
-
-  win.webContents.openDevTools({ mode: "detach" });
 
   win.loadFile(path.resolve(__dirname, "views", "index.html"));
 };
