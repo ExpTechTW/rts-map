@@ -27,9 +27,9 @@ const int = [
 
 const ready = async () => {
   const data = {
-    map    : require("../resources/tw_county.json"),
-    area   : require("../resources/area.json"),
-    region : require("../resources/region.json"),
+    map   : require("../resources/tw_county.json"),
+    area  : require("../resources/area.json"),
+    alert : new Audio("../resources/alert.wav"),
 
     /**
      * @type {Record<string, Station>} stations
@@ -64,16 +64,16 @@ const ready = async () => {
     }
   }).addTo(map);
 
-
+  const pane = map.createPane("stations");
   // #endregion
 
   // #region set view
 
-  map.setView([23.61, 120.65], 7.4);
+  map.setView([23.61, 120.65], 7.5);
 
   window.addEventListener("resize", () => {
     window.resizeTo(420, 560);
-    map.setView([23.61, 120.65], 7.4);
+    map.setView([23.61, 120.65], 7.5);
   });
 
   // #endregion
@@ -180,7 +180,8 @@ const ready = async () => {
             iconSize  : [ 8, 8 ]
           }),
           zIndexOffset : 0,
-          keyboard     : false
+          keyboard     : false,
+          pane         : "stations"
         }).addTo(map);
       }
     }
@@ -197,6 +198,9 @@ const ready = async () => {
 
     if (rts_data)
       if (rts_data.Alert) {
+        if (!data.alert_loop)
+          data.alert_loop = true;
+
         if (!document.body.classList.contains("alert"))
           document.body.classList.add("alert");
 
@@ -206,15 +210,29 @@ const ready = async () => {
         document.getElementById("loc-town").innerText = data.stations[max.id]?.Loc?.split(" ")?.[1] ?? "";
 
         if (markers.polyline)
-          markers.polyline.setLatLngs([[25.38, 119.62], [data.stations[max.id].Lat, data.stations[max.id].Long]]).bringToFront();
+          markers.polyline.setLatLngs([[25.38, 119.62], [data.stations[max.id].Lat, data.stations[max.id].Long]]);
         else
           markers.polyline = L.polyline([[25.38, 119.62], [25.38, 119.62]], {
             color       : "#ffffff",
             weight      : 4,
             interactive : false,
-            renderer    : L.svg()
-          }).addTo(map).bringToFront();
+            className   : "max-line",
+            renderer    : L.svg({ pane: "stations" })
+          }).addTo(map);
+
+        if (!timer.alert)
+          timer.alert = setInterval(() => {
+            if (data.alert_loop) {
+              data.alert.play();
+            } else {
+              clearInterval(timer.alert);
+              delete timer.alert;
+            }
+          }, 700);
       } else {
+        if (data.alert_loop)
+          data.alert_loop = false;
+
         if (document.body.classList.contains("alert"))
           document.body.classList.remove("alert");
 
