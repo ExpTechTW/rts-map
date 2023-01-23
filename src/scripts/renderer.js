@@ -1,17 +1,12 @@
+const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:timers");
 const L = require("leaflet");
 const chroma = require("chroma-js");
-const grad_pga
-  = chroma
-    .scale([ "#0500A3", "#09FF01", "#33ff34", "#fdff32", "#ff8532" ])
-    .domain([0, 0.8, 2.5, 8, 25, 80]);
-const grad_pgv
-  = chroma
-    .scale([ "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9" ])
-    .domain([15, 30, 50, 80, 140]);
+
 const grad_i
   = chroma
     .scale([ "#0500A3", "#00ceff", "#33ff34", "#fdff32", "#ff8532", "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9" ])
     .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
 const int = [
   { value: "0", scale: "級" },
   { value: "1", scale: "級" },
@@ -146,6 +141,10 @@ const ready = async () => {
 
   timer.update = setInterval(() => {
     let max = { id: null, v: -5 };
+    let min = { id: null, v: 9999 };
+    let sum = 0;
+
+    if (!rts_data) return;
 
     for (let i = 0, k = Object.keys(data.stations), n = k.length; i < n; i++) {
       const id = k[i];
@@ -158,16 +157,13 @@ const ready = async () => {
           if (!el.classList.contains("has-data"))
             el.classList.add("has-data");
 
-          /*
-          if (rts_data[id].PGA < 80)
-            el.style.backgroundColor = grad_pga(rts_data[id].PGA);
-          else
-            el.style.backgroundColor = grad_pgv(rts_data[id].PGV);
-            */
-
           el.style.backgroundColor = grad_i(rts_data[id].i);
 
-          if (rts_data[id].v > max.v) max = { id, v: rts_data[id].v, int: rts_data[id].i };
+          if (rts_data[id].v > max.v) max = { id, v: rts_data[id].v, i: rts_data[id].i };
+
+          if (rts_data[id].v < min.v) min = { id, v: rts_data[id].v, i: rts_data[id].i };
+
+          sum += rts_data[id].i;
 
           markers[id].setZIndexOffset(rts_data[id].i + 5);
         } else if (el.classList.contains("has-data")) {
@@ -195,6 +191,35 @@ const ready = async () => {
     }
 
     max_id = max.id;
+
+    const avg = (sum / Object.keys(data.stations).length).toFixed(1);
+
+    document.getElementById("max-int-marker").innerText = `max:${max.i ?? 0}`;
+    document.getElementById("max-int-marker").innerText = `max:${max.i ?? 0}`;
+    document.getElementById("avg-int-marker").innerText = `avg:${avg ?? 0}`;
+
+    if (max.i < 0)
+      document.getElementById("max-int-marker").style.bottom = `${2 * max.i}px`;
+    else if (max.i < 5)
+      document.getElementById("max-int-marker").style.bottom = `${37.1428571428571 * max.i}px`;
+    else
+      document.getElementById("max-int-marker").style.bottom = `${18.5714285714286 * max.i + 92.8571428571427}px`;
+
+
+    if (min.i < 0)
+      document.getElementById("min-int-marker").style.bottom = `${2 * min.i}px`;
+    else if (min.i < 5)
+      document.getElementById("min-int-marker").style.bottom = `${37.1428571428571 * min.i}px`;
+    else
+      document.getElementById("min-int-marker").style.bottom = `${18.5714285714286 * min.i + 92.8571428571427}px`;
+
+
+    if (avg < 0)
+      document.getElementById("avg-int-marker").style.bottom = `${2 * avg}px`;
+    else if (avg < 5)
+      document.getElementById("avg-int-marker").style.bottom = `${37.1428571428571 * avg}px`;
+    else
+      document.getElementById("avg-int-marker").style.bottom = `${18.5714285714286 * avg + 92.8571428571427}px`;
 
     if (rts_data)
       if (rts_data.Alert) {

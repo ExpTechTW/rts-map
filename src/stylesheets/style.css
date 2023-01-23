@@ -1,6 +1,13 @@
 @font-face {
   font-family: "Google Sans";
   src: url("../resources/fonts/GoogleSans-Bold.ttf");
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "Google Sans";
+  src: url("../resources/fonts/GoogleSans-Regular.ttf");
+  font-weight: normal;
 }
 
 @font-face {
@@ -57,7 +64,7 @@ body.alert #map .station-marker.max {
 	height: 48px;
 	width: 140px;
 	align-items: center;
-	border: 4px solid white;
+	border: 4px solid #fff;
   background-color: #1C1B1F;
 	border-radius: 48px;
 	overflow: hidden;
@@ -75,7 +82,7 @@ body.alert #max-int {
 
 #int-value {
 	font-size: 40px;
-	font-weight: 600;
+	font-weight: bold;
   letter-spacing: -4px;
 }
 
@@ -108,8 +115,77 @@ body.alert #max-int {
   right: 8px;
   bottom: 8px;
   height: 260px;
-  width: 8px;
-  background: linear-gradient(360deg, #0500A3 0%, #00ceff 14%, #33ff34 29%, #fdff32 43%, #ff8532 57%, #fc5235 71%, #c03e3c 78%, #9b4544 86%, #9a4c86 93%, #b720e9 100%);
+  width: 14px;
+  background: linear-gradient(360deg, #0500A3 2%, #00ceff 16%, #33ff34 30%, #fdff32 43%, #ff8532 57%, #fc5235 71%, #c03e3c 78%, #9b4544 86%, #9a4c86 93%, #b720e9 100%);
   border-radius: 4px;
   z-index: 100000;
+}
+
+.legend-marker {
+  position: absolute;
+  text-align: right;
+  float: right;
+  color: #938F99;
+  right: 24px;
+  font-size: 12px;
+  line-height: 12px;
+}
+
+.legend-marker::after {
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 0;
+
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 4px solid #938F99;
+  margin: 2px;
+  margin-left: 4px;
+}
+
+.legend-item {
+  position: absolute;
+  width: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  color: #fff;
+  letter-spacing: -2px;
+  margin: 2px 0;
+}
+
+.legend-item.zero {
+  bottom: 4px;
+}
+.legend-item.one {
+  color: #000;
+  bottom: 36.14285714285714px;
+}
+.legend-item.two {
+  color: #000;
+  bottom: 74.28571428571429px;
+}
+.legend-item.three {
+  color: #000;
+  bottom: 106.4285714285714px;
+}
+.legend-item.four {
+  color: #000;
+  bottom: 136.5714285714286px;
+}
+.legend-item.fivel {
+  bottom: 163.7142857142857px;
+}
+.legend-item.fiveh {
+  bottom: 185.2857142857143px;
+}
+.legend-item.sixl {
+  bottom: 204.8571428571428px;
+}
+.legend-item.sixh {
+  bottom: 224.4285714285714px;
+}
+.legend-item.seven {
+  bottom: 242px;
 }
