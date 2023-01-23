@@ -168,6 +168,7 @@ const ready = async () => {
           markers[id].setZIndexOffset(rts_data[id].i + 5);
         } else if (el.classList.contains("has-data")) {
           el.classList.remove("has-data");
+          el.style.backgroundColor = "";
         }
       } else {
         markers[id] = L.marker([station_data.Lat, station_data.Long], {
