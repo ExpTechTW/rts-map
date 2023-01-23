@@ -198,28 +198,9 @@ const ready = async () => {
     document.getElementById("max-int-marker").innerText = `max:${max.i ?? 0}`;
     document.getElementById("avg-int-marker").innerText = `avg:${avg ?? 0}`;
 
-    if (max.i < 0)
-      document.getElementById("max-int-marker").style.bottom = `${2 * max.i}px`;
-    else if (max.i < 5)
-      document.getElementById("max-int-marker").style.bottom = `${37.1428571428571 * max.i}px`;
-    else
-      document.getElementById("max-int-marker").style.bottom = `${18.5714285714286 * max.i + 92.8571428571427}px`;
-
-
-    if (min.i < 0)
-      document.getElementById("min-int-marker").style.bottom = `${2 * min.i}px`;
-    else if (min.i < 5)
-      document.getElementById("min-int-marker").style.bottom = `${37.1428571428571 * min.i}px`;
-    else
-      document.getElementById("min-int-marker").style.bottom = `${18.5714285714286 * min.i + 92.8571428571427}px`;
-
-
-    if (avg < 0)
-      document.getElementById("avg-int-marker").style.bottom = `${2 * avg}px`;
-    else if (avg < 5)
-      document.getElementById("avg-int-marker").style.bottom = `${37.1428571428571 * avg}px`;
-    else
-      document.getElementById("avg-int-marker").style.bottom = `${18.5714285714286 * avg + 92.8571428571427}px`;
+    document.getElementById("max-int-marker").style.bottom = `${max.i < 0 ? 2 * max.i : max.i < 5 ? 37.1428571428571 * max.i : 18.5714285714286 * max.i + 92.8571428571427}px`;
+    document.getElementById("min-int-marker").style.bottom = `${min.i < 0 ? 2 * min.i : min.i < 5 ? 37.1428571428571 * min.i : 18.5714285714286 * min.i + 92.8571428571427}px`;
+    document.getElementById("avg-int-marker").style.bottom = `${avg < 0 ? 2 * avg : avg < 5 ? 37.1428571428571 * avg : 18.5714285714286 * avg + 92.8571428571427}px`;
 
     if (rts_data)
       if (rts_data.Alert) {
