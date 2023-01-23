@@ -1,6 +1,7 @@
 const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:timers");
 const L = require("leaflet");
 const chroma = require("chroma-js");
+const path = require("node:path");
 
 const grad_i
   = chroma
@@ -22,9 +23,9 @@ const int = [
 
 const ready = async () => {
   const data = {
-    map   : require("../resources/tw_county.json"),
-    area  : require("../resources/area.json"),
-    alert : new Audio("../resources/alert.wav"),
+    map   : require(path.resolve(__dirname, "../resources/tw_county.json")),
+    area  : require(path.resolve(__dirname, "../resources/area.json")),
+    alert : new Audio(path.resolve(__dirname, "../resources/alert.wav")),
 
     /**
      * @type {Record<string, Station>} stations
