@@ -261,8 +261,8 @@ const ready = async () => {
         if (!document.body.classList.contains("alert"))
           document.body.classList.add("alert");
 
-        document.getElementById("int-value").innerText = int[(rts_data[max.id].i < 0.5) ? 0 : Math.round(rts_data[max.id].i)].value;
-        document.getElementById("int-scale").innerText = int[(rts_data[max.id].i < 0.5) ? 0 : Math.round(rts_data[max.id].i)].scale;
+        document.getElementById("int-value").innerText = int[intensity_float_to_int(rts_data[max.id].i)].value;
+        document.getElementById("int-scale").innerText = int[intensity_float_to_int(rts_data[max.id].i)].scale;
         document.getElementById("loc-county").innerText = data.stations[max.id]?.Loc?.split(" ")?.[0] ?? "";
         document.getElementById("loc-town").innerText = data.stations[max.id]?.Loc?.split(" ")?.[1] ?? "";
 
@@ -303,6 +303,15 @@ const ready = async () => {
     const time = new Date(rts_data.Time || Date.now());
     document.getElementById("time").innerText = `${time.getFullYear()}/${(time.getMonth() + 1) < 10 ? `0${time.getMonth() + 1}` : time.getMonth() + 1}/${time.getDate() < 10 ? `0${time.getDate()}` : time.getDate()} ${time.getHours() < 10 ? `0${time.getHours()}` : time.getHours()}:${time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes()}:${time.getSeconds() < 10 ? `0${time.getSeconds()}` : time.getSeconds()}`;
   }, 500);
+
+  const intensity_float_to_int = function(float) {
+    return (float < 0) ? 0
+      : (float < 4.5) ? Math.round(float)
+        : (float < 5) ? 5
+          : (float < 5.5) ? 6
+            : (float < 6) ? 7
+              : (float < 6.5) ? 8 : 9;
+  };
 
   // #endregion
 };
