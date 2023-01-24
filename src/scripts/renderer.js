@@ -177,6 +177,7 @@ const ready = async () => {
     let max = { id: null, i: -5 };
     let min = { id: null, i: 10 };
     let sum = 0;
+    let count = 0;
     const area = {};
 
     if (!rts_data) return;
@@ -198,13 +199,15 @@ const ready = async () => {
 
           if (rts_data[id].i < min.i) min = { id, i: rts_data[id].i };
 
-          sum += rts_data[id].i;
-
           markers[id].setZIndexOffset(rts_data[id].i + 5);
 
-          if (rts_data.Alert)
-            if (~~rts_data[id].i > (area[station_data.PGA] ?? 0))
-              area[station_data.PGA] = ~~rts_data[id].i;
+          if (rts_data.Alert) {
+            sum += rts_data[id].i;
+            count++;
+
+            if (intensity_float_to_int(rts_data[id].i) > (area[station_data.PGA] ?? 0))
+              area[station_data.PGA] = intensity_float_to_int(rts_data[id].i);
+          }
         } else {
           if (el.classList.contains("has-data"))
             el.classList.remove("has-data");
@@ -243,7 +246,7 @@ const ready = async () => {
 
     max_id = max.id;
 
-    const avg = (sum / Object.keys(data.stations).length).toFixed(1);
+    const avg = (!count) ? 0 : (sum / count).toFixed(1);
 
     document.getElementById("max-int-marker").innerText = `max:${max.i ?? 0}`;
     document.getElementById("min-int-marker").innerText = `min:${min.i ?? 0}`;
