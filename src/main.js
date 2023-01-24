@@ -1,4 +1,5 @@
 const { app, BrowserWindow, Tray, Menu, nativeTheme } = require("electron");
+const { dirname } = require("path");
 const path = require("path");
 
 let tray;
@@ -15,7 +16,7 @@ const createWindow = () => {
     resizable       : false,
     autoHideMenuBar : true,
     frame           : false,
-    icon            : "./resources/images/ico.png",
+    icon            : path.resolve(__dirname, "app.ico"),
     webPreferences  : {
       contextIsolation : false,
       nodeIntegration  : true
@@ -37,19 +38,19 @@ app.whenReady().then(async () => {
 
   win.setAlwaysOnTop(settings.alwaysOnTop == "true");
 
-  tray = new Tray("./resources/images/ico.png");
+  tray = new Tray(path.resolve(__dirname, "app.ico"));
   tray.on("click", () => win.isVisible() ? win.hide() : win.show());
   const contextMenu = Menu.buildFromTemplate([
     {
       label   : "rts-map v0.0.2",
       type    : "normal",
-      icon    : `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}wave.png`,
+      icon    : path.resolve(__dirname, `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}wave.png`),
       enabled : false
     },
     {
       label   : "設定",
       type    : "submenu",
-      icon    : `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}settingsTemplate.png`,
+      icon    : path.resolve(__dirname, `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}settingsTemplate.png`),
       submenu : [
         {
           label   : "靜音",
@@ -79,9 +80,9 @@ app.whenReady().then(async () => {
       ]
     },
     { type: "separator" },
-    { label: "重新整理", type: "normal", role: "reload", icon: `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}reloadTemplate.png`, click: () => win.reload() },
-    { label: "隱藏視窗", type: "normal", role: "hide", icon: `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}hideTemplate.png`, click: () => win.hide() },
-    { label: "離開", type: "normal", icon: `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}closeTemplate.png`, role: "quit" }
+    { label: "重新整理", type: "normal", role: "reload", icon: path.resolve(__dirname, `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}reloadTemplate.png`), click: () => win.reload() },
+    { label: "隱藏視窗", type: "normal", role: "hide", icon: path.resolve(__dirname, `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}hideTemplate.png`), click: () => win.hide() },
+    { label: "離開", type: "normal", icon: path.resolve(__dirname, `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}closeTemplate.png`), role: "quit" }
   ]);
   tray.setContextMenu(contextMenu);
   app.on("activate", () => {
