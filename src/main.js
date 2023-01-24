@@ -1,13 +1,21 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, Tray, Menu, nativeTheme } = require("electron");
 const path = require("path");
 
+let tray;
+
+/**
+ * @type {BrowserWindow}
+ */
+let win;
+
 const createWindow = () => {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width           : 400,
     height          : 560,
     resizable       : false,
     autoHideMenuBar : true,
     frame           : false,
+    icon            : "./resources/images/ico.png",
     webPreferences  : {
       contextIsolation : false,
       nodeIntegration  : true
@@ -17,8 +25,65 @@ const createWindow = () => {
   win.loadFile(path.resolve(__dirname, "views", "index.html"));
 };
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   createWindow();
+
+  let settings = await win.webContents.executeJavaScript("({...localStorage})");
+
+  for (const key of ["muted", "area", "alwaysOnTop"].filter(v => !Object.keys(settings).includes(v)))
+    win.webContents.executeJavaScript(`localStorage.setItem("${key}",${key == "area"})`);
+
+  settings = await win.webContents.executeJavaScript("({...localStorage})");
+
+  win.setAlwaysOnTop(settings.alwaysOnTop == "true");
+
+  tray = new Tray("./resources/images/ico.png");
+  tray.on("click", () => win.isVisible() ? win.hide() : win.show());
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label   : "rts-map v0.0.2",
+      type    : "normal",
+      icon    : `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}wave.png`,
+      enabled : false
+    },
+    {
+      label   : "設定",
+      type    : "submenu",
+      icon    : `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}settingsTemplate.png`,
+      submenu : [
+        {
+          label   : "靜音",
+          type    : "checkbox",
+          checked : settings.muted == "true",
+          click   : (item) => {
+            win.webContents.executeJavaScript(`localStorage.setItem("muted",${item.checked})`);
+          }
+        },
+        {
+          label   : "檢知框框",
+          type    : "checkbox",
+          checked : settings.area == "true",
+          click   : (item) => {
+            win.webContents.executeJavaScript(`localStorage.setItem("area",${item.checked})`);
+          }
+        },
+        {
+          label   : "最上層顯示",
+          type    : "checkbox",
+          checked : settings.alwaysOnTop == "true",
+          click   : (item) => {
+            win.webContents.executeJavaScript(`localStorage.setItem("alwaysOnTop",${item.checked})`);
+            win.setAlwaysOnTop(item.checked);
+          }
+        }
+      ]
+    },
+    { type: "separator" },
+    { label: "重新整理", type: "normal", role: "reload", icon: `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}reloadTemplate.png`, click: () => win.reload() },
+    { label: "隱藏視窗", type: "normal", role: "hide", icon: `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}hideTemplate.png`, click: () => win.hide() },
+    { label: "離開", type: "normal", icon: `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}closeTemplate.png`, role: "quit" }
+  ]);
+  tray.setContextMenu(contextMenu);
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });

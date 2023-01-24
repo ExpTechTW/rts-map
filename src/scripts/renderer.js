@@ -2,10 +2,11 @@ const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:t
 const L = require("leaflet");
 const chroma = require("chroma-js");
 const path = require("node:path");
+const os = require("node:os");
 
 const grad_i
   = chroma
-    .scale([ "#0500A3", "#00ceff", "#33ff34", "#fdff32", "#ff8532", "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9" ])
+    .scale(["#0500A3", "#00ceff", "#33ff34", "#fdff32", "#ff8532", "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9"])
     .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
 const int = [
@@ -52,7 +53,6 @@ const ready = async () => {
 
   const base = L.geoJSON(data.map, {
     style: {
-
       color     : "#d0bcff",
       weight    : 1,
       opacity   : 0.2,
@@ -61,6 +61,15 @@ const ready = async () => {
   }).addTo(map);
 
   const pane = map.createPane("stations");
+
+  const arealayer = L.geoJSON(data.area, {
+    pane  : "stations",
+    style : {
+      stroke : false,
+      fill   : false
+    },
+  }).addTo(map);
+
   // #endregion
 
   // #region set view
@@ -94,9 +103,9 @@ const ready = async () => {
 
     ws.addEventListener("open", () => {
       ws.send(JSON.stringify({
-        uuid     : "rts-map",
+        uuid     : `rts-map/0.0.2 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
         function : "subscriptionService",
-        value    : ["trem-rts-v2"],
+        value    : ["trem-rts-v2"]
       }));
     });
 
@@ -114,6 +123,30 @@ const ready = async () => {
   };
 
   connect(1000);
+
+  // #region for debugging: replay
+  /*
+  let rts_replay_time = new Date("2023/01/20 10:56:30").getTime();
+
+  setInterval(async () => {
+    try {
+      const controller = new AbortController();
+      setTimeout(() => {
+        controller.abort();
+      }, 1500);
+      const ans = await fetch(`https://exptech.com.tw/api/v2/trem/rts?time=${rts_replay_time}`, { signal: controller.signal })
+        .catch(() => void 0);
+      rts_replay_time += 1000;
+
+      if (controller.signal.aborted || ans == undefined) return;
+      rts_data = await ans.json();
+    } catch (err) {
+      // ignore exceptions
+    }
+  }, 1_000);
+  */
+  // #endregion
+
   // #endregion
 
   // #region marker
@@ -141,9 +174,10 @@ const ready = async () => {
   let max_id;
 
   timer.update = setInterval(() => {
-    let max = { id: null, v: -5 };
-    let min = { id: null, v: 9999 };
+    let max = { id: null, i: -5 };
+    let min = { id: null, i: 10 };
     let sum = 0;
+    const area = {};
 
     if (!rts_data) return;
 
@@ -160,15 +194,19 @@ const ready = async () => {
 
           el.style.backgroundColor = grad_i(rts_data[id].i);
 
-          if (rts_data[id].v > max.v) max = { id, v: rts_data[id].v, i: rts_data[id].i };
+          if (rts_data[id].i > max.i) max = { id, i: rts_data[id].i };
 
-          if (rts_data[id].v < min.v) min = { id, v: rts_data[id].v, i: rts_data[id].i };
+          if (rts_data[id].i < min.i) min = { id, i: rts_data[id].i };
 
           sum += rts_data[id].i;
 
           markers[id].setZIndexOffset(rts_data[id].i + 5);
-        } else if (el.classList.contains("has-data")) {
-          el.classList.remove("has-data");
+
+          if (~~rts_data[id].i > (area[station_data.PGA] ?? 0))
+            area[station_data.PGA] = ~~rts_data[id].i;
+        } else {
+          if (el.classList.contains("has-data"))
+            el.classList.remove("has-data");
           el.style.backgroundColor = "";
         }
       } else {
@@ -184,7 +222,17 @@ const ready = async () => {
       }
     }
 
-    if (max_id != null && max.id != null) {
+    arealayer.setStyle(localStorage.getItem("area") == "true" ? (feature) => ({
+      stroke : area[feature.id] > 0,
+      color  : ["transparent", "#00ceff", "#33ff34", "#fdff32", "#ff8532", "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9"][area[feature.id]],
+      weight : 2,
+      fill   : false
+    }) : {
+      stroke : false,
+      fill   : false
+    });
+
+    if (max_id != null && max.id != null && max_id != max.id) {
       if (markers[max_id].getElement().classList.contains("max"))
         markers[max_id].getElement().classList.remove("max");
 
@@ -197,7 +245,7 @@ const ready = async () => {
     const avg = (sum / Object.keys(data.stations).length).toFixed(1);
 
     document.getElementById("max-int-marker").innerText = `max:${max.i ?? 0}`;
-    document.getElementById("max-int-marker").innerText = `max:${max.i ?? 0}`;
+    document.getElementById("min-int-marker").innerText = `min:${min.i ?? 0}`;
     document.getElementById("avg-int-marker").innerText = `avg:${avg ?? 0}`;
 
     document.getElementById("max-int-marker").style.bottom = `${max.i < 0 ? 2 * max.i : max.i < 5 ? 37.1428571428571 * max.i : 18.5714285714286 * max.i + 92.8571428571427}px`;
@@ -205,7 +253,7 @@ const ready = async () => {
     document.getElementById("avg-int-marker").style.bottom = `${avg < 0 ? 2 * avg : avg < 5 ? 37.1428571428571 * avg : 18.5714285714286 * avg + 92.8571428571427}px`;
 
     if (rts_data)
-      if (rts_data.Alert) {
+      if (rts_data.Alert && max.i >= 2) {
         if (!data.alert_loop)
           data.alert_loop = true;
 
@@ -231,7 +279,8 @@ const ready = async () => {
         if (!timer.alert)
           timer.alert = setInterval(() => {
             if (data.alert_loop) {
-              data.alert.play();
+              if (localStorage.getItem("muted") == "false")
+                data.alert.play();
             } else {
               clearInterval(timer.alert);
               delete timer.alert;
@@ -250,7 +299,7 @@ const ready = async () => {
         }
       }
 
-    const time = new Date(rts_data?.[max.id]?.T * 1000 || Date.now());
+    const time = new Date(rts_data.Time || Date.now());
     document.getElementById("time").innerText = `${time.getFullYear()}/${(time.getMonth() + 1) < 10 ? `0${time.getMonth() + 1}` : time.getMonth() + 1}/${time.getDate() < 10 ? `0${time.getDate()}` : time.getDate()} ${time.getHours() < 10 ? `0${time.getHours()}` : time.getHours()}:${time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes()}:${time.getSeconds() < 10 ? `0${time.getSeconds()}` : time.getSeconds()}`;
   }, 500);
 
@@ -272,12 +321,8 @@ document.addEventListener("DOMContentLoaded", ready);
 
 /**
  * @typedef StationRTS
- * @property {number} PGA     地動加速度
- * @property {number} PGV     地動速度
- * @property {number} I       60 秒內最大震度
- * @property {number} TS      伺服器接收時間
- * @property {number} T       數據測得時間
- * @property {?boolean} alert 警報觸發
+ * @property {number} v 加速度
+ * @property {number} i 震度
  */
 
 // #endregion

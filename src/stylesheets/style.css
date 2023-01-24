@@ -12,7 +12,7 @@
 
 @font-face {
   font-family: "Noto Sans TC";
-  src: url("../resources/fonts/NotoSansTC-Medium.otf");
+  src: url("../resources/fonts/NotoSansTC-Medium.otf") format("otf");
 }
 
 html, body {
@@ -156,29 +156,27 @@ body.alert #max-int {
 }
 
 .legend-item.zero {
-  bottom: 4px;
+  bottom: 2px;
 }
 .legend-item.one {
-  color: #000;
   bottom: 36.14285714285714px;
 }
 .legend-item.two {
   color: #000;
-  bottom: 74.28571428571429px;
+  bottom: 70.28571428571429px;
 }
 .legend-item.three {
   color: #000;
   bottom: 106.4285714285714px;
 }
 .legend-item.four {
-  color: #000;
-  bottom: 136.5714285714286px;
+  bottom: 142.5714285714286px;
 }
 .legend-item.fivel {
-  bottom: 163.7142857142857px;
+  bottom: 169.7142857142857px;
 }
 .legend-item.fiveh {
-  bottom: 185.2857142857143px;
+  bottom: 188.2857142857143px;
 }
 .legend-item.sixl {
   bottom: 204.8571428571428px;
@@ -188,4 +186,8 @@ body.alert #max-int {
 }
 .legend-item.seven {
   bottom: 242px;
+}
+
+.leaflet-stations-pane > canvas{
+  z-index: 5000;
 }
