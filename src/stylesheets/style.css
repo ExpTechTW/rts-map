@@ -15,6 +15,11 @@
   src: url("../resources/fonts/NotoSansTC-Medium.otf") format("otf");
 }
 
+@font-face {
+  font-family: "Consolas";
+  src: url("../resources/fonts/Consolas.ttf");
+}
+
 html, body {
   margin: 0px;
   height: 100%;
@@ -107,6 +112,7 @@ body.alert #max-int {
   left: 8px;
   bottom: 8px;
   color: #CAC4D0;
+  font-family: "Consolas", monospace;
   z-index: 100000;
 }
 
@@ -136,7 +142,6 @@ body.alert #max-int {
   content: "";
   width: 0;
   height: 0;
-
   border-top: 4px solid transparent;
   border-bottom: 4px solid transparent;
   border-left: 4px solid #938F99;
@@ -158,32 +163,41 @@ body.alert #max-int {
 .legend-item.zero {
   bottom: 2px;
 }
+
 .legend-item.one {
   bottom: 36.14285714285714px;
 }
+
 .legend-item.two {
   color: #000;
   bottom: 70.28571428571429px;
 }
+
 .legend-item.three {
   color: #000;
   bottom: 106.4285714285714px;
 }
+
 .legend-item.four {
   bottom: 142.5714285714286px;
 }
+
 .legend-item.fivel {
   bottom: 169.7142857142857px;
 }
+
 .legend-item.fiveh {
   bottom: 188.2857142857143px;
 }
+
 .legend-item.sixl {
-  bottom: 204.8571428571428px;
+  bottom: 206.8571428571428px;
 }
+
 .legend-item.sixh {
-  bottom: 224.4285714285714px;
+  bottom: 225.4285714285714px;
 }
+
 .legend-item.seven {
   bottom: 242px;
 }
