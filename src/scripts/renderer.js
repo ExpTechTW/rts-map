@@ -202,8 +202,9 @@ const ready = async () => {
 
           markers[id].setZIndexOffset(rts_data[id].i + 5);
 
-          if (~~rts_data[id].i > (area[station_data.PGA] ?? 0))
-            area[station_data.PGA] = ~~rts_data[id].i;
+          if (rts_data.Alert)
+            if (~~rts_data[id].i > (area[station_data.PGA] ?? 0))
+              area[station_data.PGA] = ~~rts_data[id].i;
         } else {
           if (el.classList.contains("has-data"))
             el.classList.remove("has-data");
@@ -260,8 +261,8 @@ const ready = async () => {
         if (!document.body.classList.contains("alert"))
           document.body.classList.add("alert");
 
-        document.getElementById("int-value").innerText = int[(~~rts_data[max.id]?.i < 0) ? 0 : ~~rts_data[max.id]?.i ?? 0].value;
-        document.getElementById("int-scale").innerText = int[(~~rts_data[max.id]?.i < 0) ? 0 : ~~rts_data[max.id]?.i ?? 0].scale;
+        document.getElementById("int-value").innerText = int[(rts_data[max.id].i < 0.5) ? 0 : Math.round(rts_data[max.id].i)].value;
+        document.getElementById("int-scale").innerText = int[(rts_data[max.id].i < 0.5) ? 0 : Math.round(rts_data[max.id].i)].scale;
         document.getElementById("loc-county").innerText = data.stations[max.id]?.Loc?.split(" ")?.[0] ?? "";
         document.getElementById("loc-town").innerText = data.stations[max.id]?.Loc?.split(" ")?.[1] ?? "";
 
