@@ -9,7 +9,7 @@
     "leaflet": "^1.9.3"
   },
   "name": "rts-map",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
