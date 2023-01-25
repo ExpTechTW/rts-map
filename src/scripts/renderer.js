@@ -174,8 +174,8 @@ const ready = async () => {
   let max_id;
 
   timer.update = setInterval(() => {
-    let max = { id: null, i: -5 };
-    let min = { id: null, i: 10 };
+    let max = { id: null, i: -4 };
+    let min = { id: null, i: 8 };
     let sum = 0;
     let count = 0;
     const area = {};
@@ -201,7 +201,7 @@ const ready = async () => {
 
           markers[id].setZIndexOffset(rts_data[id].i + 5);
 
-          if (rts_data.Alert) {
+          if (rts_data.Alert && rts_data[id].alert) {
             sum += rts_data[id].i;
             count++;
 
@@ -248,9 +248,9 @@ const ready = async () => {
 
     const avg = (!count) ? 0 : (sum / count).toFixed(1);
 
-    document.getElementById("max-int-marker").innerText = `max:${max.i ?? 0}`;
-    document.getElementById("min-int-marker").innerText = `min:${min.i ?? 0}`;
-    document.getElementById("avg-int-marker").innerText = `avg:${avg ?? 0}`;
+    document.getElementById("max-int-marker").innerText = `max:${max.i}`;
+    document.getElementById("min-int-marker").innerText = `min:${min.i}`;
+    document.getElementById("avg-int-marker").innerText = `avg:${avg}`;
 
     document.getElementById("max-int-marker").style.bottom = `${max.i < 0 ? 2 * max.i : max.i < 5 ? 37.1428571428571 * max.i : 18.5714285714286 * max.i + 92.8571428571427}px`;
     document.getElementById("min-int-marker").style.bottom = `${min.i < 0 ? 2 * min.i : min.i < 5 ? 37.1428571428571 * min.i : 18.5714285714286 * min.i + 92.8571428571427}px`;
