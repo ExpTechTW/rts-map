@@ -257,7 +257,7 @@ const ready = async () => {
     document.getElementById("avg-int-marker").style.bottom = `${avg < 0 ? 2 * avg : avg < 5 ? 37.1428571428571 * avg : 18.5714285714286 * avg + 92.8571428571427}px`;
 
     if (rts_data)
-      if (rts_data.Alert) {
+      if (rts_data.Alert && max.i >= 3) {
         if (!data.alert_loop)
           data.alert_loop = true;
 
