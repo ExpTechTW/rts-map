@@ -42,7 +42,7 @@ app.whenReady().then(async () => {
   tray.on("click", () => win.isVisible() ? win.hide() : win.show());
   const contextMenu = Menu.buildFromTemplate([
     {
-      label   : "rts-map v0.0.3",
+      label   : "rts-map v0.0.4",
       type    : "normal",
       icon    : path.resolve(__dirname, `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}wave.png`),
       enabled : false
