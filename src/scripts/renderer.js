@@ -3,6 +3,7 @@ const L = require("leaflet");
 const chroma = require("chroma-js");
 const path = require("node:path");
 const os = require("node:os");
+/* global DEBUG_FLAG_ALERT_BYPASS: true */
 
 const grad_i
   = chroma
@@ -256,8 +257,8 @@ const ready = async () => {
     document.getElementById("min-int-marker").style.bottom = `${min.i < 0 ? 2 * min.i : min.i < 5 ? 37.1428571428571 * min.i : 18.5714285714286 * min.i + 92.8571428571427}px`;
     document.getElementById("avg-int-marker").style.bottom = `${avg < 0 ? 2 * avg : avg < 5 ? 37.1428571428571 * avg : 18.5714285714286 * avg + 92.8571428571427}px`;
 
-    if (rts_data)
-      if (rts_data.Alert && max.i >= 3) {
+    if (rts_data || DEBUG_FLAG_ALERT_BYPASS)
+      if ((rts_data.Alert && max.i >= 3) || DEBUG_FLAG_ALERT_BYPASS) {
         if (!data.alert_loop)
           data.alert_loop = true;
 
