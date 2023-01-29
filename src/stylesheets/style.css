@@ -120,7 +120,7 @@ body.alert #max-int {
   position: fixed;
   right: 8px;
   bottom: 8px;
-  height: 260px;
+  height: 274px;
   width: 14px;
   background: linear-gradient(360deg, #0500A3 2%, #00ceff 16%, #33ff34 30%, #fdff32 43%, #ff8532 57%, #fc5235 71%, #c03e3c 78%, #9b4544 86%, #9a4c86 93%, #b720e9 100%);
   border-radius: 4px;
@@ -165,45 +165,58 @@ body.alert #max-int {
 }
 
 .legend-item.zero {
-  bottom: 2px;
+  bottom: -4px;
 }
 
 .legend-item.one {
-  bottom: 36.14285714285714px;
+  bottom: 33.14286px;
 }
 
 .legend-item.two {
   color: #000;
-  bottom: 70.28571428571429px;
+  bottom: 70.28571px;
 }
 
 .legend-item.three {
   color: #000;
-  bottom: 106.4285714285714px;
+  bottom: 107.42857px;
 }
 
 .legend-item.four {
-  bottom: 142.5714285714286px;
+  bottom: 144.57143px;
 }
 
 .legend-item.fivel {
-  bottom: 169.7142857142857px;
+  bottom: 181.71429px;
 }
 
 .legend-item.fiveh {
-  bottom: 188.2857142857143px;
+  bottom: 200.28571px;
 }
 
 .legend-item.sixl {
-  bottom: 206.8571428571428px;
+  bottom: 219.85714px;
 }
 
 .legend-item.sixh {
-  bottom: 225.4285714285714px;
+  bottom: 237.42857px;
+}
+
+.legend-item.fivel::after, .legend-item.sixl::after {
+  content: "-";
+  padding-left: 1px;
+  vertical-align: 2px;
+  font-size: 10px;
+}
+
+.legend-item.fiveh::after, .legend-item.sixh::after {
+  content: "+";
+  vertical-align: 2px;
+  font-size: 10px;
 }
 
 .legend-item.seven {
-  bottom: 242px;
+  bottom: 256px;
 }
 
 .leaflet-stations-pane > canvas{
