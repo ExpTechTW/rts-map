@@ -265,6 +265,11 @@ const ready = async () => {
         if (!document.body.classList.contains("alert"))
           document.body.classList.add("alert");
 
+        if (document.getElementById("min-int-marker").classList.contains("hide")) {
+          document.getElementById("min-int-marker").classList.remove("hide");
+          document.getElementById("min-int-marker").classList.remove("hide");
+        }
+
         document.getElementById("int-value").innerText = int[intensity_float_to_int(rts_data[max.id].i)].value;
         document.getElementById("int-scale").innerText = int[intensity_float_to_int(rts_data[max.id].i)].scale;
         document.getElementById("loc-county").innerText = data.stations[max.id]?.Loc?.split(" ")?.[0] ?? "";
@@ -297,6 +302,11 @@ const ready = async () => {
 
         if (document.body.classList.contains("alert"))
           document.body.classList.remove("alert");
+
+        if (!document.getElementById("min-int-marker").classList.contains("hide")) {
+          document.getElementById("min-int-marker").classList.add("hide");
+          document.getElementById("min-int-marker").classList.add("hide");
+        }
 
         if (markers.polyline) {
           markers.polyline.remove();

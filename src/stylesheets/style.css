@@ -137,6 +137,10 @@ body.alert #max-int {
   line-height: 12px;
 }
 
+.legend-marker.hide {
+  visibility: hidden;
+}
+
 .legend-marker::after {
   position: absolute;
   content: "";
