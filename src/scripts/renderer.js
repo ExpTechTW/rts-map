@@ -164,7 +164,9 @@ const ready = async () => {
       if (res) {
         for (let i = 0, k = Object.keys(res), n = k.length; i < n; i++) {
           const id = k[i];
-          s[id.split("-")[2]] = res[id];
+
+          if (res[id].Long > 118)
+            s[id.split("-")[2]] = res[id];
         }
 
         data.stations = s;
