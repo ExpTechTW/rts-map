@@ -157,15 +157,21 @@ const ready = async () => {
   const markers = {};
 
   const fetch_files = async () => {
-    const res = await (await fetch("https://raw.githubusercontent.com/ExpTechTW/API/master/Json/earthquake/station.json")).json();
-    const s = {};
+    try {
+      const res = await (await fetch("https://raw.githubusercontent.com/ExpTechTW/API/master/Json/earthquake/station.json")).json();
+      const s = {};
 
-    for (let i = 0, k = Object.keys(res), n = k.length; i < n; i++) {
-      const id = k[i];
-      s[id.split("-")[2]] = res[id];
+      if (res) {
+        for (let i = 0, k = Object.keys(res), n = k.length; i < n; i++) {
+          const id = k[i];
+          s[id.split("-")[2]] = res[id];
+        }
+
+        data.stations = s;
+      }
+    } catch (error) {
+      console.warn("Failed to load station data!", error);
     }
-
-    data.stations = s;
   };
 
   await fetch_files();
