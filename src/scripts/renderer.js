@@ -1,29 +1,29 @@
-const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:timers");
-const L = require("leaflet");
-const chroma = require("chroma-js");
-const path = require("node:path");
-const os = require("node:os");
 /* global DEBUG_FLAG_ALERT_BYPASS: true */
+const ready = async () => {
+  const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:timers");
+  const L = require("leaflet");
+  const chroma = require("chroma-js");
+  const path = require("node:path");
+  const os = require("node:os");
 
-const grad_i
+  const grad_i
   = chroma
     .scale(["#0500A3", "#00ceff", "#33ff34", "#fdff32", "#ff8532", "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9"])
     .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-const int = [
-  { value: "0", scale: "級" },
-  { value: "1", scale: "級" },
-  { value: "2", scale: "級" },
-  { value: "3", scale: "級" },
-  { value: "4", scale: "級" },
-  { value: "5", scale: "弱" },
-  { value: "5", scale: "強" },
-  { value: "6", scale: "弱" },
-  { value: "6", scale: "強" },
-  { value: "7", scale: "級" }
-];
+  const int = [
+    { value: "0", scale: "級" },
+    { value: "1", scale: "級" },
+    { value: "2", scale: "級" },
+    { value: "3", scale: "級" },
+    { value: "4", scale: "級" },
+    { value: "5", scale: "弱" },
+    { value: "5", scale: "強" },
+    { value: "6", scale: "弱" },
+    { value: "6", scale: "強" },
+    { value: "7", scale: "級" }
+  ];
 
-const ready = async () => {
   const data = {
     map   : require(path.resolve(__dirname, "../resources/tw_county.json")),
     area  : require(path.resolve(__dirname, "../resources/area.json")),
