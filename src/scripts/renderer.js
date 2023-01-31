@@ -367,22 +367,20 @@ const ready = async () => {
     "H-711-11334880-12",
     "H-541-11370676-10",
     "L-269-11370996-5",
-    "L-648-4832348-9",
-    "L-958-11423064-14"
+    "L-648-4832348-9"
   ];
 
   const charts = [
-    echarts.init(document.getElementById("wave-1")),
-    echarts.init(document.getElementById("wave-2")),
-    echarts.init(document.getElementById("wave-3")),
-    echarts.init(document.getElementById("wave-4")),
-    echarts.init(document.getElementById("wave-5")),
-    echarts.init(document.getElementById("wave-6")),
-    echarts.init(document.getElementById("wave-7"))
+    echarts.init(document.getElementById("wave-1"), null, { height: 560 / 6, width: 400 }),
+    echarts.init(document.getElementById("wave-2"), null, { height: 560 / 6, width: 400 }),
+    echarts.init(document.getElementById("wave-3"), null, { height: 560 / 6, width: 400 }),
+    echarts.init(document.getElementById("wave-4"), null, { height: 560 / 6, width: 400 }),
+    echarts.init(document.getElementById("wave-5"), null, { height: 560 / 6, width: 400 }),
+    echarts.init(document.getElementById("wave-6"), null, { height: 560 / 6, width: 400 })
   ];
 
   const chartdata = [
-    [], [], [], [], [], [], []
+    [], [], [], [], [], []
   ];
 
   /**
@@ -390,7 +388,7 @@ const ready = async () => {
    */
   const setCharts
   = (ids) => {
-    for (let i = 0; i < 7; i++)
+    for (let i = 0; i < 6; i++)
       if (data.stations?.[ids[i]]?.uuid) {
         if (chartuuids[i] != data.stations[ids[i]].uuid) {
           chartuuids[i] = data.stations[ids[i]].uuid;
@@ -445,7 +443,7 @@ const ready = async () => {
       }
   };
 
-  setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064"]);
+  setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348"]);
 
   {
     for (const chart of charts)
