@@ -31,8 +31,8 @@ app.whenReady().then(async () => {
 
   let settings = await win.webContents.executeJavaScript("({...localStorage})");
 
-  for (const key of ["muted", "area", "alwaysOnTop"].filter(v => !Object.keys(settings).includes(v)))
-    win.webContents.executeJavaScript(`localStorage.setItem("${key}",${key == "area"})`);
+  for (const value of [["muted", false], ["area", true], ["alwaysOnTop", false], ["autoSwitchWave", true], ["minimumTriggeredStation", 2]].filter(v => !Object.keys(settings).includes(v[0])))
+    win.webContents.executeJavaScript(`localStorage.setItem("${value[0]}","${value[1]}")`);
 
   settings = await win.webContents.executeJavaScript("({...localStorage})");
 
@@ -76,6 +76,84 @@ app.whenReady().then(async () => {
             win.webContents.executeJavaScript(`localStorage.setItem("alwaysOnTop",${item.checked})`);
             win.setAlwaysOnTop(item.checked);
           }
+        },
+        { type: "separator" },
+        {
+          label   : "震波顯示器",
+          type    : "submenu",
+          submenu : [
+            {
+              label   : "自動切換",
+              type    : "checkbox",
+              checked : settings.autoSwitchWave == "true",
+              click   : (item) => {
+                win.webContents.executeJavaScript(`localStorage.setItem("autoSwitchWave",${item.checked})`);
+              }
+            },
+            {
+              label   : "最小觸發測站",
+              type    : "submenu",
+              submenu : [
+                {
+                  label   : "1",
+                  type    : "radio",
+                  checked : settings.minimumTriggeredStation == "1",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",1)");
+                  }
+                },
+                {
+                  label    : "2 （預設）",
+                  sublabel : "",
+                  type     : "radio",
+                  checked  : settings.minimumTriggeredStation == "2",
+                  click    : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",2)");
+                  }
+                },
+                {
+                  label   : "3",
+                  type    : "radio",
+                  checked : settings.minimumTriggeredStation == "3",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",3)");
+                  }
+                },
+                {
+                  label   : "4",
+                  type    : "radio",
+                  checked : settings.minimumTriggeredStation == "4",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",4)");
+                  }
+                },
+                {
+                  label   : "5",
+                  type    : "radio",
+                  checked : settings.minimumTriggeredStation == "5",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",5)");
+                  }
+                },
+                {
+                  label   : "6",
+                  type    : "radio",
+                  checked : settings.minimumTriggeredStation == "6",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",6)");
+                  }
+                },
+                {
+                  label   : "7",
+                  type    : "radio",
+                  checked : settings.minimumTriggeredStation == "7",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",7)");
+                  }
+                }
+              ]
+            },
+          ]
         }
       ]
     },

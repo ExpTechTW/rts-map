@@ -182,7 +182,7 @@ const ready = async () => {
   timer.stations = setInterval(fetch_files, 300_000);
 
   let max_id;
-  const chartAlerted = [];
+  let chartAlerted = [];
 
   timer.update = setInterval(() => {
     let max = { id: null, i: -4 };
@@ -222,7 +222,7 @@ const ready = async () => {
           }
 
           if (rts_data[id].alert)
-            alerted.push();
+            alerted.push(id);
         } else {
           if (el.classList.contains("has-data"))
             el.classList.remove("has-data");
@@ -241,14 +241,21 @@ const ready = async () => {
       }
     }
 
-    if (alerted.length) {
-      for (let i = 0, n = alerted.length; i < n; i++)
-        if (!chartAlerted.includes(alerted[i]))
-          chartAlerted.push(alerted[i]);
-      setCharts(chartAlerted);
-    } else {
-      setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064"]);
-    }
+    if (localStorage.getItem("autoSwitchWave") == "true")
+      if (alerted.length >= +localStorage.getItem("minimumTriggeredStation")) {
+        for (let i = 0, n = alerted.length; i < n; i++)
+          if (!chartAlerted.includes(alerted[i]))
+            chartAlerted.push(alerted[i]);
+        setCharts(chartAlerted);
+
+        if (timer.resetWave) timer.resetWave.refresh();
+      } else if (!timer.resetWave) {
+        timer.resetWave = setTimeout(() => {
+          chartAlerted = [];
+          setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064"]);
+          delete timer.resetWave;
+        }, 10_000);
+      }
 
     arealayer.setStyle(localStorage.getItem("area") == "true" ? (feature) => ({
       stroke : area[feature.id] > 0,
@@ -396,8 +403,45 @@ const ready = async () => {
           }
         });
       } else {
-        delete chartuuids[i];
+        chartuuids.splice(i, 1);
         charts[i].clear();
+        charts[i].setOption({
+          title: {
+            textStyle: {
+              fontSize: 10
+            }
+          },
+          xAxis: {
+            type      : "time",
+            splitLine : {
+              show: false
+            },
+            show: false
+          },
+          yAxis: {
+            type      : "value",
+            animation : false,
+            splitLine : {
+              show: false
+            },
+            axisLabel: {
+              interval : 1,
+              fontSize : 10
+            }
+          },
+          grid: {
+            top    : 16,
+            right  : 0,
+            bottom : 0
+          },
+          series: [
+            {
+              type       : "line",
+              showSymbol : false,
+              data       : []
+            }
+          ]
+        });
       }
   };
 
@@ -461,27 +505,22 @@ const ready = async () => {
             ]
           })));
         else
-          chartdata[i].push({
-            name  : now.toString(),
-            value : [
-              now.toISOString(),
-              null
-            ]
-          }, {
-            name  : now.toString(),
-            value : [
-              new Date(+now + 1000).toISOString(),
-              null
-            ]
-          });
+          for (let j = 0; j < (chartuuids[i].startsWith("H") ? 19 : 38); j++)
+            chartdata[i].push({
+              name  : now.toString(),
+              value : [
+                new Date(+now + (j * (1000 / (chartuuids[i].startsWith("H") ? 19 : 38)))).toISOString(),
+                null
+              ]
+            });
 
 
         while (true)
-          if (chartdata[i].length > (chartuuids[i].startsWith("H") ? 1200 : 2280)) {
+          if (chartdata[i].length > (chartuuids[i].startsWith("H") ? 1140 : 2280)) {
             chartdata[i].shift();
-          } else if (chartdata[i].length == (chartuuids[i].startsWith("H") ? 1200 : 2280)) {
+          } else if (chartdata[i].length == (chartuuids[i].startsWith("H") ? 1140 : 2280)) {
             break;
-          } else if (chartdata[i].length != (chartuuids[i].startsWith("H") ? 1200 : 2280)) {
+          } else if (chartdata[i].length != (chartuuids[i].startsWith("H") ? 1140 : 2280)) {
             chartdata[i].shift();
             chartdata[i].unshift({
               name  : new Date(Date.now() - 60_000).toString(),
