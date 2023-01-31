@@ -169,8 +169,14 @@ app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
 
-app.on("second-instance", () => win.show());
+app.on("second-instance", () => {
+  win.show();
+  win.flashFrame(true);
+});
 
 app.on("before-quit", () => {
   tray.destroy();
+  win.destroy();
+  tray = null;
+  win = null;
 });
