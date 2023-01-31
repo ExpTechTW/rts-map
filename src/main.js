@@ -88,7 +88,7 @@ app.whenReady().then(async () => {
               }
             },
             {
-              label   : "最小觸發測站",
+              label   : "最小觸發測站數",
               type    : "submenu",
               submenu : [
                 {
