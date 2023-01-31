@@ -3,6 +3,7 @@ const ready = async () => {
   const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:timers");
   const L = require("leaflet");
   const chroma = require("chroma-js");
+  const echarts = require("echarts");
   const path = require("node:path");
   const os = require("node:os");
 
@@ -166,7 +167,7 @@ const ready = async () => {
           const id = k[i];
 
           if (res[id].Long > 118)
-            s[id.split("-")[2]] = res[id];
+            s[id.split("-")[2]] = { uuid: id, ...res[id] };
         }
 
         data.stations = s;
@@ -181,6 +182,7 @@ const ready = async () => {
   timer.stations = setInterval(fetch_files, 300_000);
 
   let max_id;
+  const chartAlerted = [];
 
   timer.update = setInterval(() => {
     let max = { id: null, i: -4 };
@@ -188,6 +190,7 @@ const ready = async () => {
     let sum = 0;
     let count = 0;
     const area = {};
+    const alerted = [];
 
     if (!rts_data) return;
 
@@ -217,6 +220,9 @@ const ready = async () => {
             if (intensity_float_to_int(rts_data[id].i) > (area[station_data.PGA] ?? 0))
               area[station_data.PGA] = intensity_float_to_int(rts_data[id].i);
           }
+
+          if (rts_data[id].alert)
+            alerted.push();
         } else {
           if (el.classList.contains("has-data"))
             el.classList.remove("has-data");
@@ -233,6 +239,15 @@ const ready = async () => {
           pane         : "stations"
         }).addTo(map);
       }
+    }
+
+    if (alerted.length) {
+      for (let i = 0, n = alerted.length; i < n; i++)
+        if (!chartAlerted.includes(alerted[i]))
+          chartAlerted.push(alerted[i]);
+      setCharts(chartAlerted);
+    } else {
+      setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064"]);
     }
 
     arealayer.setStyle(localStorage.getItem("area") == "true" ? (feature) => ({
@@ -336,6 +351,167 @@ const ready = async () => {
   };
 
   // #endregion
+
+  // #region wave
+
+  const chartuuids = [
+    "H-335-11339620-4",
+    "H-979-11336952-11",
+    "H-711-11334880-12",
+    "H-541-11370676-10",
+    "L-269-11370996-5",
+    "L-648-4832348-9",
+    "L-958-11423064-14"
+  ];
+
+  const charts = [
+    echarts.init(document.getElementById("wave-1")),
+    echarts.init(document.getElementById("wave-2")),
+    echarts.init(document.getElementById("wave-3")),
+    echarts.init(document.getElementById("wave-4")),
+    echarts.init(document.getElementById("wave-5")),
+    echarts.init(document.getElementById("wave-6")),
+    echarts.init(document.getElementById("wave-7"))
+  ];
+
+  const chartdata = [
+    [], [], [], [], [], [], []
+  ];
+
+  /**
+   * @param {string[]} ids
+   */
+  const setCharts
+  = (ids) => {
+    for (let i = 0; i < 7; i++)
+      if (data.stations?.[ids[i]]?.uuid) {
+        if (chartuuids[i] != data.stations[ids[i]].uuid) {
+          chartuuids[i] = data.stations[ids[i]].uuid;
+          chartdata[i] = [];
+        }
+
+        charts[i].setOption({
+          title: {
+            text: `${data.stations[ids[i]].Loc} | ${chartuuids[i]}`,
+          }
+        });
+      } else {
+        delete chartuuids[i];
+        charts[i].clear();
+      }
+  };
+
+  setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064"]);
+
+  {
+    for (const chart of charts)
+      chart.setOption({
+        title: {
+          textStyle: {
+            fontSize: 10
+          }
+        },
+        xAxis: {
+          type      : "time",
+          splitLine : {
+            show: false
+          },
+          show: false
+        },
+        yAxis: {
+          type      : "value",
+          animation : false,
+          splitLine : {
+            show: false
+          },
+          axisLabel: {
+            interval : 1,
+            fontSize : 10
+          }
+        },
+        grid: {
+          top    : 16,
+          right  : 0,
+          bottom : 0
+        },
+        series: [
+          {
+            type       : "line",
+            showSymbol : false,
+            data       : []
+          }
+        ]
+      });
+
+    setInterval(async () => {
+      const jsondata = {};
+
+      for (const uuid of chartuuids)
+        jsondata[uuid] = (await (await fetch(`https://exptech.com.tw/api/v1/trem/original?uuid=${uuid}&type=original-vector`, { method: "GET" }).catch(() => void 0)).json().catch(() => void 0))?.Z;
+
+      const now = new Date(Date.now());
+
+      for (const i in chartuuids) {
+        if (jsondata[chartuuids[i]])
+          chartdata[i].push(...jsondata[chartuuids[i]].map((value, index, array) => ({
+            name  : now.toString(),
+            value : [
+              new Date(+now + (index * (1000 / array.length))).toISOString(),
+              value
+            ]
+          })));
+        else
+          chartdata[i].push({
+            name  : now.toString(),
+            value : [
+              now.toISOString(),
+              null
+            ]
+          }, {
+            name  : now.toString(),
+            value : [
+              new Date(+now + 1000).toISOString(),
+              null
+            ]
+          });
+
+
+        while (true)
+          if (chartdata[i].length > (chartuuids[i].startsWith("H") ? 1200 : 2280)) {
+            chartdata[i].shift();
+          } else if (chartdata[i].length == (chartuuids[i].startsWith("H") ? 1200 : 2280)) {
+            break;
+          } else if (chartdata[i].length != (chartuuids[i].startsWith("H") ? 1200 : 2280)) {
+            chartdata[i].shift();
+            chartdata[i].unshift({
+              name  : new Date(Date.now() - 60_000).toString(),
+              value : [
+                new Date(Date.now() - 60_000).toISOString(),
+                null
+              ]
+            });
+            break;
+          }
+
+        const values = chartdata[i].map(v => v.value[1]);
+        const maxmin = Math.max(Math.abs(Math.max(...values)), Math.abs(Math.min(...values)));
+
+        charts[i].setOption({
+          animation : false,
+          yAxis     : {
+            max : maxmin < (chartuuids[i].startsWith("H") ? 0.5 : 5) ? (chartuuids[i].startsWith("H") ? 0.5 : 5) : maxmin,
+            min : -(maxmin < (chartuuids[i].startsWith("H") ? 0.5 : 5) ? (chartuuids[i].startsWith("H") ? 0.5 : 5) : maxmin)
+          },
+          series: [
+            {
+              data: chartdata[i]
+            }
+          ]
+        });
+      }
+    }, 1000);
+  }
+  // #endregion
 };
 
 document.addEventListener("DOMContentLoaded", ready);
@@ -344,6 +520,7 @@ document.addEventListener("DOMContentLoaded", ready);
 
 /**
 * @typedef {object} Station
+* @property {string} uuid 測站 UUID
 * @property {number} Lat  緯度
 * @property {number} Long 經度
 * @property {number} PGA  area 框框編號

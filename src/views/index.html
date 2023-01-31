@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../node_modules/leaflet/dist/leaflet.css">
   <link rel="stylesheet" href="../stylesheets/style.css">
-  <title>rts-map v0.0.5</title>
+  <title>rts-map v0.0.6</title>
 </head>
 <body>
   <div id="max-int">
@@ -20,22 +20,35 @@
     </div>
   </div>
   <div id="time"></div>
-  <div id="legend">
-    <div id="max-int-marker" class="legend-marker"></div>
-    <div id="avg-int-marker" class="legend-marker hide"></div>
-    <div id="min-int-marker" class="legend-marker hide"></div>
-    <div class="legend-item seven">7</div>
-    <div class="legend-item sixh">6</div>
-    <div class="legend-item sixl">6</div>
-    <div class="legend-item fiveh">5</div>
-    <div class="legend-item fivel">5</div>
-    <div class="legend-item four">4</div>
-    <div class="legend-item three">3</div>
-    <div class="legend-item two">2</div>
-    <div class="legend-item one">1</div>
-    <div class="legend-item zero">0</div>
+  <div class="app-container">
+    <div id="map-container">
+      <div id="legend">
+        <div id="max-int-marker" class="legend-marker"></div>
+        <div id="avg-int-marker" class="legend-marker hide"></div>
+        <div id="min-int-marker" class="legend-marker hide"></div>
+        <div class="legend-item seven">7</div>
+        <div class="legend-item sixh">6</div>
+        <div class="legend-item sixl">6</div>
+        <div class="legend-item fiveh">5</div>
+        <div class="legend-item fivel">5</div>
+        <div class="legend-item four">4</div>
+        <div class="legend-item three">3</div>
+        <div class="legend-item two">2</div>
+        <div class="legend-item one">1</div>
+        <div class="legend-item zero">0</div>
+      </div>
+      <div id="map"></div>
+    </div>
+    <div id="wave-container">
+      <div id="wave-1" style="width: 400px;height:80px;"></div>
+      <div id="wave-2" style="width: 400px;height:80px;"></div>
+      <div id="wave-3" style="width: 400px;height:80px;"></div>
+      <div id="wave-4" style="width: 400px;height:80px;"></div>
+      <div id="wave-5" style="width: 400px;height:80px;"></div>
+      <div id="wave-6" style="width: 400px;height:80px;"></div>
+      <div id="wave-7" style="width: 400px;height:80px;"></div>
+    </div>
   </div>
-  <div id="map"></div>
   <script>
     var DEBUG_FLAG_ALERT_BYPASS = false;
     require("../scripts/renderer.js");

@@ -6,10 +6,11 @@
   },
   "dependencies": {
     "chroma-js": "^2.4.2",
+    "echarts": "^5.4.1",
     "leaflet": "^1.9.3"
   },
   "name": "rts-map",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -35,7 +36,10 @@
     },
     "win": {
       "publish": null,
-      "target": ["nsis", "portable"],
+      "target": [
+        "nsis",
+        "portable"
+      ],
       "icon": "app.ico"
     },
     "linux": {

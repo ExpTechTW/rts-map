@@ -11,7 +11,7 @@ let win;
 
 const createWindow = () => {
   win = new BrowserWindow({
-    width           : 400,
+    width           : 800,
     height          : 560,
     resizable       : false,
     autoHideMenuBar : true,
@@ -42,7 +42,7 @@ app.whenReady().then(async () => {
   tray.on("click", () => win.isVisible() ? win.hide() : win.show());
   const contextMenu = Menu.buildFromTemplate([
     {
-      label   : "rts-map v0.0.5",
+      label   : "rts-map v0.0.6",
       type    : "normal",
       icon    : path.resolve(__dirname, `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}wave.png`),
       enabled : false
