@@ -2,12 +2,7 @@ const { app, BrowserWindow, Tray, Menu, nativeTheme } = require("electron");
 const { dirname } = require("path");
 const path = require("path");
 
-let tray;
-
-/**
- * @type {BrowserWindow}
- */
-let win;
+let tray, win;
 
 const createWindow = () => {
   win = new BrowserWindow({
@@ -25,6 +20,8 @@ const createWindow = () => {
 
   win.loadFile(path.resolve(__dirname, "views", "index.html"));
 };
+
+if (!app.requestSingleInstanceLock()) process.exit(0);
 
 app.whenReady().then(async () => {
   createWindow();
@@ -170,4 +167,10 @@ app.whenReady().then(async () => {
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
+});
+
+app.on("second-instance", () => win.show());
+
+app.on("before-quit", () => {
+  tray.destroy();
 });
