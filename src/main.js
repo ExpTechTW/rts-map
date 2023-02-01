@@ -100,6 +100,8 @@ app.whenReady().then(async () => {
                   checked : settings.displayWaveCount == "4",
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",4)");
+                    app.relaunch();
+                    app.quit();
                   }
                 },
                 {
@@ -109,6 +111,8 @@ app.whenReady().then(async () => {
                   checked  : settings.displayWaveCount == "5",
                   click    : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",5)");
+                    app.relaunch();
+                    app.quit();
                   }
                 },
                 {
@@ -117,6 +121,8 @@ app.whenReady().then(async () => {
                   checked : settings.displayWaveCount == "6",
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",6)");
+                    app.relaunch();
+                    app.quit();
                   }
                 },
                 {
@@ -125,6 +131,8 @@ app.whenReady().then(async () => {
                   checked : settings.displayWaveCount == "7",
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",7)");
+                    app.relaunch();
+                    app.quit();
                   }
                 }
               ]
