@@ -12,7 +12,7 @@ const ready = async () => {
     .scale(["#0500A3", "#00ceff", "#33ff34", "#fdff32", "#ff8532", "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9"])
     .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-  const wave_count = +localStorage.getItem("displayWaveCount") ?? 7;
+  const wave_count = +(localStorage.getItem("displayWaveCount") ?? 6);
 
   const int = [
     { value: "0", scale: "級" },
