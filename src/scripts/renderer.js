@@ -360,6 +360,7 @@ const ready = async () => {
   // #endregion
 
   // #region wave
+  const wave_count = +localStorage.getItem("displayWaveCount") ?? 7;
 
   const chartuuids = [
     "H-335-11339620-4",
@@ -370,14 +371,13 @@ const ready = async () => {
     "L-648-4832348-9"
   ];
 
-  const charts = [
-    echarts.init(document.getElementById("wave-1"), null, { height: 560 / 6, width: 400 }),
-    echarts.init(document.getElementById("wave-2"), null, { height: 560 / 6, width: 400 }),
-    echarts.init(document.getElementById("wave-3"), null, { height: 560 / 6, width: 400 }),
-    echarts.init(document.getElementById("wave-4"), null, { height: 560 / 6, width: 400 }),
-    echarts.init(document.getElementById("wave-5"), null, { height: 560 / 6, width: 400 }),
-    echarts.init(document.getElementById("wave-6"), null, { height: 560 / 6, width: 400 })
-  ];
+  const charts = [];
+
+  for (let i = 0; i < wave_count; i++) {
+    const dom = document.createElement("div");
+    document.getElementById("wave-container").append(dom);
+    charts.push(echarts.init(dom, null, { height: 560 / wave_count, width: 400 }));
+  }
 
   const chartdata = [
     [], [], [], [], [], []
@@ -388,7 +388,7 @@ const ready = async () => {
    */
   const setCharts
   = (ids) => {
-    for (let i = 0; i < 6; i++)
+    for (let i = 0; i < wave_count; i++)
       if (data.stations?.[ids[i]]?.uuid) {
         if (chartuuids[i] != data.stations[ids[i]].uuid) {
           chartuuids[i] = data.stations[ids[i]].uuid;
@@ -443,7 +443,7 @@ const ready = async () => {
       }
   };
 
-  setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348"]);
+  setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064"]);
 
   {
     for (const chart of charts)

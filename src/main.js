@@ -28,7 +28,7 @@ app.whenReady().then(async () => {
 
   let settings = await win.webContents.executeJavaScript("({...localStorage})");
 
-  for (const value of [["muted", false], ["area", true], ["alwaysOnTop", false], ["autoSwitchWave", true], ["minimumTriggeredStation", 2]].filter(v => !Object.keys(settings).includes(v[0])))
+  for (const value of [["muted", false], ["area", true], ["alwaysOnTop", false], ["autoSwitchWave", true], ["displayWaveCount", 7], ["minimumTriggeredStation", 2]].filter(v => !Object.keys(settings).includes(v[0])))
     win.webContents.executeJavaScript(`localStorage.setItem("${value[0]}","${value[1]}")`);
 
   settings = await win.webContents.executeJavaScript("({...localStorage})");
@@ -86,6 +86,45 @@ app.whenReady().then(async () => {
               click   : (item) => {
                 win.webContents.executeJavaScript(`localStorage.setItem("autoSwitchWave",${item.checked})`);
               }
+            },
+            {
+              label   : "顯示測站數量",
+              type    : "submenu",
+              submenu : [
+                {
+                  label   : "4",
+                  type    : "radio",
+                  checked : settings.displayWaveCount == "4",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",4)");
+                  }
+                },
+                {
+                  label    : "5",
+                  sublabel : "",
+                  type     : "radio",
+                  checked  : settings.displayWaveCount == "5",
+                  click    : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",5)");
+                  }
+                },
+                {
+                  label   : "6",
+                  type    : "radio",
+                  checked : settings.displayWaveCount == "6",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",6)");
+                  }
+                },
+                {
+                  label   : "7 （預設）",
+                  type    : "radio",
+                  checked : settings.displayWaveCount == "7",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",7)");
+                  }
+                }
+              ]
             },
             {
               label   : "最小觸發測站數",
