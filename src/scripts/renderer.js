@@ -488,12 +488,12 @@ const ready = async () => {
     setInterval(async () => {
       const jsondata = {};
 
-      for (const uuid of chartuuids)
-        jsondata[uuid] = (await (await fetch(`https://exptech.com.tw/api/v1/trem/original?uuid=${uuid}&type=original-vector`, { method: "GET" }).catch(() => void 0)).json().catch(() => void 0))?.Z;
+      for (let i = 0; i < wave_count; i++)
+        jsondata[chartuuids[i]] = (await (await fetch(`https://exptech.com.tw/api/v1/trem/original?uuid=${chartuuids[i]}&type=original-vector`, { method: "GET" }).catch(() => void 0)).json().catch(() => void 0))?.Z;
 
       const now = new Date(Date.now());
 
-      for (const i in chartuuids) {
+      for (let i = 0; i < wave_count; i++) {
         if (jsondata[chartuuids[i]])
           chartdata[i].push(...jsondata[chartuuids[i]].map((value, index, array) => ({
             name  : now.toString(),

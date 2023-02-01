@@ -31,6 +31,9 @@ app.whenReady().then(async () => {
   for (const value of [["muted", false], ["area", true], ["alwaysOnTop", false], ["autoSwitchWave", true], ["displayWaveCount", 7], ["minimumTriggeredStation", 2]].filter(v => !Object.keys(settings).includes(v[0])))
     win.webContents.executeJavaScript(`localStorage.setItem("${value[0]}","${value[1]}")`);
 
+  if (+settings.displayWaveCount < +settings.minimumTriggeredStation)
+    win.webContents.executeJavaScript(`localStorage.setItem("minimumTriggeredStation","${settings.displayWaveCount}")`);
+
   settings = await win.webContents.executeJavaScript("({...localStorage})");
 
   win.setAlwaysOnTop(settings.alwaysOnTop == "true");
@@ -159,6 +162,7 @@ app.whenReady().then(async () => {
                   label   : "4",
                   type    : "radio",
                   checked : settings.minimumTriggeredStation == "4",
+                  enabled : +settings.displayWaveCount >= 4,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",4)");
                   }
@@ -167,6 +171,7 @@ app.whenReady().then(async () => {
                   label   : "5",
                   type    : "radio",
                   checked : settings.minimumTriggeredStation == "5",
+                  enabled : +settings.displayWaveCount >= 5,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",5)");
                   }
@@ -175,6 +180,7 @@ app.whenReady().then(async () => {
                   label   : "6",
                   type    : "radio",
                   checked : settings.minimumTriggeredStation == "6",
+                  enabled : +settings.displayWaveCount >= 6,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",6)");
                   }
@@ -183,6 +189,7 @@ app.whenReady().then(async () => {
                   label   : "7",
                   type    : "radio",
                   checked : settings.minimumTriggeredStation == "7",
+                  enabled : +settings.displayWaveCount >= 7,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",7)");
                   }
