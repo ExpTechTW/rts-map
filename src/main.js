@@ -28,10 +28,12 @@ app.whenReady().then(async () => {
 
   let settings = await win.webContents.executeJavaScript("({...localStorage})");
 
-  for (const value of [["muted", false], ["area", true], ["alwaysOnTop", false], ["autoSwitchWave", true], ["displayWaveCount", 7], ["minimumTriggeredStation", 2]].filter(v => !Object.keys(settings).includes(v[0])))
+  for (const value of [["muted", false], ["area", true], ["alwaysOnTop", false], ["autoSwitchWave", true], ["displayWaveCount", 6], ["minimumTriggeredStation", 2]].filter(v => !Object.keys(settings).includes(v[0])))
     win.webContents.executeJavaScript(`localStorage.setItem("${value[0]}","${value[1]}")`);
 
-  if (+settings.displayWaveCount < +settings.minimumTriggeredStation)
+  if (settings.displayWaveCount == 0)
+    win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",\"2\")");
+  else if (+settings.displayWaveCount < +settings.minimumTriggeredStation)
     win.webContents.executeJavaScript(`localStorage.setItem("minimumTriggeredStation","${settings.displayWaveCount}")`);
 
   settings = await win.webContents.executeJavaScript("({...localStorage})");
@@ -95,13 +97,58 @@ app.whenReady().then(async () => {
               type    : "submenu",
               submenu : [
                 {
+                  label   : "0 （關閉）",
+                  type    : "radio",
+                  checked : settings.displayWaveCount == "0",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",0)").then(() => {
+                      app.relaunch();
+                      app.quit();
+                    });
+                  }
+                },
+                {
+                  label   : "1",
+                  type    : "radio",
+                  checked : settings.displayWaveCount == "1",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",1)").then(() => {
+                      app.relaunch();
+                      app.quit();
+                    });
+                  }
+                },
+                {
+                  label   : "2",
+                  type    : "radio",
+                  checked : settings.displayWaveCount == "2",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",2)").then(() => {
+                      app.relaunch();
+                      app.quit();
+                    });
+                  }
+                },
+                {
+                  label   : "3",
+                  type    : "radio",
+                  checked : settings.displayWaveCount == "3",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",3)").then(() => {
+                      app.relaunch();
+                      app.quit();
+                    });
+                  }
+                },
+                {
                   label   : "4",
                   type    : "radio",
                   checked : settings.displayWaveCount == "4",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",4)");
-                    app.relaunch();
-                    app.quit();
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",4)").then(() => {
+                      app.relaunch();
+                      app.quit();
+                    });
                   }
                 },
                 {
@@ -110,29 +157,43 @@ app.whenReady().then(async () => {
                   type     : "radio",
                   checked  : settings.displayWaveCount == "5",
                   click    : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",5)");
-                    app.relaunch();
-                    app.quit();
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",5)").then(() => {
+                      app.relaunch();
+                      app.quit();
+                    });
                   }
                 },
                 {
-                  label   : "6",
+                  label   : "6 （預設）",
                   type    : "radio",
                   checked : settings.displayWaveCount == "6",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",6)");
-                    app.relaunch();
-                    app.quit();
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",6)").then(() => {
+                      app.relaunch();
+                      app.quit();
+                    });
                   }
                 },
                 {
-                  label   : "7 （預設）",
+                  label   : "7",
                   type    : "radio",
                   checked : settings.displayWaveCount == "7",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",7)");
-                    app.relaunch();
-                    app.quit();
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",7)").then(() => {
+                      app.relaunch();
+                      app.quit();
+                    });
+                  }
+                },
+                {
+                  label   : "8",
+                  type    : "radio",
+                  checked : settings.displayWaveCount == "8",
+                  click   : () => {
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",8)").then(() => {
+                      app.relaunch();
+                      app.quit();
+                    });
                   }
                 }
               ]
@@ -145,16 +206,17 @@ app.whenReady().then(async () => {
                   label   : "1",
                   type    : "radio",
                   checked : settings.minimumTriggeredStation == "1",
+                  enabled : +settings.displayWaveCount >= 1,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",1)");
                   }
                 },
                 {
-                  label    : "2 （預設）",
-                  sublabel : "",
-                  type     : "radio",
-                  checked  : settings.minimumTriggeredStation == "2",
-                  click    : () => {
+                  label   : "2 （預設）",
+                  type    : "radio",
+                  checked : settings.minimumTriggeredStation == "2",
+                  enabled : +settings.displayWaveCount >= 2,
+                  click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",2)");
                   }
                 },
@@ -162,6 +224,7 @@ app.whenReady().then(async () => {
                   label   : "3",
                   type    : "radio",
                   checked : settings.minimumTriggeredStation == "3",
+                  enabled : +settings.displayWaveCount >= 3,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",3)");
                   }

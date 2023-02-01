@@ -12,6 +12,8 @@ const ready = async () => {
     .scale(["#0500A3", "#00ceff", "#33ff34", "#fdff32", "#ff8532", "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9"])
     .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
+  const wave_count = +localStorage.getItem("displayWaveCount") ?? 7;
+
   const int = [
     { value: "0", scale: "級" },
     { value: "1", scale: "級" },
@@ -78,8 +80,11 @@ const ready = async () => {
 
   map.setView([23.61, 120.65], 7.5);
 
+  if (!wave_count)
+    window.resizeTo(400, 560);
+
   window.addEventListener("resize", () => {
-    window.resizeTo(800, 560);
+    window.resizeTo(wave_count ? 800 : 400, 560);
     map.setView([23.61, 120.65], 7.5);
   });
 
@@ -241,21 +246,22 @@ const ready = async () => {
       }
     }
 
-    if (localStorage.getItem("autoSwitchWave") == "true")
-      if (alerted.length >= +localStorage.getItem("minimumTriggeredStation")) {
-        for (let i = 0, n = alerted.length; i < n; i++)
-          if (!chartAlerted.includes(alerted[i]))
-            chartAlerted.push(alerted[i]);
-        setCharts(chartAlerted);
+    if (wave_count)
+      if (localStorage.getItem("autoSwitchWave") == "true")
+        if (alerted.length >= +localStorage.getItem("minimumTriggeredStation")) {
+          for (let i = 0, n = alerted.length; i < n; i++)
+            if (!chartAlerted.includes(alerted[i]))
+              chartAlerted.push(alerted[i]);
+          setCharts(chartAlerted);
 
-        if (timer.resetWave) timer.resetWave.refresh();
-      } else if (!timer.resetWave) {
-        timer.resetWave = setTimeout(() => {
-          chartAlerted = [];
-          setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064"]);
-          delete timer.resetWave;
-        }, 10_000);
-      }
+          if (timer.resetWave) timer.resetWave.refresh();
+        } else if (!timer.resetWave) {
+          timer.resetWave = setTimeout(() => {
+            chartAlerted = [];
+            setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064", "11336816"]);
+            delete timer.resetWave;
+          }, 10_000);
+        }
 
     arealayer.setStyle(localStorage.getItem("area") == "true" ? (feature) => ({
       stroke : area[feature.id] > 0,
@@ -360,7 +366,6 @@ const ready = async () => {
   // #endregion
 
   // #region wave
-  const wave_count = +localStorage.getItem("displayWaveCount") ?? 7;
 
   const chartuuids = [
     "H-335-11339620-4",
@@ -368,20 +373,19 @@ const ready = async () => {
     "H-711-11334880-12",
     "H-541-11370676-10",
     "L-269-11370996-5",
-    "L-648-4832348-9"
+    "L-648-4832348-9",
+    "L-904-11336816-15"
   ];
 
   const charts = [];
+  const chartdata = [];
 
   for (let i = 0; i < wave_count; i++) {
     const dom = document.createElement("div");
     document.getElementById("wave-container").append(dom);
     charts.push(echarts.init(dom, null, { height: 560 / wave_count, width: 400 }));
+    chartdata.push([]);
   }
-
-  const chartdata = [
-    [], [], [], [], [], []
-  ];
 
   /**
    * @param {string[]} ids
@@ -443,9 +447,9 @@ const ready = async () => {
       }
   };
 
-  setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064"]);
+  if (wave_count) {
+    setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064", "11336816"]);
 
-  {
     for (const chart of charts)
       chart.setOption({
         title: {
@@ -511,7 +515,6 @@ const ready = async () => {
                 null
               ]
             });
-
 
         while (true)
           if (chartdata[i].length > (chartuuids[i].startsWith("H") ? 1140 : 2280)) {
