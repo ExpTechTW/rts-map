@@ -507,21 +507,21 @@ const ready = async () => {
             ]
           })));
         else
-          for (let j = 0; j < (chartuuids[i].startsWith("H") ? 19 : 38); j++)
+          for (let j = 0; j < 18; j++)
             chartdata[i].push({
               name  : now.toString(),
               value : [
-                new Date(+now + (j * (1000 / (chartuuids[i].startsWith("H") ? 19 : 38)))).toISOString(),
+                new Date(+now + (j * (1000 / 18))).toISOString(),
                 null
               ]
             });
 
         while (true)
-          if (chartdata[i].length > (chartuuids[i].startsWith("H") ? 1140 : 2280)) {
+          if (chartdata[i].length > 1080) {
             chartdata[i].shift();
-          } else if (chartdata[i].length == (chartuuids[i].startsWith("H") ? 1140 : 2280)) {
+          } else if (chartdata[i].length == 1080) {
             break;
-          } else if (chartdata[i].length != (chartuuids[i].startsWith("H") ? 1140 : 2280)) {
+          } else if (chartdata[i].length != 1080) {
             chartdata[i].shift();
             chartdata[i].unshift({
               name  : new Date(Date.now() - 60_000).toString(),
