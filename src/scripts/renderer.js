@@ -1,11 +1,21 @@
 /* global DEBUG_FLAG_ALERT_BYPASS: true */
 const ready = async () => {
-  const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:timers");
+  const { setTimeout, setInterval, clearInterval } = require("node:timers");
   const L = require("leaflet");
   const chroma = require("chroma-js");
   const echarts = require("echarts");
   const path = require("node:path");
   const os = require("node:os");
+
+  const chartuuids = [
+    "H-335-11339620-4",
+    "H-979-11336952-11",
+    "H-711-11334880-12",
+    "H-541-11370676-10",
+    "L-269-11370996-5",
+    "L-648-4832348-9",
+    "L-904-11336816-15"
+  ];
 
   const grad_i
   = chroma
@@ -94,7 +104,6 @@ const ready = async () => {
   /**
    * @type {Record<string, StationRTS} 即時資料
    */
-  let rts_data;
 
   const connect = (retryTimeout) => {
     const ws = new WebSocket("wss://exptech.com.tw/api");
@@ -112,46 +121,54 @@ const ready = async () => {
       ws.send(JSON.stringify({
         uuid     : `rts-map/0.0.2 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
         function : "subscriptionService",
-        value    : ["trem-rts-v2"]
+        value    : ["trem-rts-v2", "trem-rts-original-v1"],
+        addition : {
+          "trem-rts-original-v1": chartuuids
+        }
       }));
     });
 
     ws.addEventListener("message", (ev) => {
       const parsed = JSON.parse(ev.data);
 
-      if (parsed.response == "Connection Succeeded")
+      if (parsed.response == "Connection Succeeded") {
         console.debug("WebSocket has connected");
-      else if (parsed.response == "Subscription Succeeded")
+      } else if (parsed.response == "Subscription Succeeded") {
         console.debug("Subscribed to trem-rts-v2");
-      else if (parsed.type == "trem-rts")
-        if (parsed.raw)
-          rts_data = parsed.raw;
+      } else if (parsed.type == "trem-rts") {
+        rts(parsed.raw);
+      } else if (parsed.type == "trem-rts-original") {
+        const wave_raw = {};
+        for (let i = 0; i < parsed.raw.length; i++)
+          wave_raw[parsed.raw[i].uuid] = parsed.raw[i].raw;
+        wave(wave_raw);
+      }
     });
   };
 
   connect(1000);
 
   // #region for debugging: replay
-  /*
-  let rts_replay_time = new Date("2023/01/20 10:56:30").getTime();
 
-  setInterval(async () => {
-    try {
-      const controller = new AbortController();
-      setTimeout(() => {
-        controller.abort();
-      }, 1500);
-      const ans = await fetch(`https://exptech.com.tw/api/v2/trem/rts?time=${rts_replay_time}`, { signal: controller.signal })
-        .catch(() => void 0);
-      rts_replay_time += 1000;
+  // let rts_replay_time = new Date("2023/02/17 09:22:50").getTime();
 
-      if (controller.signal.aborted || ans == undefined) return;
-      rts_data = await ans.json();
-    } catch (err) {
-      // ignore exceptions
-    }
-  }, 1_000);
-  */
+  // setInterval(async () => {
+  //   try {
+  //     const controller = new AbortController();
+  //     setTimeout(() => {
+  //       controller.abort();
+  //     }, 1500);
+  //     const ans = await fetch(`https://exptech.com.tw/api/v2/trem/rts?time=${rts_replay_time}`, { signal: controller.signal })
+  //       .catch(() => void 0);
+  //     rts_replay_time += 1000;
+
+  //     if (controller.signal.aborted || ans == undefined) return;
+  //     rts(await ans.json());
+  //   } catch (err) {
+  //     // ignore exceptions
+  //   }
+  // }, 1_000);
+
   // #endregion
 
   // #endregion
@@ -189,15 +206,13 @@ const ready = async () => {
   let max_id;
   let chartAlerted = [];
 
-  timer.update = setInterval(() => {
+  const rts = (rts_data) => {
     let max = { id: null, i: -4 };
     let min = { id: null, i: 8 };
     let sum = 0;
     let count = 0;
     const area = {};
     const alerted = [];
-
-    if (!rts_data) return;
 
     for (let i = 0, k = Object.keys(data.stations), n = k.length; i < n; i++) {
       const id = k[i];
@@ -222,8 +237,12 @@ const ready = async () => {
             sum += rts_data[id].i;
             count++;
 
-            if (intensity_float_to_int(rts_data[id].i) > (area[station_data.PGA] ?? 0))
-              area[station_data.PGA] = intensity_float_to_int(rts_data[id].i);
+            let _i = intensity_float_to_int(rts_data[id].i);
+
+            if (_i == 0) _i = 1;
+
+            if (_i > (area[station_data.PGA] ?? 0))
+              area[station_data.PGA] = _i;
           }
 
           if (rts_data[id].alert)
@@ -294,7 +313,7 @@ const ready = async () => {
     document.getElementById("avg-int-marker").style.bottom = `${avg < 0 ? 2 * avg : avg < 5 ? 37.1428571428571 * avg : 18.5714285714286 * avg + 92.8571428571427}px`;
 
     if (rts_data || DEBUG_FLAG_ALERT_BYPASS)
-      if ((rts_data.Alert && max.i >= 3) || DEBUG_FLAG_ALERT_BYPASS) {
+      if ((rts_data.Alert && max.i >= 2) || DEBUG_FLAG_ALERT_BYPASS) {
         if (!data.alert_loop)
           data.alert_loop = true;
 
@@ -352,7 +371,7 @@ const ready = async () => {
 
     const time = new Date(rts_data.Time || Date.now());
     document.getElementById("time").innerText = `${time.getFullYear()}/${(time.getMonth() + 1) < 10 ? `0${time.getMonth() + 1}` : time.getMonth() + 1}/${time.getDate() < 10 ? `0${time.getDate()}` : time.getDate()} ${time.getHours() < 10 ? `0${time.getHours()}` : time.getHours()}:${time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes()}:${time.getSeconds() < 10 ? `0${time.getSeconds()}` : time.getSeconds()}`;
-  }, 500);
+  };
 
   const intensity_float_to_int = function(float) {
     return (float < 0) ? 0
@@ -366,16 +385,6 @@ const ready = async () => {
   // #endregion
 
   // #region wave
-
-  const chartuuids = [
-    "H-335-11339620-4",
-    "H-979-11336952-11",
-    "H-711-11334880-12",
-    "H-541-11370676-10",
-    "L-269-11370996-5",
-    "L-648-4832348-9",
-    "L-904-11336816-15"
-  ];
 
   const charts = [];
   const chartdata = [];
@@ -488,54 +497,51 @@ const ready = async () => {
           }
         ]
       });
+  }
 
-    setInterval(async () => {
-      const jsondata = {};
+  const wave = (jsondata) => {
+    const now = new Date(Date.now());
 
-      for (let i = 0; i < wave_count; i++)
-        jsondata[chartuuids[i]] = (await (await fetch(`https://exptech.com.tw/api/v1/trem/original?uuid=${chartuuids[i]}&type=original-vector`, { method: "GET" }).catch(() => void 0)).json().catch(() => void 0))?.Z;
-
-      const now = new Date(Date.now());
-
-      for (let i = 0; i < wave_count; i++) {
-        if (jsondata[chartuuids[i]])
-          chartdata[i].push(...jsondata[chartuuids[i]].map((value, index, array) => ({
+    for (let i = 0; i < wave_count; i++) {
+      if (jsondata[chartuuids[i]])
+        chartdata[i].push(...jsondata[chartuuids[i]].map((value, index, array) => ({
+          name  : now.toString(),
+          value : [
+            new Date(+now + (index * (1000 / array.length))).toISOString(),
+            value
+          ]
+        })));
+      else
+        for (let j = 0; j < 18; j++)
+          chartdata[i].push({
             name  : now.toString(),
             value : [
-              new Date(+now + (index * (1000 / array.length))).toISOString(),
-              value
+              new Date(+now + (j * (1000 / 18))).toISOString(),
+              null
             ]
-          })));
-        else
-          for (let j = 0; j < 18; j++)
-            chartdata[i].push({
-              name  : now.toString(),
-              value : [
-                new Date(+now + (j * (1000 / 18))).toISOString(),
-                null
-              ]
-            });
+          });
 
-        while (true)
-          if (chartdata[i].length > 1080) {
-            chartdata[i].shift();
-          } else if (chartdata[i].length == 1080) {
-            break;
-          } else if (chartdata[i].length != 1080) {
-            chartdata[i].shift();
-            chartdata[i].unshift({
-              name  : new Date(Date.now() - 60_000).toString(),
-              value : [
-                new Date(Date.now() - 60_000).toISOString(),
-                null
-              ]
-            });
-            break;
-          }
+      while (true)
+        if (chartdata[i].length > 1080) {
+          chartdata[i].shift();
+        } else if (chartdata[i].length == 1080) {
+          break;
+        } else if (chartdata[i].length != 1080) {
+          chartdata[i].shift();
+          chartdata[i].unshift({
+            name  : new Date(Date.now() - 60_000).toString(),
+            value : [
+              new Date(Date.now() - 60_000).toISOString(),
+              null
+            ]
+          });
+          break;
+        }
 
-        const values = chartdata[i].map(v => v.value[1]);
-        const maxmin = Math.max(Math.abs(Math.max(...values)), Math.abs(Math.min(...values)));
+      const values = chartdata[i].map(v => v.value[1]);
+      const maxmin = Math.max(Math.abs(Math.max(...values)), Math.abs(Math.min(...values)));
 
+      if (chartuuids[i])
         charts[i].setOption({
           animation : false,
           yAxis     : {
@@ -548,9 +554,8 @@ const ready = async () => {
             }
           ]
         });
-      }
-    }, 1000);
-  }
+    }
+  };
   // #endregion
 };
 
