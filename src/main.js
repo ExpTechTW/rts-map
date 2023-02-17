@@ -14,7 +14,8 @@ const createWindow = () => {
     icon            : path.resolve(__dirname, "app.ico"),
     webPreferences  : {
       contextIsolation : false,
-      nodeIntegration  : true
+      nodeIntegration  : true,
+      backgroundThrottling : false,
     },
   });
 
