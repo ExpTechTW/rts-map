@@ -105,10 +105,13 @@ const ready = async () => {
    * @type {Record<string, StationRTS} 即時資料
    */
 
+  let ws;
+
   const connect = (retryTimeout) => {
-    const ws = new WebSocket("wss://exptech.com.tw/api");
+    ws = new WebSocket("wss://exptech.com.tw/api");
 
     ws.addEventListener("close", () => {
+      ws = null;
       console.debug(`WebSocket closed. Reconnect after ${retryTimeout / 1000}s`);
       setTimeout(connect, retryTimeout, retryTimeout).unref();
     });
@@ -404,11 +407,14 @@ const ready = async () => {
    */
   const setCharts
   = (ids) => {
+    let es_send = false;
+
     for (let i = 0; i < wave_count; i++)
       if (data.stations?.[ids[i]]?.uuid) {
         if (chartuuids[i] != data.stations[ids[i]].uuid) {
           chartuuids[i] = data.stations[ids[i]].uuid;
           chartdata[i] = [];
+          es_send = true;
         }
 
         charts[i].setOption({
@@ -457,6 +463,17 @@ const ready = async () => {
           ]
         });
       }
+
+    if (es_send)
+      ws.send(JSON.stringify({
+        uuid     : `rts-map/0.0.2 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
+        function : "subscriptionService",
+        value    : ["trem-rts-v2", "trem-rts-original-v1"],
+        addition : {
+          "trem-rts-original-v1": chartuuids
+        }
+      }));
+
   };
 
   if (wave_count) {
