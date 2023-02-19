@@ -344,13 +344,16 @@ const ready = async () => {
         if (!timer.alert)
           timer.alert = setInterval(() => {
             if (data.alert_loop) {
-              if (localStorage.getItem("muted") == "false")
+              if (localStorage.getItem("muted") == "false") {
+                data.alert.pause();
+                data.alert.currentTime = 0;
                 data.alert.play();
+              }
             } else {
               clearInterval(timer.alert);
               delete timer.alert;
             }
-          }, 700);
+          }, 1500);
       } else {
         if (data.alert_loop)
           data.alert_loop = false;
