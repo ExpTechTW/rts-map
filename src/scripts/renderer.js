@@ -1,4 +1,4 @@
-/* global DEBUG_FLAG_ALERT_BYPASS: true */
+/* global DEBUG_FLAG_ALERT_BYPASS: true, DEBUG_FLAG_SILLY = false */
 const ready = async () => {
   const { setTimeout, setInterval, clearInterval } = require("node:timers");
   const L = require("leaflet");
@@ -14,7 +14,8 @@ const ready = async () => {
     "H-541-11370676-10",
     "L-269-11370996-5",
     "L-648-4832348-9",
-    "L-904-11336816-15"
+    "L-904-11336816-15",
+    "L-826-11335736-15"
   ];
 
   const grad_i
@@ -110,6 +111,9 @@ const ready = async () => {
   const connect = (retryTimeout) => {
     ws = new WebSocket("wss://exptech.com.tw/api");
 
+    if (DEBUG_FLAG_SILLY)
+      console.debug("[WS_CREATE]", ws);
+
     ws.addEventListener("close", () => {
       ws = null;
       console.debug(`WebSocket closed. Reconnect after ${retryTimeout / 1000}s`);
@@ -121,18 +125,29 @@ const ready = async () => {
     });
 
     ws.addEventListener("open", () => {
-      ws.send(JSON.stringify({
+      if (DEBUG_FLAG_SILLY)
+        console.debug("[WS_OPEN]", ws);
+
+      const message = {
         uuid     : `rts-map/0.0.2 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
         function : "subscriptionService",
         value    : ["trem-rts-v2", "trem-rts-original-v1"],
         addition : {
           "trem-rts-original-v1": chartuuids
         }
-      }));
+      };
+
+      if (DEBUG_FLAG_SILLY)
+        console.debug("[WS_SEND]", message);
+
+      ws.send(JSON.stringify(message));
     });
 
     ws.addEventListener("message", (ev) => {
       const parsed = JSON.parse(ev.data);
+
+      if (DEBUG_FLAG_SILLY)
+        console.debug("[WS_MESSAGE]", parsed);
 
       if (parsed.response == "Connection Succeeded") {
         console.debug("WebSocket has connected");
@@ -176,7 +191,7 @@ const ready = async () => {
 
   // #endregion
 
-  // #region marker
+  // #region rts
   /**
    * @type {Record<string, L.Marker>} 地圖上測站
    */
@@ -184,6 +199,9 @@ const ready = async () => {
 
   const fetch_files = async () => {
     try {
+      if (DEBUG_FLAG_SILLY)
+        console.debug("[FETCH] Trying to fetch https://raw.githubusercontent.com/ExpTechTW/API/master/Json/earthquake/station.json");
+
       const res = await (await fetch("https://raw.githubusercontent.com/ExpTechTW/API/master/Json/earthquake/station.json")).json();
       const s = {};
 
@@ -269,21 +287,22 @@ const ready = async () => {
     }
 
     if (wave_count)
-      if (localStorage.getItem("autoSwitchWave") == "true")
-        if (alerted.length >= +localStorage.getItem("minimumTriggeredStation")) {
-          for (let i = 0, n = alerted.length; i < n; i++)
-            if (!chartAlerted.includes(alerted[i]))
-              chartAlerted.push(alerted[i]);
-          setCharts(chartAlerted);
+      if (alerted.length)
+        if (localStorage.getItem("autoSwitchWave") == "true")
+          if (alerted.length >= +localStorage.getItem("minimumTriggeredStation")) {
+            for (let i = 0, n = alerted.length; i < n; i++)
+              if (!chartAlerted.includes(alerted[i]))
+                chartAlerted.push(alerted[i]);
+            setCharts(chartAlerted);
 
-          if (timer.resetWave) timer.resetWave.refresh();
-        } else if (!timer.resetWave) {
-          timer.resetWave = setTimeout(() => {
-            chartAlerted = [];
-            setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064", "11336816"]);
-            delete timer.resetWave;
-          }, 10_000);
-        }
+            if (timer.resetWave) timer.resetWave.refresh();
+          } else if (!timer.resetWave) {
+            timer.resetWave = setTimeout(() => {
+              chartAlerted = [];
+              setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064", "11336816"]);
+              delete timer.resetWave;
+            }, 15_000);
+          }
 
     arealayer.setStyle(localStorage.getItem("area") == "true" ? (feature) => ({
       stroke : area[feature.id] > 0,
@@ -407,14 +426,17 @@ const ready = async () => {
    */
   const setCharts
   = (ids) => {
-    let es_send = false;
+    if (DEBUG_FLAG_SILLY)
+      console.debug("[CHART] Setting chart to ids...", ids);
+
+    let ws_send = false;
 
     for (let i = 0; i < wave_count; i++)
       if (data.stations?.[ids[i]]?.uuid) {
         if (chartuuids[i] != data.stations[ids[i]].uuid) {
           chartuuids[i] = data.stations[ids[i]].uuid;
           chartdata[i] = [];
-          es_send = true;
+          ws_send = true;
         }
 
         charts[i].setOption({
@@ -464,16 +486,22 @@ const ready = async () => {
         });
       }
 
-    if (es_send)
-      ws.send(JSON.stringify({
-        uuid     : `rts-map/0.0.2 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
-        function : "subscriptionService",
-        value    : ["trem-rts-v2", "trem-rts-original-v1"],
-        addition : {
-          "trem-rts-original-v1": chartuuids
-        }
-      }));
+    if (ws_send)
+      if (ws.readyState == ws.OPEN) {
+        const message = {
+          uuid     : `rts-map/0.0.2 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
+          function : "subscriptionService",
+          value    : ["trem-rts-v2", "trem-rts-original-v1"],
+          addition : {
+            "trem-rts-original-v1": chartuuids
+          }
+        };
 
+        if (DEBUG_FLAG_SILLY)
+          console.debug("[WS_SEND]", message);
+
+        ws.send(JSON.stringify(message));
+      }
   };
 
   if (wave_count) {
