@@ -321,7 +321,7 @@ const ready = async () => {
           document.body.classList.add("alert");
 
         if (document.getElementById("min-int-marker").classList.contains("hide")) {
-          document.getElementById("min-int-marker").classList.remove("hide");
+          document.getElementById("avg-int-marker").classList.remove("hide");
           document.getElementById("min-int-marker").classList.remove("hide");
         }
 
