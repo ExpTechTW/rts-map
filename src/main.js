@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, nativeTheme } = require("electron");
+const { app, BrowserWindow, Tray, Menu, nativeTheme, dialog } = require("electron");
 const { dirname } = require("path");
 const path = require("path");
 
@@ -13,8 +13,8 @@ const createWindow = () => {
     frame           : false,
     icon            : path.resolve(__dirname, "app.ico"),
     webPreferences  : {
-      contextIsolation : false,
-      nodeIntegration  : true,
+      contextIsolation     : false,
+      nodeIntegration      : true,
       backgroundThrottling : false,
     },
   });
@@ -50,6 +50,12 @@ app.whenReady().then(async () => {
 
   if (app.isPackaged && process.env.PORTABLE_EXECUTABLE_FILE != undefined)
     relaunchOption.execPath = process.env.PORTABLE_EXECUTABLE_FILE;
+
+  const callback = async () => {
+    await dialog.showMessageBox(win, { title: "需要重新啟動", type: "info", message: "程式將會重新啟動以套用這項設定。" });
+    app.relaunch(relaunchOption);
+    app.quit();
+  };
 
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -110,10 +116,7 @@ app.whenReady().then(async () => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "0",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",0)").then(() => {
-                      app.relaunch(relaunchOption);
-                      app.quit();
-                    });
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",0)").then(callback);
                   }
                 },
                 {
@@ -121,10 +124,7 @@ app.whenReady().then(async () => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "1",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",1)").then(() => {
-                      app.relaunch(relaunchOption);
-                      app.quit();
-                    });
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",1)").then(callback);
                   }
                 },
                 {
@@ -132,10 +132,7 @@ app.whenReady().then(async () => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "2",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",2)").then(() => {
-                      app.relaunch(relaunchOption);
-                      app.quit();
-                    });
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",2)").then(callback);
                   }
                 },
                 {
@@ -143,10 +140,7 @@ app.whenReady().then(async () => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "3",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",3)").then(() => {
-                      app.relaunch(relaunchOption);
-                      app.quit();
-                    });
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",3)").then(callback);
                   }
                 },
                 {
@@ -154,10 +148,7 @@ app.whenReady().then(async () => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "4",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",4)").then(() => {
-                      app.relaunch(relaunchOption);
-                      app.quit();
-                    });
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",4)").then(callback);
                   }
                 },
                 {
@@ -166,10 +157,7 @@ app.whenReady().then(async () => {
                   type     : "radio",
                   checked  : settings.displayWaveCount == "5",
                   click    : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",5)").then(() => {
-                      app.relaunch(relaunchOption);
-                      app.quit();
-                    });
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",5)").then(callback);
                   }
                 },
                 {
@@ -177,10 +165,7 @@ app.whenReady().then(async () => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "6",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",6)").then(() => {
-                      app.relaunch(relaunchOption);
-                      app.quit();
-                    });
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",6)").then(callback);
                   }
                 },
                 {
@@ -188,10 +173,7 @@ app.whenReady().then(async () => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "7",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",7)").then(() => {
-                      app.relaunch(relaunchOption);
-                      app.quit();
-                    });
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",7)").then(callback);
                   }
                 },
                 {
@@ -199,10 +181,7 @@ app.whenReady().then(async () => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "8",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",8)").then(() => {
-                      app.relaunch(relaunchOption);
-                      app.quit();
-                    });
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",8)").then(callback);
                   }
                 }
               ]
