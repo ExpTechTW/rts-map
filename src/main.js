@@ -59,7 +59,7 @@ app.whenReady().then(async () => {
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label   : "rts-map v0.0.8",
+      label   : "rts-map v0.0.10",
       type    : "normal",
       icon    : path.resolve(__dirname, `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}wave.png`),
       enabled : false
