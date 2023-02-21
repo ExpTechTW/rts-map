@@ -268,10 +268,25 @@ const ready = async () => {
 
           if (rts_data[id].alert)
             alerted.push(id);
+
+          if (chartuuids.indexOf(station_data.uuid) != -1 && chartuuids.indexOf(station_data.uuid) < wave_count)
+            charts[chartuuids.indexOf(station_data.uuid)].setOption({
+              backgroundColor: `${grad_i(rts_data[id].i).hex()}15`
+            });
+
         } else {
           if (el.classList.contains("has-data"))
             el.classList.remove("has-data");
           el.style.backgroundColor = "";
+
+          if (chartuuids.indexOf(station_data.uuid) != -1 && chartuuids.indexOf(station_data.uuid) < wave_count)
+            charts[chartuuids.indexOf(station_data.uuid)].setOption({
+              title: {
+                textStyle: {
+                  color: "#333"
+                }
+              },
+            });
         }
       } else {
         markers[id] = L.marker([station_data.Lat, station_data.Long], {
@@ -480,6 +495,7 @@ const ready = async () => {
             {
               type       : "line",
               showSymbol : false,
+              lineStyle  : { color: "#fff" },
               data       : []
             }
           ]
@@ -541,6 +557,7 @@ const ready = async () => {
           {
             type       : "line",
             showSymbol : false,
+            lineStyle  : { color: "#fff" },
             data       : []
           }
         ]
@@ -592,15 +609,21 @@ const ready = async () => {
       if (chartuuids[i])
         charts[i].setOption({
           animation : false,
-          yAxis     : {
+          title     : {
+            textStyle: {
+              color: jsondata[chartuuids[i]] == null ? "#333" : "#aaa"
+            }
+          },
+          yAxis: {
             max : maxmin < (chartuuids[i].startsWith("H") ? 0.5 : 5) ? (chartuuids[i].startsWith("H") ? 0.5 : 5) : maxmin,
             min : -(maxmin < (chartuuids[i].startsWith("H") ? 0.5 : 5) ? (chartuuids[i].startsWith("H") ? 0.5 : 5) : maxmin)
           },
           series: [
             {
-              data: chartdata[i]
+              lineStyle : { color: jsondata[chartuuids[i]] == null ? "#666" : "#fff" },
+              data      : chartdata[i]
             }
-          ]
+          ],
         });
     }
   };
