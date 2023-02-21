@@ -489,7 +489,7 @@ const ready = async () => {
     if (ws_send)
       if (ws.readyState == ws.OPEN) {
         const message = {
-          uuid     : `rts-map/0.0.2 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
+          uuid     : `rts-map/0.0.10 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
           function : "subscriptionService",
           value    : ["trem-rts-v2", "trem-rts-original-v1"],
           addition : {
