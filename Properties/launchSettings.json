@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "rts-map (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "rts-map (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
