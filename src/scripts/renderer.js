@@ -1,11 +1,45 @@
 /* global DEBUG_FLAG_ALERT_BYPASS: true, DEBUG_FLAG_SILLY = false */
 const ready = async () => {
   const { setTimeout, setInterval, clearInterval } = require("node:timers");
+  const { Menu, MenuItem } = require("@electron/remote");
   const L = require("leaflet");
   const chroma = require("chroma-js");
   const echarts = require("echarts");
   const path = require("node:path");
   const os = require("node:os");
+
+  const defaultchartuuids = [
+    "H-335-11339620-4",
+    "H-979-11336952-11",
+    "H-711-11334880-12",
+    "H-541-11370676-10",
+    "L-269-11370996-5",
+    "L-648-4832348-9",
+    "L-904-11336816-15",
+    "L-826-11335736-15"
+  ];
+
+  const runtimedefaultchartuuids = (() => {
+    for (let i = 0; i < 8; i++)
+      if (localStorage.getItem(`chart${i}`) == null)
+        localStorage.setItem(`chart${i}`, defaultchartuuids[i]);
+
+    return {
+      list: [
+        localStorage.getItem("chart0"),
+        localStorage.getItem("chart1"),
+        localStorage.getItem("chart2"),
+        localStorage.getItem("chart3"),
+        localStorage.getItem("chart4"),
+        localStorage.getItem("chart5"),
+        localStorage.getItem("chart6"),
+        localStorage.getItem("chart7"),
+      ],
+      toIds() {
+        return this.list.map(v => v.split("-")[2]);
+      }
+    };
+  })();
 
   const chartuuids = [
     "H-335-11339620-4",
@@ -268,25 +302,10 @@ const ready = async () => {
 
           if (rts_data[id].alert)
             alerted.push(id);
-
-          if (chartuuids.indexOf(station_data.uuid) != -1 && chartuuids.indexOf(station_data.uuid) < wave_count)
-            charts[chartuuids.indexOf(station_data.uuid)].setOption({
-              backgroundColor: `${grad_i(rts_data[id].i).hex()}15`
-            });
-
         } else {
           if (el.classList.contains("has-data"))
             el.classList.remove("has-data");
           el.style.backgroundColor = "";
-
-          if (chartuuids.indexOf(station_data.uuid) != -1 && chartuuids.indexOf(station_data.uuid) < wave_count)
-            charts[chartuuids.indexOf(station_data.uuid)].setOption({
-              title: {
-                textStyle: {
-                  color: "#333"
-                }
-              },
-            });
         }
       } else {
         markers[id] = L.marker([station_data.Lat, station_data.Long], {
@@ -301,8 +320,8 @@ const ready = async () => {
       }
     }
 
-    if (wave_count)
-      if (alerted.length)
+    if (wave_count) {
+      if (alerted.length) {
         if (localStorage.getItem("autoSwitchWave") == "true")
           if (alerted.length >= +localStorage.getItem("minimumTriggeredStation")) {
             for (let i = 0, n = alerted.length; i < n; i++)
@@ -311,13 +330,29 @@ const ready = async () => {
             setCharts(chartAlerted);
 
             if (timer.resetWave) timer.resetWave.refresh();
-          } else if (!timer.resetWave) {
-            timer.resetWave = setTimeout(() => {
-              chartAlerted = [];
-              setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064", "11336816"]);
-              delete timer.resetWave;
-            }, 15_000);
           }
+      } else if (chartAlerted.length && !timer.resetWave) {
+        timer.resetWave = setTimeout(() => {
+          chartAlerted = [];
+          setCharts(runtimedefaultchartuuids.toIds());
+          delete timer.resetWave;
+        }, 15_000);
+      }
+
+      for (let i = 0; i < wave_count; i++)
+        if (chartuuids[i]) {
+          const id = chartuuids[i].split("-")[2];
+
+          if (id in rts_data)
+            charts[i].setOption({
+              backgroundColor: `${grad_i(rts_data[id].i).hex()}15`
+            });
+          else
+            charts[i].setOption({
+              backgroundColor: "transparent"
+            });
+        }
+    }
 
     arealayer.setStyle(localStorage.getItem("area") == "true" ? (feature) => ({
       stroke : area[feature.id] > 0,
@@ -368,9 +403,9 @@ const ready = async () => {
         document.getElementById("loc-town").innerText = data.stations[max.id]?.Loc?.split(" ")?.[1] ?? "";
 
         if (markers.polyline)
-          markers.polyline.setLatLngs([[25.38, 119.62], [data.stations[max.id].Lat, data.stations[max.id].Long]]);
+          markers.polyline.setLatLngs([[25.26, 119.8], [data.stations[max.id].Lat, data.stations[max.id].Long]]);
         else
-          markers.polyline = L.polyline([[25.38, 119.62], [25.38, 119.62]], {
+          markers.polyline = L.polyline([[25.26, 119.8], [25.26, 119.8]], {
             color       : "#ffffff",
             weight      : 4,
             interactive : false,
@@ -434,6 +469,50 @@ const ready = async () => {
     document.getElementById("wave-container").append(dom);
     charts.push(echarts.init(dom, null, { height: 560 / wave_count, width: 400 }));
     chartdata.push([]);
+    dom.addEventListener("contextmenu", () => {
+      const menu = new Menu();
+
+      const stations = {};
+
+      for (let j = 0, k = Object.keys(data.stations), n = k.length; j < n; j++) {
+        const loc = data.stations[k[j]].Loc.split(" ");
+        stations[loc[0]] ??= [];
+        stations[loc[0]].push(data.stations[k[j]]);
+      }
+
+
+      for (let j = 0, k = Object.keys(stations), n = k.length; j < n; j++) {
+        const group = new Menu();
+        let selected;
+
+        for (let l = 0, nl = stations[k[j]].length; l < nl; l++) {
+          if (defaultchartuuids[i] == stations[k[j]][l].uuid)
+            selected = true;
+
+          group.append(new MenuItem({
+            type    : "checkbox",
+            checked : runtimedefaultchartuuids.list[i] == stations[k[j]][l].uuid,
+            label   : `${stations[k[j]][l].Loc} ${stations[k[j]][l].uuid}`,
+            click   : (item) => {
+              localStorage.setItem(`chart${i}`, stations[k[j]][l].uuid);
+              runtimedefaultchartuuids.list[i] = stations[k[j]][l].uuid;
+              setCharts(runtimedefaultchartuuids.toIds());
+            }
+          }));
+        }
+
+        menu.append(new MenuItem({
+          type    : "submenu",
+          label   : `${k[j]} (${stations[k[j]].length})`,
+          submenu : group,
+          ...(selected ? {
+            icon: path.resolve(__dirname, `../resources/images/${window.matchMedia("(prefers-color-scheme: dark)").matches ? "" : "dark/"}check.png`),
+          } : {})
+        }));
+      }
+
+      menu.popup();
+    });
   }
 
   /**
@@ -465,7 +544,8 @@ const ready = async () => {
         charts[i].setOption({
           title: {
             textStyle: {
-              fontSize: 10
+              fontSize   : 10,
+              fontFamily : "Consolas"
             }
           },
           xAxis: {
@@ -502,32 +582,36 @@ const ready = async () => {
         });
       }
 
-    if (ws_send)
-      if (ws.readyState == ws.OPEN) {
-        const message = {
-          uuid     : `rts-map/0.0.10 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
-          function : "subscriptionService",
-          value    : ["trem-rts-v2", "trem-rts-original-v1"],
-          addition : {
-            "trem-rts-original-v1": chartuuids
-          }
-        };
+    if (ws_send) {
+      const message = {
+        uuid     : `rts-map/0.0.10 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
+        function : "subscriptionService",
+        value    : ["trem-rts-v2", "trem-rts-original-v1"],
+        addition : {
+          "trem-rts-original-v1": chartuuids
+        }
+      };
 
+      if (ws.readyState == ws.OPEN) {
         if (DEBUG_FLAG_SILLY)
           console.debug("[WS_SEND]", message);
 
         ws.send(JSON.stringify(message));
+      } else if (DEBUG_FLAG_SILLY) {
+        console.debug("[WS_SEND] Tried to send, but ws is closed.", message);
       }
+    }
   };
 
   if (wave_count) {
-    setCharts(["11339620", "11336952", "11334880", "11370676", "11370996", "4832348", "11423064", "11336816"]);
+    setCharts(runtimedefaultchartuuids.toIds());
 
     for (const chart of charts)
       chart.setOption({
         title: {
           textStyle: {
-            fontSize: 10
+            fontSize   : 10,
+            fontFamily : "Consolas"
           }
         },
         xAxis: {
@@ -549,9 +633,9 @@ const ready = async () => {
           }
         },
         grid: {
-          top    : 16,
+          top    : 22,
           right  : 0,
-          bottom : 0
+          bottom : 6
         },
         series: [
           {
@@ -568,7 +652,7 @@ const ready = async () => {
     const now = new Date(Date.now());
 
     for (let i = 0; i < wave_count; i++) {
-      if (jsondata[chartuuids[i]])
+      if (jsondata[chartuuids[i]]) {
         chartdata[i].push(...jsondata[chartuuids[i]].map((value, index, array) => ({
           name  : now.toString(),
           value : [
@@ -576,7 +660,15 @@ const ready = async () => {
             value
           ]
         })));
-      else
+
+        charts[i].setOption({
+          title: {
+            textStyle: {
+              color: "#bbb"
+            }
+          },
+        });
+      } else {
         for (let j = 0; j < 18; j++)
           chartdata[i].push({
             name  : now.toString(),
@@ -585,6 +677,15 @@ const ready = async () => {
               null
             ]
           });
+
+        charts[i].setOption({
+          title: {
+            textStyle: {
+              color: "#666"
+            }
+          },
+        });
+      }
 
       while (true)
         if (chartdata[i].length > 1080) {
@@ -609,14 +710,9 @@ const ready = async () => {
       if (chartuuids[i])
         charts[i].setOption({
           animation : false,
-          title     : {
-            textStyle: {
-              color: jsondata[chartuuids[i]] == null ? "#333" : "#aaa"
-            }
-          },
-          yAxis: {
-            max : maxmin < (chartuuids[i].startsWith("H") ? 0.5 : 5) ? (chartuuids[i].startsWith("H") ? 0.5 : 5) : maxmin,
-            min : -(maxmin < (chartuuids[i].startsWith("H") ? 0.5 : 5) ? (chartuuids[i].startsWith("H") ? 0.5 : 5) : maxmin)
+          yAxis     : {
+            max : maxmin < (chartuuids[i].startsWith("H") ? 1 : 25) ? (chartuuids[i].startsWith("H") ? 1 : 25) : maxmin,
+            min : -(maxmin < (chartuuids[i].startsWith("H") ? 1 : 25) ? (chartuuids[i].startsWith("H") ? 1 : 25) : maxmin)
           },
           series: [
             {

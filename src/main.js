@@ -1,5 +1,5 @@
 const { app, BrowserWindow, Tray, Menu, nativeTheme, dialog } = require("electron");
-const { dirname } = require("path");
+require("@electron/remote/main").initialize();
 const path = require("path");
 
 let tray, win;
@@ -18,7 +18,7 @@ const createWindow = () => {
       backgroundThrottling : false,
     },
   });
-
+  require("@electron/remote/main").enable(win.webContents);
   win.loadFile(path.resolve(__dirname, "views", "index.html"));
 };
 
