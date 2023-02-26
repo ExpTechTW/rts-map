@@ -137,13 +137,14 @@ const ready = async () => {
 
   // #region websocket
   /**
-   * @type {Record<string, StationRTS} 即時資料
+   * @type {WebSocket}
    */
-
   let ws;
 
   const connect = (retryTimeout) => {
     ws = new WebSocket("wss://exptech.com.tw/api");
+
+    let heartbeat;
 
     if (DEBUG_FLAG_SILLY)
       console.debug("[WS_CREATE]", ws);
@@ -161,6 +162,11 @@ const ready = async () => {
     ws.addEventListener("open", () => {
       if (DEBUG_FLAG_SILLY)
         console.debug("[WS_OPEN]", ws);
+
+      heartbeat = setTimeout(() => {
+        console.warn("Heartbeat check failed. Closing WebSocket...");
+        ws.close();
+      }, 15_000);
 
       const message = {
         uuid     : `rts-map/0.0.2 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
@@ -187,6 +193,8 @@ const ready = async () => {
         console.debug("WebSocket has connected");
       } else if (parsed.response == "Subscription Succeeded") {
         console.debug("Subscribed to trem-rts-v2");
+      } else if (parsed.type == "ntp") {
+        heartbeat.refresh();
       } else if (parsed.type == "trem-rts") {
         rts(parsed.raw);
       } else if (parsed.type == "trem-rts-original") {
