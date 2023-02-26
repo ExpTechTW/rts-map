@@ -126,10 +126,10 @@ const ready = async () => {
   map.setView([23.61, 120.65], 7.5);
 
   if (!wave_count)
-    window.resizeTo(400, 560);
+    window.resizeTo(400, 585);
 
   window.addEventListener("resize", () => {
-    window.resizeTo(wave_count ? 800 : 400, 560);
+    window.resizeTo(wave_count ? 800 : 400, 585);
     map.setView([23.61, 120.65], 7.5);
   });
 
