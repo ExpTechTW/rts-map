@@ -1,5 +1,5 @@
-const { app, BrowserWindow, Tray, Menu, nativeTheme, dialog } = require("electron");
-const { PARAMS, VALUE, MicaBrowserWindow, IS_WINDOWS_11 } = require("mica-electron");
+const { app, Tray, Menu, nativeTheme, dialog } = require("electron");
+const { MicaBrowserWindow, IS_WINDOWS_11 } = require("mica-electron");
 require("@electron/remote/main").initialize();
 const path = require("path");
 
@@ -282,7 +282,7 @@ app.whenReady().then(async () => {
   tray.setContextMenu(contextMenu);
 
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (MicaBrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
