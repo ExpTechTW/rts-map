@@ -3,6 +3,7 @@
 
 <Page
     x:Class="rts_map.Pages.MapPage"
+    NavigationCacheMode="Enabled"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:rts_map.Pages"
