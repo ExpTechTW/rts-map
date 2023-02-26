@@ -1,25 +1,40 @@
 const { app, BrowserWindow, Tray, Menu, nativeTheme, dialog } = require("electron");
+const { PARAMS, VALUE, MicaBrowserWindow, IS_WINDOWS_11 } = require("mica-electron");
 require("@electron/remote/main").initialize();
 const path = require("path");
 
 let tray, win;
 
 const createWindow = () => {
-  win = new BrowserWindow({
+  win = new MicaBrowserWindow({
     width           : 800,
     height          : 560,
     resizable       : false,
     autoHideMenuBar : true,
     frame           : false,
     icon            : path.resolve(__dirname, "app.ico"),
+    show            : false,
     webPreferences  : {
       contextIsolation     : false,
       nodeIntegration      : true,
       backgroundThrottling : false,
     },
   });
+
   require("@electron/remote/main").enable(win.webContents);
+
+  win.setAutoTheme();
+
+  if (IS_WINDOWS_11)
+    win.setMicaEffect();
+  else
+    win.setAcrylic();
+
   win.loadFile(path.resolve(__dirname, "views", "index.html"));
+
+  win.webContents.once("dom-ready", () => {
+    win.show();
+  });
 };
 
 if (!app.requestSingleInstanceLock()) process.exit(0);
@@ -265,6 +280,7 @@ app.whenReady().then(async () => {
     { label: "離開", type: "normal", icon: path.resolve(__dirname, `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}closeTemplate.png`), role: "quit" }
   ]);
   tray.setContextMenu(contextMenu);
+
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });

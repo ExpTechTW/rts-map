@@ -104,8 +104,8 @@ const ready = async () => {
     style: {
       color     : "#d0bcff",
       weight    : 1,
-      opacity   : 0.2,
-      fillColor : "#49454f"
+      opacity   : 0.4,
+      fillColor : "#D0BCFF"
     }
   }).addTo(map);
 
