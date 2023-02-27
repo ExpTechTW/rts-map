@@ -10,6 +10,7 @@ const createWindow = () => {
     width           : 800,
     height          : 560,
     resizable       : false,
+    fullscreenable  : false,
     autoHideMenuBar : true,
     frame           : false,
     icon            : path.resolve(__dirname, "app.ico"),
