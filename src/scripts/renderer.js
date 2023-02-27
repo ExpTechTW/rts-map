@@ -7,6 +7,7 @@ const ready = async () => {
   const echarts = require("echarts");
   const path = require("node:path");
   const os = require("node:os");
+  let isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
   const defaultchartuuids = [
     "H-335-11339620-4",
@@ -102,10 +103,10 @@ const ready = async () => {
 
   const base = L.geoJSON(data.map, {
     style: {
-      color     : "#d0bcff",
+      color     : isDark ? "#d0bcff" : "#6750A4",
       weight    : 1,
       opacity   : 0.4,
-      fillColor : "#D0BCFF"
+      fillColor : isDark ? "#d0bcff" : "#6750A4"
     }
   }).addTo(map);
 
@@ -126,13 +127,31 @@ const ready = async () => {
   map.setView([23.61, 120.65], 7.5);
 
   if (!wave_count)
-    window.resizeTo(400, 585);
+    window.resizeTo(400, 560);
 
   window.addEventListener("resize", () => {
-    window.resizeTo(wave_count ? 800 : 400, 585);
+    window.resizeTo(wave_count ? 800 : 400, 560);
     map.setView([23.61, 120.65], 7.5);
   });
 
+
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", event => {
+    isDark = event.matches;
+    console.debug(`Theme changed to: ${isDark ? "DARK" : "LIGHT"}`);
+
+    base.setStyle({
+      color     : isDark ? "#d0bcff" : "#6750A4",
+      weight    : 1,
+      opacity   : 0.4,
+      fillColor : isDark ? "#d0bcff" : "#6750A4"
+    });
+
+    if (markers.polyline)
+      markers.polyline.setStyle({
+        color  : isDark ? "#fff" : "#000",
+        weight : 4,
+      });
+  });
   // #endregion
 
   // #region websocket
@@ -169,7 +188,7 @@ const ready = async () => {
       }, 15_000);
 
       const message = {
-        uuid     : `rts-map/0.0.2 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
+        uuid     : `rts-map/0.0.11 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
         function : "subscriptionService",
         value    : ["trem-rts-v2", "trem-rts-original-v1"],
         addition : {
@@ -353,7 +372,7 @@ const ready = async () => {
 
           if (id in rts_data)
             charts[i].setOption({
-              backgroundColor: `${grad_i(rts_data[id].i).hex()}15`
+              backgroundColor: `${grad_i(rts_data[id].i).hex()}20`
             });
           else
             charts[i].setOption({
@@ -414,7 +433,7 @@ const ready = async () => {
           markers.polyline.setLatLngs([[25.26, 119.8], [data.stations[max.id].Lat, data.stations[max.id].Long]]);
         else
           markers.polyline = L.polyline([[25.26, 119.8], [25.26, 119.8]], {
-            color       : "#ffffff",
+            color       : isDark ? "#fff" : "#000",
             weight      : 4,
             interactive : false,
             className   : "max-line",
@@ -474,8 +493,9 @@ const ready = async () => {
 
   for (let i = 0; i < wave_count; i++) {
     const dom = document.createElement("div");
+    dom.className = "chart";
     document.getElementById("wave-container").append(dom);
-    charts.push(echarts.init(dom, null, { height: 560 / wave_count, width: 400 }));
+    charts.push(echarts.init(dom, null, { height: (560 / wave_count) - 9, width: 392 }));
     chartdata.push([]);
     dom.addEventListener("contextmenu", () => {
       const menu = new Menu();
@@ -583,7 +603,7 @@ const ready = async () => {
             {
               type       : "line",
               showSymbol : false,
-              lineStyle  : { color: "#fff" },
+              lineStyle  : { color: isDark ? "#fff" : "#000" },
               data       : []
             }
           ]
@@ -649,7 +669,7 @@ const ready = async () => {
           {
             type       : "line",
             showSymbol : false,
-            lineStyle  : { color: "#fff" },
+            lineStyle  : { color: isDark ? "#fff" : "#000" },
             data       : []
           }
         ]
@@ -672,7 +692,7 @@ const ready = async () => {
         charts[i].setOption({
           title: {
             textStyle: {
-              color: "#bbb"
+              color: isDark ? "#bbb" : "#666"
             }
           },
         });
@@ -689,7 +709,7 @@ const ready = async () => {
         charts[i].setOption({
           title: {
             textStyle: {
-              color: "#666"
+              color: isDark ? "#666" : "#bbb"
             }
           },
         });
@@ -724,7 +744,7 @@ const ready = async () => {
           },
           series: [
             {
-              lineStyle : { color: jsondata[chartuuids[i]] == null ? "#666" : "#fff" },
+              lineStyle : { color: jsondata[chartuuids[i]] == null ? isDark ? "#666" : "#bbb" : isDark ? "#fff" : "#000" },
               data      : chartdata[i]
             }
           ],

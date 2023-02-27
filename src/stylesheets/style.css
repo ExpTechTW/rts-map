@@ -78,6 +78,7 @@ body.alert #map .station-marker.max {
 	align-items: center;
 	border: 4px solid #fff;
 	border-radius: 48px;
+  background-color: #000;
 	overflow: hidden;
   z-index: 100000;
 }
@@ -227,4 +228,46 @@ body.alert #max-int {
 
 .leaflet-stations-pane > canvas{
   z-index: 5000;
+}
+
+.chart {
+  margin: 8px 8px 0 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.chart:last-child {
+  margin-bottom: 8px;
+}
+
+@media (prefers-color-scheme: light) {
+  #time {
+    color: #49454F;
+  }
+
+  #map .station-marker {
+    outline-color: #E7E0EC;
+  }
+  
+  #map .station-marker.has-data {
+    outline-color: #79747E;
+  }
+
+  body.alert #map .station-marker.max {
+    outline-color: #000;
+  }
+
+  #max-int {
+    border-color: #000;
+    background-color: #fff;
+  }
+
+  #max-int .int-container {
+    color: #fff;
+    background-color: #000;
+  }
+
+  #max-int .loc-container {
+    color: #000;
+  }
 }

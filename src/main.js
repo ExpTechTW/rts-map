@@ -8,7 +8,7 @@ let tray, win;
 const createWindow = () => {
   win = new MicaBrowserWindow({
     width           : 800,
-    height          : 585,
+    height          : 560,
     resizable       : false,
     autoHideMenuBar : true,
     frame           : false,
