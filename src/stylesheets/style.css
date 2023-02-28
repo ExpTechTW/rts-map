@@ -23,7 +23,8 @@
 html, body {
   margin: 0px;
   height: 100%;
-  background-color: transparent;
+  color: white;
+  background-color: #1C1B1F;
   overflow: hidden;
   font-family: "Google Sans", "Noto Sans TC", sans-serif;
   font-variant-numeric: tabular-nums;
@@ -231,7 +232,8 @@ body.alert #max-int {
 }
 
 .chart {
-  margin: 8px 8px 0 0;
+  margin: 4px 4px 0 0;
+  padding: 4px 4px 0 0;
   border-radius: 8px;
   overflow: hidden;
 }
@@ -241,6 +243,11 @@ body.alert #max-int {
 }
 
 @media (prefers-color-scheme: light) {
+  html, body {
+    color: #000;
+    background-color: #FFFBFE;
+  }
+
   #time {
     color: #49454F;
   }

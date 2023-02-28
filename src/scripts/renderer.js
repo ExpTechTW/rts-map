@@ -103,10 +103,11 @@ const ready = async () => {
 
   const base = L.geoJSON(data.map, {
     style: {
-      color     : isDark ? "#d0bcff" : "#6750A4",
-      weight    : 1,
-      opacity   : 0.4,
-      fillColor : isDark ? "#d0bcff" : "#6750A4"
+      color       : isDark ? "#d0bcff" : "#6750A4",
+      weight      : 1,
+      opacity     : 0.4,
+      fillColor   : isDark ? "#d0bcff" : "#6750A4",
+      fillOpacity : 0.1
     }
   }).addTo(map);
 
@@ -140,10 +141,11 @@ const ready = async () => {
     console.debug(`Theme changed to: ${isDark ? "DARK" : "LIGHT"}`);
 
     base.setStyle({
-      color     : isDark ? "#d0bcff" : "#6750A4",
-      weight    : 1,
-      opacity   : 0.4,
-      fillColor : isDark ? "#d0bcff" : "#6750A4"
+      color       : isDark ? "#d0bcff" : "#6750A4",
+      weight      : 1,
+      opacity     : 0.4,
+      fillColor   : isDark ? "#d0bcff" : "#6750A4",
+      fillOpacity : 0.1
     });
 
     if (markers.polyline)
@@ -372,7 +374,7 @@ const ready = async () => {
 
           if (id in rts_data)
             charts[i].setOption({
-              backgroundColor: `${grad_i(rts_data[id].i).hex()}20`
+              backgroundColor: `${grad_i(rts_data[id].i).hex()}10`
             });
           else
             charts[i].setOption({
@@ -508,20 +510,21 @@ const ready = async () => {
         stations[loc[0]].push(data.stations[k[j]]);
       }
 
-
       for (let j = 0, k = Object.keys(stations), n = k.length; j < n; j++) {
         const group = new Menu();
         let selected;
 
         for (let l = 0, nl = stations[k[j]].length; l < nl; l++) {
-          if (defaultchartuuids[i] == stations[k[j]][l].uuid)
+          if (runtimedefaultchartuuids.list[i] == stations[k[j]][l].uuid)
             selected = true;
 
           group.append(new MenuItem({
-            type    : "checkbox",
-            checked : runtimedefaultchartuuids.list[i] == stations[k[j]][l].uuid,
-            label   : `${stations[k[j]][l].Loc} ${stations[k[j]][l].uuid}`,
-            click   : (item) => {
+            type     : "checkbox",
+            checked  : runtimedefaultchartuuids.list.includes(stations[k[j]][l].uuid),
+            label    : `${stations[k[j]][l].Loc}　　　`,
+            sublabel : stations[k[j]][l].uuid,
+            enabled  : !(runtimedefaultchartuuids.list.includes(stations[k[j]][l].uuid) && runtimedefaultchartuuids.list[i] != stations[k[j]][l].uuid),
+            click    : (item) => {
               localStorage.setItem(`chart${i}`, stations[k[j]][l].uuid);
               runtimedefaultchartuuids.list[i] = stations[k[j]][l].uuid;
               setCharts(runtimedefaultchartuuids.toIds());
