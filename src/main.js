@@ -1,12 +1,11 @@
-const { app, Tray, Menu, nativeTheme, dialog } = require("electron");
-const { MicaBrowserWindow, IS_WINDOWS_11 } = require("mica-electron");
+const { app, BrowserWindow, Tray, Menu, nativeTheme, dialog } = require("electron");
 require("@electron/remote/main").initialize();
 const path = require("path");
 
 let tray, win;
 
 const createWindow = () => {
-  win = new MicaBrowserWindow({
+  win = new BrowserWindow({
     width           : 800,
     height          : 560,
     resizable       : false,
@@ -23,13 +22,6 @@ const createWindow = () => {
   });
 
   require("@electron/remote/main").enable(win.webContents);
-
-  win.setAutoTheme();
-
-  if (IS_WINDOWS_11)
-    win.setMicaEffect();
-  else
-    win.setAcrylic();
 
   win.loadFile(path.resolve(__dirname, "views", "index.html"));
 
@@ -283,7 +275,7 @@ app.whenReady().then(async () => {
   tray.setContextMenu(contextMenu);
 
   app.on("activate", () => {
-    if (MicaBrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
