@@ -119,6 +119,16 @@ const setTrayMenu = (settings) => {
           }
         },
         {
+          label   : "背景節流",
+          type    : "checkbox",
+          checked : settings.backgroundThrottling == "true",
+          click   : (item) => {
+            win.webContents.executeJavaScript(`localStorage.setItem("backgroundThrottling","${item.checked}")`);
+            win.webContents.setBackgroundThrottling(item.checked);
+            settings.backgroundThrottling = `${item.checked}`;
+          }
+        },
+        {
           label   : "主題",
           type    : "submenu",
           submenu : [
@@ -388,6 +398,7 @@ app.whenReady().then(async () => {
     ["muted", false],
     ["area", true],
     ["alwaysOnTop", false],
+    ["backgroundThrottling", true],
     ["themeMode", AppThemeMode.System],
     ["chartYScale", ChartYScale.Minimum],
     ["autoSwitchWave", true],
@@ -404,7 +415,7 @@ app.whenReady().then(async () => {
   settings = await win.webContents.executeJavaScript("({...localStorage})");
 
   nativeTheme.themeSource = settings.themeMode;
-
+  win.webContents.setBackgroundThrottling(settings.backgroundThrottling == "true");
   win.setAlwaysOnTop(settings.alwaysOnTop == "true");
 
   tray = new Tray(path.resolve(__dirname, "app.ico"));
