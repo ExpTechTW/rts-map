@@ -2,7 +2,30 @@ const { app, BrowserWindow, Tray, Menu, nativeTheme, dialog } = require("electro
 require("@electron/remote/main").initialize();
 const path = require("path");
 
-let tray, win;
+// #region Enums
+
+/**
+ * Theme Modes
+ * @enum {string} AppThemeMode
+ * @readonly
+ */
+const AppThemeMode = Object.freeze({
+  Light  : "light",
+  Dark   : "dark",
+  System : "system"
+});
+
+// #endregion
+
+/**
+ * @type {Tray}
+ * */
+let tray;
+
+/**
+ * @type {BrowserWindow}
+ * */
+let win;
 
 const createWindow = () => {
   win = new BrowserWindow({
@@ -30,28 +53,7 @@ const createWindow = () => {
   });
 };
 
-if (!app.requestSingleInstanceLock()) process.exit(0);
-
-app.whenReady().then(async () => {
-  createWindow();
-
-  let settings = await win.webContents.executeJavaScript("({...localStorage})");
-
-  for (const value of [["muted", false], ["area", true], ["alwaysOnTop", false], ["autoSwitchWave", true], ["displayWaveCount", 6], ["minimumTriggeredStation", 2]].filter(v => !Object.keys(settings).includes(v[0])))
-    win.webContents.executeJavaScript(`localStorage.setItem("${value[0]}","${value[1]}")`);
-
-  if (settings.displayWaveCount == 0)
-    win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",\"2\")");
-  else if (+settings.displayWaveCount < +settings.minimumTriggeredStation)
-    win.webContents.executeJavaScript(`localStorage.setItem("minimumTriggeredStation","${settings.displayWaveCount}")`);
-
-  settings = await win.webContents.executeJavaScript("({...localStorage})");
-
-  win.setAlwaysOnTop(settings.alwaysOnTop == "true");
-
-  tray = new Tray(path.resolve(__dirname, "app.ico"));
-  tray.on("click", () => win.isVisible() ? win.hide() : win.show());
-
+const setTrayMenu = (settings) => {
   const relaunchOption = {};
   relaunchOption.args = process.argv.slice(1).concat(["--relaunch"]);
   relaunchOption.execPath = process.execPath;
@@ -67,7 +69,7 @@ app.whenReady().then(async () => {
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label   : "rts-map v0.0.10",
+      label   : `rts-map v${app.getVersion()}`,
       type    : "normal",
       icon    : path.resolve(__dirname, `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}wave.png`),
       enabled : false
@@ -83,6 +85,7 @@ app.whenReady().then(async () => {
           checked : settings.muted == "true",
           click   : (item) => {
             win.webContents.executeJavaScript(`localStorage.setItem("muted",${item.checked})`);
+            settings.muted = `${item.checked}`;
           }
         },
         {
@@ -91,6 +94,7 @@ app.whenReady().then(async () => {
           checked : settings.area == "true",
           click   : (item) => {
             win.webContents.executeJavaScript(`localStorage.setItem("area",${item.checked})`);
+            settings.area = `${item.checked}`;
           }
         },
         {
@@ -98,9 +102,46 @@ app.whenReady().then(async () => {
           type    : "checkbox",
           checked : settings.alwaysOnTop == "true",
           click   : (item) => {
-            win.webContents.executeJavaScript(`localStorage.setItem("alwaysOnTop",${item.checked})`);
+            win.webContents.executeJavaScript(`localStorage.setItem("alwaysOnTop","${item.checked}")`);
             win.setAlwaysOnTop(item.checked);
+            settings.alwaysOnTop = `${item.checked}`;
           }
+        },
+        {
+          label   : "主題",
+          type    : "submenu",
+          submenu : [
+            {
+              label   : "淺色",
+              type    : "radio",
+              checked : settings.themeMode == AppThemeMode.Light,
+              click() {
+                win.webContents.executeJavaScript(`localStorage.setItem("themeMode","${AppThemeMode.Light}")`);
+                nativeTheme.themeSource = AppThemeMode.Light;
+                settings.themeMode = AppThemeMode.Light;
+              }
+            },
+            {
+              label   : "深色",
+              type    : "radio",
+              checked : settings.themeMode == AppThemeMode.Dark,
+              click() {
+                win.webContents.executeJavaScript(`localStorage.setItem("themeMode","${AppThemeMode.Dark}")`);
+                nativeTheme.themeSource = AppThemeMode.Dark;
+                settings.themeMode = AppThemeMode.Dark;
+              }
+            },
+            {
+              label   : "使用系統設定",
+              type    : "radio",
+              checked : settings.themeMode == AppThemeMode.System,
+              click() {
+                win.webContents.executeJavaScript(`localStorage.setItem("themeMode",${AppThemeMode.System})`);
+                nativeTheme.themeSource = AppThemeMode.System;
+                settings.themeMode = AppThemeMode.System;
+              }
+            }
+          ]
         },
         { type: "separator" },
         {
@@ -113,6 +154,7 @@ app.whenReady().then(async () => {
               checked : settings.autoSwitchWave == "true",
               click   : (item) => {
                 win.webContents.executeJavaScript(`localStorage.setItem("autoSwitchWave",${item.checked})`);
+                settings.autoSwitchWave = `${item.checked}`;
               }
             },
             {
@@ -125,6 +167,7 @@ app.whenReady().then(async () => {
                   checked : settings.displayWaveCount == "0",
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",0)").then(callback);
+                    settings.displayWaveCount = "0";
                   }
                 },
                 {
@@ -133,6 +176,7 @@ app.whenReady().then(async () => {
                   checked : settings.displayWaveCount == "1",
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",1)").then(callback);
+                    settings.displayWaveCount = "1";
                   }
                 },
                 {
@@ -141,6 +185,7 @@ app.whenReady().then(async () => {
                   checked : settings.displayWaveCount == "2",
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",2)").then(callback);
+                    settings.displayWaveCount = "2";
                   }
                 },
                 {
@@ -149,6 +194,7 @@ app.whenReady().then(async () => {
                   checked : settings.displayWaveCount == "3",
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",3)").then(callback);
+                    settings.displayWaveCount = "3";
                   }
                 },
                 {
@@ -157,6 +203,7 @@ app.whenReady().then(async () => {
                   checked : settings.displayWaveCount == "4",
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",4)").then(callback);
+                    settings.displayWaveCount = "4";
                   }
                 },
                 {
@@ -166,6 +213,7 @@ app.whenReady().then(async () => {
                   checked  : settings.displayWaveCount == "5",
                   click    : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",5)").then(callback);
+                    settings.displayWaveCount = "5";
                   }
                 },
                 {
@@ -174,6 +222,7 @@ app.whenReady().then(async () => {
                   checked : settings.displayWaveCount == "6",
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",6)").then(callback);
+                    settings.displayWaveCount = "6";
                   }
                 },
                 {
@@ -182,6 +231,7 @@ app.whenReady().then(async () => {
                   checked : settings.displayWaveCount == "7",
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",7)").then(callback);
+                    settings.displayWaveCount = "7";
                   }
                 },
                 {
@@ -190,6 +240,7 @@ app.whenReady().then(async () => {
                   checked : settings.displayWaveCount == "8",
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",8)").then(callback);
+                    settings.displayWaveCount = "8";
                   }
                 }
               ]
@@ -205,6 +256,7 @@ app.whenReady().then(async () => {
                   enabled : +settings.displayWaveCount >= 1,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",1)");
+                    settings.minimumTriggeredStation = "1";
                   }
                 },
                 {
@@ -214,6 +266,7 @@ app.whenReady().then(async () => {
                   enabled : +settings.displayWaveCount >= 2,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",2)");
+                    settings.minimumTriggeredStation = "2";
                   }
                 },
                 {
@@ -223,6 +276,7 @@ app.whenReady().then(async () => {
                   enabled : +settings.displayWaveCount >= 3,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",3)");
+                    settings.minimumTriggeredStation = "3";
                   }
                 },
                 {
@@ -232,6 +286,7 @@ app.whenReady().then(async () => {
                   enabled : +settings.displayWaveCount >= 4,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",4)");
+                    settings.minimumTriggeredStation = "4";
                   }
                 },
                 {
@@ -241,6 +296,7 @@ app.whenReady().then(async () => {
                   enabled : +settings.displayWaveCount >= 5,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",5)");
+                    settings.minimumTriggeredStation = "5";
                   }
                 },
                 {
@@ -250,6 +306,7 @@ app.whenReady().then(async () => {
                   enabled : +settings.displayWaveCount >= 6,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",6)");
+                    settings.minimumTriggeredStation = "6";
                   }
                 },
                 {
@@ -259,6 +316,7 @@ app.whenReady().then(async () => {
                   enabled : +settings.displayWaveCount >= 7,
                   click   : () => {
                     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",7)");
+                    settings.minimumTriggeredStation = "7";
                   }
                 }
               ]
@@ -273,6 +331,38 @@ app.whenReady().then(async () => {
     { label: "離開", type: "normal", icon: path.resolve(__dirname, `./resources/images/${nativeTheme.shouldUseDarkColors ? "" : "dark/"}closeTemplate.png`), role: "quit" }
   ]);
   tray.setContextMenu(contextMenu);
+};
+
+if (!app.requestSingleInstanceLock()) process.exit(0);
+
+app.whenReady().then(async () => {
+  createWindow();
+
+  let settings = await win.webContents.executeJavaScript("({...localStorage})");
+
+  for (const value of [
+    ["muted", false], ["area", true], ["alwaysOnTop", false],
+    ["autoSwitchWave", true], ["displayWaveCount", 6], ["minimumTriggeredStation", 2],
+    ["themeMode", AppThemeMode.System]].filter(v => !Object.keys(settings).includes(v[0])))
+    win.webContents.executeJavaScript(`localStorage.setItem("${value[0]}","${value[1]}")`);
+
+  if (settings.displayWaveCount == 0)
+    win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",\"2\")");
+  else if (+settings.displayWaveCount < +settings.minimumTriggeredStation)
+    win.webContents.executeJavaScript(`localStorage.setItem("minimumTriggeredStation","${settings.displayWaveCount}")`);
+
+  settings = await win.webContents.executeJavaScript("({...localStorage})");
+
+  nativeTheme.themeSource = settings.themeMode;
+
+  win.setAlwaysOnTop(settings.alwaysOnTop == "true");
+
+  tray = new Tray(path.resolve(__dirname, "app.ico"));
+  tray.on("click", () => win.isVisible() ? win.hide() : win.show());
+
+  setTrayMenu(settings);
+
+  nativeTheme.on("updated", () => setTrayMenu(settings));
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
