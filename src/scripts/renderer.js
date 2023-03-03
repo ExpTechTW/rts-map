@@ -9,6 +9,8 @@ const ready = async () => {
   const os = require("node:os");
   let isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
+  document.title = `rts-map v${app.getVersion()}`;
+
   const requestUA = `rts-map/${app.getVersion()} (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`;
 
   const defaultchartuuids = [
