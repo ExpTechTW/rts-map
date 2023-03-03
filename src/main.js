@@ -22,8 +22,8 @@ const AppThemeMode = Object.freeze({
  */
 const ChartYScale = Object.freeze({
   Maxmium : "0",
-  Normal  : "400",
-  Minimum : "800"
+  Normal  : "250",
+  Minimum : "1000"
 });
 
 // #endregion
@@ -173,7 +173,7 @@ const setTrayMenu = (settings) => {
               type    : "submenu",
               submenu : [
                 {
-                  label   : "最小",
+                  label   : "最大",
                   type    : "radio",
                   checked : settings.chartYScale == ChartYScale.Maxmium,
                   click() {
@@ -191,7 +191,7 @@ const setTrayMenu = (settings) => {
                   }
                 },
                 {
-                  label   : "最大",
+                  label   : "最小",
                   type    : "radio",
                   checked : settings.chartYScale == ChartYScale.Minimum,
                   click() {
@@ -385,8 +385,14 @@ app.whenReady().then(async () => {
   let settings = await win.webContents.executeJavaScript("({...localStorage})");
 
   for (const value of [
-    ["muted", false], ["area", true], ["alwaysOnTop", false], ["themeMode", AppThemeMode.System],
-    ["chartYScale", ChartYScale.Normal], ["autoSwitchWave", true], ["displayWaveCount", 6], ["minimumTriggeredStation", 2],
+    ["muted", false],
+    ["area", true],
+    ["alwaysOnTop", false],
+    ["themeMode", AppThemeMode.System],
+    ["chartYScale", ChartYScale.Minimum],
+    ["autoSwitchWave", true],
+    ["displayWaveCount", 6],
+    ["minimumTriggeredStation", 2],
   ].filter(v => !Object.keys(settings).includes(v[0])))
     win.webContents.executeJavaScript(`localStorage.setItem("${value[0]}","${value[1]}")`);
 

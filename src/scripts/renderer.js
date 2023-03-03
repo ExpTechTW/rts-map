@@ -744,7 +744,7 @@ const ready = async () => {
         }
 
       const values = chartdata[i].map(v => v.value[1]);
-      let maxmin = Math.max(Math.abs(Math.max(...values)), Math.abs(Math.min(...values)));
+      let maxmin = Math.ceil(Math.max(Math.abs(Math.max(...values)), Math.abs(Math.min(...values))));
 
       const HChartYScale = +localStorage.getItem("chartYScale");
       const LChartYScale = HChartYScale * 25;
