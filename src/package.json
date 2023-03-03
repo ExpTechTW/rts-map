@@ -39,10 +39,7 @@
     },
     "win": {
       "publish": null,
-      "target": [
-        "nsis",
-        "portable"
-      ],
+      "target": "portable",
       "icon": "app.ico"
     },
     "linux": {
