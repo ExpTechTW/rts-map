@@ -157,7 +157,7 @@ const setTrayMenu = (settings) => {
               type    : "radio",
               checked : settings.themeMode == AppThemeMode.System,
               click() {
-                win.webContents.executeJavaScript(`localStorage.setItem("themeMode",${AppThemeMode.System})`);
+                win.webContents.executeJavaScript(`localStorage.setItem("themeMode","${AppThemeMode.System}")`);
                 nativeTheme.themeSource = AppThemeMode.System;
                 settings.themeMode = AppThemeMode.System;
               }
