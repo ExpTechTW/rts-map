@@ -1,13 +1,15 @@
 /* global DEBUG_FLAG_ALERT_BYPASS: true, DEBUG_FLAG_SILLY = false */
 const ready = async () => {
   const { setTimeout, setInterval, clearInterval } = require("node:timers");
-  const { Menu, MenuItem } = require("@electron/remote");
+  const { app, Menu, MenuItem } = require("@electron/remote");
   const L = require("leaflet");
   const chroma = require("chroma-js");
   const echarts = require("echarts");
   const path = require("node:path");
   const os = require("node:os");
   let isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  const requestUA = `rts-map/${app.getVersion()} (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`;
 
   const defaultchartuuids = [
     "H-335-11339620-4",
@@ -190,7 +192,7 @@ const ready = async () => {
       }, 15_000);
 
       const message = {
-        uuid     : `rts-map/0.0.11 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
+        uuid     : requestUA,
         function : "subscriptionService",
         value    : ["trem-rts-v2", "trem-rts-original-v1"],
         addition : {
@@ -615,7 +617,7 @@ const ready = async () => {
 
     if (ws_send) {
       const message = {
-        uuid     : `rts-map/0.0.10 (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`,
+        uuid     : requestUA,
         function : "subscriptionService",
         value    : ["trem-rts-v2", "trem-rts-original-v1"],
         addition : {
