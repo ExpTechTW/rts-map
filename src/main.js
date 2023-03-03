@@ -5,7 +5,7 @@ const path = require("path");
 // #region Enums
 
 /**
- * Theme Modes
+ * Theme Modess
  * @enum {string} AppThemeMode
  * @readonly
  */
@@ -13,6 +13,17 @@ const AppThemeMode = Object.freeze({
   Light  : "light",
   Dark   : "dark",
   System : "system"
+});
+
+/**
+ * Chart Y-Axis Scaling
+ * @enum {string} ChartScale
+ * @readonly
+ */
+const ChartYScale = Object.freeze({
+  Maxmium : "0",
+  Normal  : "400",
+  Minimum : "800"
 });
 
 // #endregion
@@ -156,6 +167,39 @@ const setTrayMenu = (settings) => {
                 win.webContents.executeJavaScript(`localStorage.setItem("autoSwitchWave",${item.checked})`);
                 settings.autoSwitchWave = `${item.checked}`;
               }
+            },
+            {
+              label   : "Y 軸縮放",
+              type    : "submenu",
+              submenu : [
+                {
+                  label   : "最小",
+                  type    : "radio",
+                  checked : settings.chartYScale == ChartYScale.Maxmium,
+                  click() {
+                    win.webContents.executeJavaScript(`localStorage.setItem("chartYScale","${ChartYScale.Maxmium}")`);
+                    settings.chartScale = ChartYScale.Maxmium;
+                  }
+                },
+                {
+                  label   : "一搬",
+                  type    : "radio",
+                  checked : settings.chartYScale == ChartYScale.Normal,
+                  click() {
+                    win.webContents.executeJavaScript(`localStorage.setItem("chartYScale","${ChartYScale.Normal}")`);
+                    settings.chartScale = ChartYScale.Normal;
+                  }
+                },
+                {
+                  label   : "最大",
+                  type    : "radio",
+                  checked : settings.chartYScale == ChartYScale.Minimum,
+                  click() {
+                    win.webContents.executeJavaScript(`localStorage.setItem("chartYScale","${ChartYScale.Minimum}")`);
+                    settings.chartScale = ChartYScale.Minimum;
+                  }
+                }
+              ]
             },
             {
               label   : "顯示測站數量",
@@ -341,9 +385,9 @@ app.whenReady().then(async () => {
   let settings = await win.webContents.executeJavaScript("({...localStorage})");
 
   for (const value of [
-    ["muted", false], ["area", true], ["alwaysOnTop", false],
-    ["autoSwitchWave", true], ["displayWaveCount", 6], ["minimumTriggeredStation", 2],
-    ["themeMode", AppThemeMode.System]].filter(v => !Object.keys(settings).includes(v[0])))
+    ["muted", false], ["area", true], ["alwaysOnTop", false], ["themeMode", AppThemeMode.System],
+    ["chartYScale", ChartYScale.Normal], ["autoSwitchWave", true], ["displayWaveCount", 6], ["minimumTriggeredStation", 2],
+  ].filter(v => !Object.keys(settings).includes(v[0])))
     win.webContents.executeJavaScript(`localStorage.setItem("${value[0]}","${value[1]}")`);
 
   if (settings.displayWaveCount == 0)

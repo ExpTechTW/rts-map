@@ -596,15 +596,17 @@ const ready = async () => {
             splitLine : {
               show: false
             },
-            axisLabel: {
-              interval : 1,
-              fontSize : 10
+            splitNumber : 3,
+            axisLabel   : {
+              fontSize : 10,
+              inside   : true
             }
           },
           grid: {
-            top    : 16,
+            top    : 24,
             right  : 0,
-            bottom : 0
+            bottom : 8,
+            left   : 0
           },
           series: [
             {
@@ -662,15 +664,17 @@ const ready = async () => {
           splitLine : {
             show: false
           },
-          axisLabel: {
-            interval : 1,
-            fontSize : 10
+          splitNumber : 2,
+          axisLabel   : {
+            fontSize : 10,
+            inside   : true
           }
         },
         grid: {
-          top    : 22,
+          top    : 24,
           right  : 0,
-          bottom : 6
+          bottom : 8,
+          left   : 0
         },
         series: [
           {
@@ -740,14 +744,20 @@ const ready = async () => {
         }
 
       const values = chartdata[i].map(v => v.value[1]);
-      const maxmin = Math.max(Math.abs(Math.max(...values)), Math.abs(Math.min(...values)));
+      let maxmin = Math.max(Math.abs(Math.max(...values)), Math.abs(Math.min(...values)));
+
+      const HChartYScale = +localStorage.getItem("chartYScale");
+      const LChartYScale = HChartYScale * 25;
+
+      if (maxmin < (chartuuids[i].startsWith("H") ? HChartYScale : LChartYScale))
+        maxmin = (chartuuids[i].startsWith("H") ? HChartYScale : LChartYScale);
 
       if (chartuuids[i])
         charts[i].setOption({
           animation : false,
           yAxis     : {
-            max : maxmin < (chartuuids[i].startsWith("H") ? 1 : 25) ? (chartuuids[i].startsWith("H") ? 1 : 25) : maxmin,
-            min : -(maxmin < (chartuuids[i].startsWith("H") ? 1 : 25) ? (chartuuids[i].startsWith("H") ? 1 : 25) : maxmin)
+            max : maxmin,
+            min : -(maxmin)
           },
           series: [
             {
