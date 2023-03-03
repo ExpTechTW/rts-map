@@ -13,7 +13,7 @@
     "mica-electron": "^1.3.0"
   },
   "name": "rts-map",
-  "version": "0.0.10",
+  "version": "0.0.12",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
