@@ -1,7 +1,8 @@
 /* global DEBUG_FLAG_ALERT_BYPASS: true, DEBUG_FLAG_SILLY = false */
 const ready = async () => {
-  const { setTimeout, setInterval, clearInterval } = require("node:timers");
+  const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:timers");
   const { app, Menu, MenuItem } = require("@electron/remote");
+  const { WebSocket } = require("ws");
   const L = require("leaflet");
   const chroma = require("chroma-js");
   const echarts = require("echarts");
@@ -192,7 +193,7 @@ const ready = async () => {
         ws.ping();
         heartbeat = setTimeout(() => {
           console.warn("Heartbeat check failed! Closing WebSocket...");
-          ws.close(0, "Heartbeat check failure");
+          ws.close();
         }, 10_000);
       }, 15_000).unref();
 
@@ -225,8 +226,6 @@ const ready = async () => {
         console.debug("WebSocket has connected");
       } else if (parsed.response == "Subscription Succeeded") {
         console.debug("Subscribed to trem-rts-v2");
-      } else if (parsed.type == "ntp") {
-        heartbeat.refresh();
       } else if (parsed.type == "trem-rts") {
         rts(parsed.raw);
       } else if (parsed.type == "trem-rts-original") {
