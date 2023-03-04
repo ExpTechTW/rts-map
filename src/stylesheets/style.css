@@ -127,8 +127,8 @@ body.alert #max-int {
 
 #legend {
   position: absolute;
-  right: 8px;
-  bottom: 8px;
+  right: 6px;
+  bottom: 6px;
   height: 274px;
   width: 14px;
   background: linear-gradient(360deg, #0500A3 2%, #00ceff 16%, #33ff34 30%, #fdff32 43%, #ff8532 57%, #fc5235 71%, #c03e3c 78%, #9b4544 86%, #9a4c86 93%, #b720e9 100%);
@@ -174,7 +174,7 @@ body.alert #max-int {
 }
 
 .legend-item.zero {
-  bottom: -3.5px;
+  bottom: -2px;
 }
 
 .legend-item.one {
@@ -233,14 +233,13 @@ body.alert #max-int {
 }
 
 .chart {
-  margin: 4px 4px 0 0;
-  padding: 4px 4px 0 0;
+  margin: 6px 4px 0 0;
   border-radius: 8px;
   overflow: hidden;
 }
 
 .chart:last-child {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 @media (prefers-color-scheme: light) {

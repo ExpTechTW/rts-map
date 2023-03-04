@@ -109,7 +109,7 @@ const ready = async () => {
     style: {
       color       : isDark ? "#d0bcff" : "#6750A4",
       weight      : 1,
-      opacity     : 0.4,
+      opacity     : 0.25,
       fillColor   : isDark ? "#d0bcff" : "#6750A4",
       fillOpacity : 0.1
     }
@@ -147,7 +147,7 @@ const ready = async () => {
     base.setStyle({
       color       : isDark ? "#d0bcff" : "#6750A4",
       weight      : 1,
-      opacity     : 0.4,
+      opacity     : 0.25,
       fillColor   : isDark ? "#d0bcff" : "#6750A4",
       fillOpacity : 0.1
     });
@@ -501,7 +501,7 @@ const ready = async () => {
     const dom = document.createElement("div");
     dom.className = "chart";
     document.getElementById("wave-container").append(dom);
-    charts.push(echarts.init(dom, null, { height: (560 / wave_count) - 9, width: 392 }));
+    charts.push(echarts.init(dom, null, { height: (560 / wave_count) - (wave_count + 1), width: 394 }));
     chartdata.push([]);
     dom.addEventListener("contextmenu", () => {
       const menu = new Menu();
@@ -757,7 +757,7 @@ const ready = async () => {
           animation : false,
           yAxis     : {
             max : maxmin,
-            min : -(maxmin)
+            min : -maxmin
           },
           series: [
             {
