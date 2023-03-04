@@ -192,7 +192,7 @@ const setTrayMenu = (settings) => {
                   }
                 },
                 {
-                  label   : "一搬",
+                  label   : "一般",
                   type    : "radio",
                   checked : settings.chartYScale == ChartYScale.Normal,
                   click() {
