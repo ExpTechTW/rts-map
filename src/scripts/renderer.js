@@ -188,10 +188,13 @@ const ready = async () => {
       if (DEBUG_FLAG_SILLY)
         console.debug("[WS_OPEN]", ws);
 
-      heartbeat = setTimeout(() => {
-        console.warn("Heartbeat check failed. Closing WebSocket...");
-        ws.close();
-      }, 15_000);
+      setInterval(() => {
+        ws.ping();
+        heartbeat = setTimeout(() => {
+          console.warn("Heartbeat check failed! Closing WebSocket...");
+          ws.close(0, "Heartbeat check failure");
+        }, 10_000);
+      }, 15_000).unref();
 
       const message = {
         uuid     : requestUA,
@@ -206,6 +209,10 @@ const ready = async () => {
         console.debug("[WS_SEND]", message);
 
       ws.send(JSON.stringify(message));
+    });
+
+    ws.on("pong", () => {
+      clearTimeout(heartbeat);
     });
 
     ws.addEventListener("message", (ev) => {
