@@ -143,7 +143,7 @@ const ready = async () => {
 
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", event => {
     isDark = event.matches;
-    console.debug(`Theme changed to: ${isDark ? "DARK" : "LIGHT"}`);
+    console.debug(`%c[Theme]%c Theme changed to: ${isDark ? "DARK" : "LIGHT"}`, "color: blueviolet", "color:unset");
 
     base.setStyle({
       color       : isDark ? "#d0bcff" : "#6750A4",
@@ -170,32 +170,34 @@ const ready = async () => {
   const connect = (retryTimeout) => {
     ws = new WebSocket("wss://exptech.com.tw/api");
 
-    let heartbeat;
+    let ping, heartbeat;
 
     if (DEBUG_FLAG_SILLY)
-      console.debug("[WS_CREATE]", ws);
+      console.debug("%c[WS_CREATE]", "color: blueviolet", ws);
 
-    ws.addEventListener("close", () => {
+    ws.on("close", () => {
+      console.log(`%c[WS]%c WebSocket closed. Reconnect after ${retryTimeout / 1000}s`, "color: blueviolet", "color:unset");
       ws = null;
-      console.debug(`WebSocket closed. Reconnect after ${retryTimeout / 1000}s`);
-      setTimeout(connect, retryTimeout, retryTimeout).unref();
+      setTimeout(() => connect(retryTimeout), retryTimeout).unref();
     });
 
-    ws.addEventListener("error", (err) => {
+    ws.on("error", (err) => {
       console.error(err);
     });
 
-    ws.addEventListener("open", () => {
+    ws.on("open", () => {
       if (DEBUG_FLAG_SILLY)
-        console.debug("[WS_OPEN]", ws);
+        console.debug("%c[WS_OPEN]", "color: blueviolet", ws);
 
-      setInterval(() => {
+      ping = setInterval(() => {
+        console.debug("%c[WS]%c Sending heartbeat", "color: blueviolet", "color:unset");
         ws.ping();
         heartbeat = setTimeout(() => {
-          console.warn("Heartbeat check failed! Closing WebSocket...");
-          ws.close();
+          console.warn("%c[WS]%c Heartbeat check failed! Closing WebSocket...", "color: blueviolet", "color:unset");
+          clearInterval(ping);
+          ws.terminate();
         }, 10_000);
-      }, 15_000).unref();
+      }, 15_000);
 
       const message = {
         uuid     : requestUA,
@@ -207,25 +209,26 @@ const ready = async () => {
       };
 
       if (DEBUG_FLAG_SILLY)
-        console.debug("[WS_SEND]", message);
+        console.debug("%c[WS_SEND]", "color: blueviolet", message);
 
       ws.send(JSON.stringify(message));
     });
 
     ws.on("pong", () => {
+      console.debug("%c[WS]%c Heartbeat ACK received", "color: blueviolet", "color:unset");
       clearTimeout(heartbeat);
     });
 
-    ws.addEventListener("message", (ev) => {
-      const parsed = JSON.parse(ev.data);
+    ws.on("message", (raw) => {
+      const parsed = JSON.parse(raw);
 
       if (DEBUG_FLAG_SILLY)
-        console.debug("[WS_MESSAGE]", parsed);
+        console.debug("%c[WS_MESSAGE]", "color: blueviolet", parsed);
 
       if (parsed.response == "Connection Succeeded") {
-        console.debug("WebSocket has connected");
+        console.debug("%c[WS]%c WebSocket has connected", "color: blueviolet", "color:unset");
       } else if (parsed.response == "Subscription Succeeded") {
-        console.debug("Subscribed to trem-rts-v2");
+        console.debug("%c[WS]%c Subscribed to trem-rts-v2", "color: blueviolet", "color:unset");
       } else if (parsed.type == "trem-rts") {
         rts(parsed.raw);
       } else if (parsed.type == "trem-rts-original") {
@@ -237,7 +240,7 @@ const ready = async () => {
     });
   };
 
-  connect(1000);
+  connect(5000);
 
   // #region for debugging: replay
 
@@ -273,7 +276,7 @@ const ready = async () => {
   const fetch_files = async () => {
     try {
       if (DEBUG_FLAG_SILLY)
-        console.debug("[FETCH] Trying to fetch https://raw.githubusercontent.com/ExpTechTW/API/master/Json/earthquake/station.json");
+        console.debug("%c[FETCH]%c Fetching https://raw.githubusercontent.com/ExpTechTW/API/master/Json/earthquake/station.json", "color: blueviolet", "color:unset");
 
       const res = await (await fetch("https://raw.githubusercontent.com/ExpTechTW/API/master/Json/earthquake/station.json")).json();
       const s = {};
@@ -289,7 +292,7 @@ const ready = async () => {
         data.stations = s;
       }
     } catch (error) {
-      console.warn("Failed to load station data!", error);
+      console.warn("%c[FETCH]%c Failed to load station data!", "color: blueviolet", "color:unset", error);
     }
   };
 
@@ -562,7 +565,7 @@ const ready = async () => {
   const setCharts
   = (ids) => {
     if (DEBUG_FLAG_SILLY)
-      console.debug("[CHART] Setting chart to ids...", ids);
+      console.debug("%c[CHART]%c Setting chart to ids...", "color: blueviolet", "color:unset", ids);
 
     let ws_send = false;
 
@@ -637,11 +640,11 @@ const ready = async () => {
 
       if (ws.readyState == ws.OPEN) {
         if (DEBUG_FLAG_SILLY)
-          console.debug("[WS_SEND]", message);
+          console.debug("%c[WS_SEND]", "color: blueviolet", message);
 
         ws.send(JSON.stringify(message));
       } else if (DEBUG_FLAG_SILLY) {
-        console.debug("[WS_SEND] Tried to send, but ws is closed.", message);
+        console.debug("%c[WS_SEND]%c Tried to send, but ws is closed.", "color: blueviolet", "color:unset", message);
       }
     }
   };
