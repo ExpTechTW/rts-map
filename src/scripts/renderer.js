@@ -1,7 +1,7 @@
 /* global DEBUG_FLAG_ALERT_BYPASS: true, DEBUG_FLAG_SILLY = false */
 const ready = async () => {
   const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:timers");
-  const { app, Menu, MenuItem } = require("@electron/remote");
+  const { app, Menu, MenuItem, BrowserWindow } = require("@electron/remote");
   const { WebSocket } = require("ws");
   const L = require("leaflet");
   const chroma = require("chroma-js");
@@ -103,6 +103,37 @@ const ready = async () => {
     attributionControl : false,
     zoomSnap           : 0.01
   });
+
+  const bgPath = localStorage.getItem("backgroundPath");
+
+  if (bgPath) {
+    console.log(bgPath);
+    document.body.style.backgroundImage = `url(file://${bgPath})`;
+    document.body.style.backgroundSize = `${window.screen.width}px ${window.screen.height}px`;
+
+    const moveBackground = () => {
+      document.body.style.backgroundPosition = `${-window.screenX}px ${-window.screenY}px`;
+    };
+
+    const move = setInterval(moveBackground);
+
+    const blur = () => {
+      document.body.classList.add("blur");
+    };
+
+    const rmblur = () => {
+      document.body.classList.remove("blur");
+    };
+
+    window.addEventListener("focus", rmblur);
+    window.addEventListener("blur", blur);
+
+    window.addEventListener("beforeunload", () => {
+      window.removeEventListener("focus", rmblur);
+      window.removeEventListener("blur", blur);
+      clearInterval(move);
+    });
+  }
 
   // #region map layer
 

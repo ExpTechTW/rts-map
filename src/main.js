@@ -72,7 +72,7 @@ const setTrayMenu = (settings) => {
   if (app.isPackaged && process.env.PORTABLE_EXECUTABLE_FILE != undefined)
     relaunchOption.execPath = process.env.PORTABLE_EXECUTABLE_FILE;
 
-  const callback = async () => {
+  const relaunch = async () => {
     await dialog.showMessageBox(win, { title: "需要重新啟動", type: "info", message: "程式將會重新啟動以套用這項設定。" });
     app.relaunch(relaunchOption);
     app.quit();
@@ -161,7 +161,34 @@ const setTrayMenu = (settings) => {
                 nativeTheme.themeSource = AppThemeMode.System;
                 settings.themeMode = AppThemeMode.System;
               }
-            }
+            },
+            { type: "separator" },
+            {
+              label   : "Win11 視窗效果",
+              type    : "checkbox",
+              checked : settings.backgroundPath != null,
+              click   : () => {
+                if (settings.backgroundPath == null) {
+                  dialog.showOpenDialog(win, {
+                    title   : "請選擇背景圖片",
+                    filters : [
+                      { name: "圖片", extensions: ["jpg", "jpeg", "png", "webp", "gif"] }
+                    ]
+                  }).then((result) => {
+                    if (!result.canceled)
+                      if (result.filePaths.length) {
+                        settings.backgroundPath = result.filePaths[0].replace(/\\/g, "/");
+                        win.webContents.executeJavaScript(`localStorage.setItem("backgroundPath","${result.filePaths[0].replace(/\\/g, "/")}")`).then(relaunch);
+                      }
+
+                    setTrayMenu(settings);
+                  });
+                } else {
+                  delete settings.backgroundPath;
+                  win.webContents.executeJavaScript("localStorage.removeItem(\"backgroundPath\")").then(relaunch);
+                }
+              }
+            },
           ]
         },
         { type: "separator" },
@@ -220,7 +247,7 @@ const setTrayMenu = (settings) => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "0",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",0)").then(callback);
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",0)").then(relaunch);
                     settings.displayWaveCount = "0";
                   }
                 },
@@ -229,7 +256,7 @@ const setTrayMenu = (settings) => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "1",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",1)").then(callback);
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",1)").then(relaunch);
                     settings.displayWaveCount = "1";
                   }
                 },
@@ -238,7 +265,7 @@ const setTrayMenu = (settings) => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "2",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",2)").then(callback);
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",2)").then(relaunch);
                     settings.displayWaveCount = "2";
                   }
                 },
@@ -247,7 +274,7 @@ const setTrayMenu = (settings) => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "3",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",3)").then(callback);
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",3)").then(relaunch);
                     settings.displayWaveCount = "3";
                   }
                 },
@@ -256,7 +283,7 @@ const setTrayMenu = (settings) => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "4",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",4)").then(callback);
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",4)").then(relaunch);
                     settings.displayWaveCount = "4";
                   }
                 },
@@ -266,7 +293,7 @@ const setTrayMenu = (settings) => {
                   type     : "radio",
                   checked  : settings.displayWaveCount == "5",
                   click    : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",5)").then(callback);
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",5)").then(relaunch);
                     settings.displayWaveCount = "5";
                   }
                 },
@@ -275,7 +302,7 @@ const setTrayMenu = (settings) => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "6",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",6)").then(callback);
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",6)").then(relaunch);
                     settings.displayWaveCount = "6";
                   }
                 },
@@ -284,7 +311,7 @@ const setTrayMenu = (settings) => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "7",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",7)").then(callback);
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",7)").then(relaunch);
                     settings.displayWaveCount = "7";
                   }
                 },
@@ -293,7 +320,7 @@ const setTrayMenu = (settings) => {
                   type    : "radio",
                   checked : settings.displayWaveCount == "8",
                   click   : () => {
-                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",8)").then(callback);
+                    win.webContents.executeJavaScript("localStorage.setItem(\"displayWaveCount\",8)").then(relaunch);
                     settings.displayWaveCount = "8";
                   }
                 }

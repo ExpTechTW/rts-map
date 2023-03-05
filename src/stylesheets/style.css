@@ -30,8 +30,20 @@ html, body {
   font-variant-numeric: tabular-nums;
 }
 
+body {
+  background-position: center;
+  transition: background-position 5ms ease-in-out;
+}
+
 .app-container {
   display: flex;
+  background-color: hsla(226, 10%, 4%, 0.859);
+  backdrop-filter: blur(40px);
+  transition: background-color 400ms ease-in-out;
+}
+
+body.blur .app-container {
+  background-color: hsla(226, 0%, 13%, 1);
 }
 
 #map-container {
@@ -246,6 +258,14 @@ body.alert #max-int {
   html, body {
     color: #000;
     background-color: #FFFBFE;
+  }
+
+  .app-container {
+    background-color: hsla(216, 10%, 100%, 0.859);
+  }
+
+  body.blur .app-container {
+    background-color: hsla(216, 10%, 100%, 1);
   }
 
   #time {
