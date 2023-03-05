@@ -35,14 +35,17 @@ body {
   transition: background-position 5ms ease-in-out;
 }
 
-.app-container {
+#app-container {
   display: flex;
+}
+
+#app-container.has-bg {
   background-color: hsla(226, 10%, 4%, 0.859);
-  backdrop-filter: blur(40px);
+  backdrop-filter: blur(64px);
   transition: background-color 400ms ease-in-out;
 }
 
-body.blur .app-container {
+body.blur #app-container.has-bg {
   background-color: hsla(226, 0%, 13%, 1);
 }
 
@@ -260,11 +263,11 @@ body.alert #max-int {
     background-color: #FFFBFE;
   }
 
-  .app-container {
+  #app-container.has-bg {
     background-color: hsla(216, 10%, 100%, 0.859);
   }
 
-  body.blur .app-container {
+  body.blur #app-container.has-bg {
     background-color: hsla(216, 10%, 100%, 1);
   }
 

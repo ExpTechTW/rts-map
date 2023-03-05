@@ -66,6 +66,7 @@ const createWindow = () => {
 
 const setTrayMenu = (settings) => {
   const relaunchOption = {};
+
   relaunchOption.args = process.argv.slice(1).concat(["--relaunch"]);
   relaunchOption.execPath = process.execPath;
 

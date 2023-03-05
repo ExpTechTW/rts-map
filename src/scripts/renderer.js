@@ -107,9 +107,10 @@ const ready = async () => {
   const bgPath = localStorage.getItem("backgroundPath");
 
   if (bgPath) {
-    console.log(bgPath);
-    document.body.style.backgroundImage = `url(file://${bgPath})`;
+    document.body.style.backgroundImage = `url(file://${bgPath.replace("/", "\\\\")})`;
     document.body.style.backgroundSize = `${window.screen.width}px ${window.screen.height}px`;
+
+    document.getElementById("app-container").classList.add("has-bg");
 
     const moveBackground = () => {
       document.body.style.backgroundPosition = `${-window.screenX}px ${-window.screenY}px`;
