@@ -787,13 +787,14 @@ const ready = async () => {
       const values = chartdata[i].map(v => v.value[1]);
       let maxmin = Math.ceil(Math.max(Math.abs(Math.max(...values)), Math.abs(Math.min(...values))));
 
-      const HChartYScale = +localStorage.getItem("chartYScale");
-      const LChartYScale = HChartYScale * 25;
 
-      if (maxmin < (chartuuids[i].startsWith("H") ? HChartYScale : LChartYScale))
-        maxmin = (chartuuids[i].startsWith("H") ? HChartYScale : LChartYScale);
+      if (chartuuids[i]) {
+        const HChartYScale = +localStorage.getItem("chartYScale");
+        const LChartYScale = HChartYScale * 25;
 
-      if (chartuuids[i])
+        if (maxmin < (chartuuids[i].startsWith("H") ? HChartYScale : LChartYScale))
+          maxmin = (chartuuids[i].startsWith("H") ? HChartYScale : LChartYScale);
+
         charts[i].setOption({
           animation : false,
           yAxis     : {
@@ -807,6 +808,7 @@ const ready = async () => {
             }
           ],
         });
+      }
     }
   };
   // #endregion
