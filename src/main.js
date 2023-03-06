@@ -207,7 +207,7 @@ const setTrayMenu = (settings) => {
               }
             },
             {
-              label   : "Y 軸縮放",
+              label   : "縱軸縮放",
               type    : "submenu",
               submenu : [
                 {
