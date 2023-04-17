@@ -791,7 +791,7 @@ const ready = async () => {
 
       if (chartuuids[i]) {
         const HChartYScale = +localStorage.getItem("chartYScale");
-        const LChartYScale = HChartYScale * 25;
+        const LChartYScale = HChartYScale * 1000;
 
         if (maxmin < (chartuuids[i].startsWith("H") ? HChartYScale : LChartYScale))
           maxmin = (chartuuids[i].startsWith("H") ? HChartYScale : LChartYScale);

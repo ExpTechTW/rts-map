@@ -22,8 +22,8 @@ const AppThemeMode = Object.freeze({
  */
 const ChartYScale = Object.freeze({
   Maxmium : "0",
-  Normal  : "250",
-  Minimum : "1000"
+  Normal  : "5",
+  Minimum : "20"
 });
 
 // #endregion
