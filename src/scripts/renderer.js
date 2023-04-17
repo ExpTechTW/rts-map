@@ -235,6 +235,7 @@ const ready = async () => {
         uuid     : requestUA,
         function : "subscriptionService",
         value    : ["trem-rts-v2", "trem-rts-original-v1"],
+        key      : localStorage.getItem("key") ?? "",
         addition : {
           "trem-rts-original-v1": chartuuids
         }
