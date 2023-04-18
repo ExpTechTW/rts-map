@@ -318,7 +318,7 @@ const ready = async () => {
         for (let i = 0, k = Object.keys(res), n = k.length; i < n; i++) {
           const id = k[i];
 
-          if (res[id].Long > 118)
+          if (res[id].Long > 118 && res[id].Lat < 26.3)
             s[id.split("-")[2]] = { uuid: id, ...res[id] };
         }
 
