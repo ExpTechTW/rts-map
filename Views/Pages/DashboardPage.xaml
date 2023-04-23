@@ -1,0 +1,73 @@
+﻿<ui:UiPage x:Class="rts_map.Views.Pages.DashboardPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:rts_map.Views.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+    xmlns:mapsui="clr-namespace:Mapsui.UI.Wpf;assembly=Mapsui.UI.Wpf"
+    Title="DashboardPage"
+    d:DataContext="{d:DesignInstance local:DashboardPage, IsDesignTimeCreatable=False}"
+    d:DesignHeight="560"
+    d:DesignWidth="800"
+    d:Background="{DynamicResource ApplicationBackgroundBrush}"
+    Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+    mc:Ignorable="d">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MinWidth="400" Width="2*"/>
+            <ColumnDefinition MinWidth="400" Width="3*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Name="textblock" Grid.Column="1"></TextBlock>
+        <mapsui:MapControl Name="map"
+                           Grid.Column="0" />
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <lvc:CartesianChart Name="chart0" Grid.Row="0"
+                                Series="{Binding ViewModel.SeriesCollections[0]}"
+                                XAxes="{Binding ViewModel.XAxes}"
+                                YAxes="{Binding ViewModel.YAxes[0]}"
+                                TooltipPosition="Hidden"
+                                EasingFunction="{x:Null}" />
+            <lvc:CartesianChart Name="chart1" Grid.Row="1"
+                                Series="{Binding ViewModel.SeriesCollections[1]}"
+                                XAxes="{Binding ViewModel.XAxes}"
+                                YAxes="{Binding ViewModel.YAxes[1]}"
+                                TooltipPosition="Hidden"
+                                EasingFunction="{x:Null}"  />
+            <lvc:CartesianChart Name="chart2" Grid.Row="2"
+                                Series="{Binding ViewModel.SeriesCollections[2]}"
+                                XAxes="{Binding ViewModel.XAxes}"
+                                YAxes="{Binding ViewModel.YAxes[2]}"
+                                TooltipPosition="Hidden"
+                                EasingFunction="{x:Null}"  />
+            <lvc:CartesianChart Name="chart3" Grid.Row="3"
+                                Series="{Binding ViewModel.SeriesCollections[3]}"
+                                XAxes="{Binding ViewModel.XAxes}"
+                                YAxes="{Binding ViewModel.YAxes[3]}"
+                                TooltipPosition="Hidden"
+                                EasingFunction="{x:Null}"  />
+            <lvc:CartesianChart Name="chart4" Grid.Row="4"
+                                Series="{Binding ViewModel.SeriesCollections[4]}"
+                                XAxes="{Binding ViewModel.XAxes}"
+                                YAxes="{Binding ViewModel.YAxes[4]}"
+                                TooltipPosition="Hidden"
+                                EasingFunction="{x:Null}"  />
+            <lvc:CartesianChart Name="chart5" Grid.Row="5"
+                                Series="{Binding ViewModel.SeriesCollections[5]}"
+                                XAxes="{Binding ViewModel.XAxes}"
+                                YAxes="{Binding ViewModel.YAxes[5]}"
+                                TooltipPosition="Hidden"
+                                EasingFunction="{x:Null}"  />
+        </Grid>
+    </Grid>
+</ui:UiPage>
