@@ -250,7 +250,6 @@ const ready = async () => {
         console.debug("%c[WS_MESSAGE]", "color: blueviolet", parsed);
 
       if (parsed.type == "ntp") {
-        console.log(parsed);
         heartbeat_time = Date.now();
       } else if (parsed.response == "Connection Succeeded") {
         console.debug("%c[WS]%c WebSocket has connected", "color: blueviolet", "color:unset");
