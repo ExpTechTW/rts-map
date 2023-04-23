@@ -197,17 +197,23 @@ const ready = async () => {
   /**
    * @type {WebSocket}
    */
-  let ws;
+  let ws, heartbeat_time;
+
+  setInterval(() => {
+    if (heartbeat_time && Date.now() - heartbeat_time > 15_000) {
+      heartbeat_time = 0;
+      ws.terminate();
+    }
+  }, 25_000);
 
   const connect = (retryTimeout) => {
     ws = new WebSocket("wss://exptech.com.tw/api");
-
-    let ping, heartbeat;
 
     if (DEBUG_FLAG_SILLY)
       console.debug("%c[WS_CREATE]", "color: blueviolet", ws);
 
     ws.on("close", () => {
+      heartbeat_time = 0;
       console.log(`%c[WS]%c WebSocket closed. Reconnect after ${retryTimeout / 1000}s`, "color: blueviolet", "color:unset");
       ws = null;
       setTimeout(() => connect(retryTimeout), retryTimeout).unref();
@@ -220,16 +226,6 @@ const ready = async () => {
     ws.on("open", () => {
       if (DEBUG_FLAG_SILLY)
         console.debug("%c[WS_OPEN]", "color: blueviolet", ws);
-
-      ping = setInterval(() => {
-        console.debug("%c[WS]%c Sending heartbeat", "color: blueviolet", "color:unset");
-        ws.ping();
-        heartbeat = setTimeout(() => {
-          console.warn("%c[WS]%c Heartbeat check failed! Closing WebSocket...", "color: blueviolet", "color:unset");
-          clearInterval(ping);
-          ws.terminate();
-        }, 10_000);
-      }, 15_000);
 
       const message = {
         uuid     : requestUA,
@@ -247,18 +243,16 @@ const ready = async () => {
       ws.send(JSON.stringify(message));
     });
 
-    ws.on("pong", () => {
-      console.debug("%c[WS]%c Heartbeat ACK received", "color: blueviolet", "color:unset");
-      clearTimeout(heartbeat);
-    });
-
     ws.on("message", (raw) => {
       const parsed = JSON.parse(raw);
 
       if (DEBUG_FLAG_SILLY)
         console.debug("%c[WS_MESSAGE]", "color: blueviolet", parsed);
 
-      if (parsed.response == "Connection Succeeded") {
+      if (parsed.type == "ntp") {
+        console.log(parsed);
+        heartbeat_time = Date.now();
+      } else if (parsed.response == "Connection Succeeded") {
         console.debug("%c[WS]%c WebSocket has connected", "color: blueviolet", "color:unset");
       } else if (parsed.response == "Subscription Succeeded") {
         console.debug("%c[WS]%c Subscribed to trem-rts-v2", "color: blueviolet", "color:unset");
