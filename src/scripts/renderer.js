@@ -197,7 +197,7 @@ const ready = async () => {
   /**
    * @type {WebSocket}
    */
-  let ws, heartbeat_time;
+  let ws, heartbeat_time, rts_raw = {}, wave_raw = {};
 
   setInterval(() => {
     if (heartbeat_time && Date.now() - heartbeat_time > 15_000) {
@@ -256,15 +256,20 @@ const ready = async () => {
       } else if (parsed.response == "Subscription Succeeded") {
         console.debug("%c[WS]%c Subscribed to trem-rts-v2", "color: blueviolet", "color:unset");
       } else if (parsed.type == "trem-rts") {
-        rts(parsed.raw);
+        rts_raw = parsed.raw;
       } else if (parsed.type == "trem-rts-original") {
-        const wave_raw = {};
+        const _wave_raw = {};
         for (let i = 0; i < parsed.raw.length; i++)
-          wave_raw[parsed.raw[i].uuid] = parsed.raw[i].raw;
-        wave(wave_raw);
+          _wave_raw[parsed.raw[i].uuid] = parsed.raw[i].raw;
+        wave_raw = _wave_raw;
       }
     });
   };
+
+  setInterval(() => {
+    rts(rts_raw);
+    wave(wave_raw);
+  }, 1_000);
 
   connect(5000);
 
@@ -330,6 +335,7 @@ const ready = async () => {
   let chartAlerted = [];
 
   const rts = (rts_data) => {
+    const online_list = Object.keys(rts_data);
     let max = { id: null, i: -4 };
     let min = { id: null, i: 8 };
     let sum = 0;
@@ -344,7 +350,7 @@ const ready = async () => {
       if (markers[id] instanceof L.Marker) {
         const el = markers[id].getElement();
 
-        if (id in rts_data) {
+        if (online_list.includes(id)) {
           if (!el.classList.contains("has-data"))
             el.classList.add("has-data");
 
@@ -514,6 +520,7 @@ const ready = async () => {
 
     const time = new Date(rts_data.Time || Date.now());
     document.getElementById("time").innerText = `${time.getFullYear()}/${(time.getMonth() + 1) < 10 ? `0${time.getMonth() + 1}` : time.getMonth() + 1}/${time.getDate() < 10 ? `0${time.getDate()}` : time.getDate()} ${time.getHours() < 10 ? `0${time.getHours()}` : time.getHours()}:${time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes()}:${time.getSeconds() < 10 ? `0${time.getSeconds()}` : time.getSeconds()}`;
+    rts_raw = { Time: time.getTime() };
   };
 
   const intensity_float_to_int = function(float) {
@@ -803,6 +810,11 @@ const ready = async () => {
           ],
         });
       }
+    }
+
+    for (let i = 0; i < Object.keys(wave_raw).length; i++) {
+      const id = Object.keys(wave_raw)[i];
+      wave_raw[id] = null;
     }
   };
   // #endregion
