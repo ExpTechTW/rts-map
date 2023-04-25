@@ -10,25 +10,32 @@ namespace rts_map.WebSocket
 {
     public class WebSocketClient
     {
+        private readonly string _apikey;
+
         private WebSocketSharp.WebSocket ws;
 
         public event EventHandler<Dictionary<string, object>> OnRtsData;
         public event EventHandler<WaveData[]> OnWaveData;
 
+        public WebSocketClient(string key)
+        {
+            _apikey = key;
+        }
+
         public void Connect()
         {
-            Trace.WriteLine("ws create");
+            Trace.WriteLine($"ws create {_apikey}");
             ws = new WebSocketSharp.WebSocket("wss://exptech.com.tw/api");
 
             ws.OnOpen += (sender, e) =>
             {
                 Trace.WriteLine("ws open");
-                string message = """
+                string message = $$"""
                     {
                         "uuid"     : "rts-map/0.0.1-csharp.beta",
                         "function" : "subscriptionService",
                         "value"    : ["trem-rts-v2", "trem-rts-original-v1"],
-                        "key"      : "6bac90e0d1d071f26ae2ed02c0f4679e",
+                        "key"      : "{{_apikey}}",
                         "addition" : {
                             "trem-rts-original-v1": [
                                 "H-335-11339620-4",

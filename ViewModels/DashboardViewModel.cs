@@ -19,13 +19,17 @@ using rts_map.DataModels;
 using rts_map.Helpers;
 using rts_map.WebSocket;
 using System.Diagnostics;
+using rts_map.Services;
 
 namespace rts_map.ViewModels
 {
     public partial class DashboardViewModel : ObservableObject, INavigationAware
     {
-        [ObservableProperty]
-        private int _counter = 0;
+        private readonly ISettingsService _settingsService;
+
+        public Dictionary<string, StationData> StationData { get; set; } = new();
+
+        public Dictionary<string, StationData> ExcludedStationData { get; set; } = new();
 
         public void OnNavigatedTo()
         {
@@ -35,8 +39,10 @@ namespace rts_map.ViewModels
         {
         }
 
-        public DashboardViewModel()
+        public DashboardViewModel(ISettingsService settingsService)
         {
+            _settingsService = settingsService;
+
             var countySource = new ShapeFile(new Uri("./Assets/GeoData/COUNTY_MOI_1090820.shp", UriKind.Relative).ToString(), true);
 
             Map.Layers.Add(new RasterizingLayer(CreateCountryLayer(countySource)));
@@ -84,7 +90,7 @@ namespace rts_map.ViewModels
 
             FetchFiles();
 
-            WebSocketClient ws = new WebSocketClient();
+            WebSocketClient ws = new WebSocketClient(_settingsService.GetUserSettings().AppSettings.ApiKey);
             ws.OnRtsData += Ws_OnRtsData;
             ws.OnWaveData += Ws_OnWaveData;
             ws.Connect();
@@ -285,8 +291,5 @@ namespace rts_map.ViewModels
             };
 
         public List<Axis[]> YAxes { get; set; } = new();
-
-        public Dictionary<string, StationData> StationData { get; set; }
-        public Dictionary<string, StationData> ExcludedStationData { get; set; }
     }
 }

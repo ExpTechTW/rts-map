@@ -18,5 +18,6 @@ namespace rts_map.Views.Pages
 
             InitializeComponent();
         }
+
     }
 }

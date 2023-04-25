@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using rts_map.Models;
 using rts_map.Services;
 using System.IO;
@@ -24,7 +25,12 @@ namespace rts_map
         // https://docs.microsoft.com/dotnet/core/extensions/logging
         private static readonly IHost _host = Host
             .CreateDefaultBuilder()
-            .ConfigureAppConfiguration(c => { c.SetBasePath(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)); })
+            .ConfigureAppConfiguration(c =>
+            {
+                c.SetBasePath(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location));
+
+                c.AddJsonFile(UserSettings.AppPropertiesFileName, optional: true, reloadOnChange: true);
+            })
             .ConfigureServices((context, services) =>
             {
                 // App Host
@@ -55,7 +61,9 @@ namespace rts_map
                 services.AddScoped<ViewModels.SettingsViewModel>();
 
                 // Configuration
-                services.Configure<AppConfig>(context.Configuration.GetSection(nameof(AppConfig)));
+                services.AddSingleton<ISettingsService, SettingsService>();
+                UserSettings appSettings = context.Configuration.GetSection("AppSettings").Get<UserSettings>();
+                services.AddSingleton(appSettings);
             }).Build();
 
         /// <summary>
