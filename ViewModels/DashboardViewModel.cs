@@ -5,20 +5,21 @@ using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
-using System;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
-using System.Linq;
 using Mapsui;
 using Mapsui.Providers.Shapefile;
 using Mapsui.Layers;
 using Mapsui.Styles;
 using Mapsui.Geometries;
 using Mapsui.Providers;
+using System;
+using System.Collections.ObjectModel;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+
 using rts_map.DataModels;
 using rts_map.Helpers;
 using rts_map.WebSocket;
-using System.Diagnostics;
 using rts_map.Services;
 
 namespace rts_map.ViewModels
@@ -27,12 +28,16 @@ namespace rts_map.ViewModels
     {
         private readonly ISettingsService _settingsService;
 
+        private bool _isInitialized = false;
+
         public Dictionary<string, StationData> StationData { get; set; } = new();
 
         public Dictionary<string, StationData> ExcludedStationData { get; set; } = new();
 
         public void OnNavigatedTo()
         {
+            if (!_isInitialized)
+                InitializeViewModel();
         }
 
         public void OnNavigatedFrom()
@@ -42,21 +47,6 @@ namespace rts_map.ViewModels
         public DashboardViewModel(ISettingsService settingsService)
         {
             _settingsService = settingsService;
-
-            var countySource = new ShapeFile(new Uri("./Assets/GeoData/COUNTY_MOI_1090820.shp", UriKind.Relative).ToString(), true);
-
-            Map.Layers.Add(new RasterizingLayer(CreateCountryLayer(countySource)));
-            Map.Layers.Add(new RasterizingLayer(CreateCountryOutlineLayer(countySource)));
-
-            var center = new Point(120.65, 23.61);
-            Map.Home = n =>
-            {
-                n.NavigateTo(center, 0.0075f);
-                // Map.PanLock = true;
-                // Map.ZoomLock = true;
-                Map.RotationLock = true;
-            };
-            Map.BackColor = Color.Transparent;
 
             for (int i = 0; i < 6; i++)
             {
@@ -87,6 +77,24 @@ namespace rts_map.ViewModels
                     }
                 );
             }
+        }
+
+        private void InitializeViewModel()
+        {
+            ShapeFile countySource = new ShapeFile(new Uri("./Assets/GeoData/COUNTY_MOI_1090820.shp", UriKind.Relative).ToString(), true);
+
+            Map.Layers.Add(new RasterizingLayer(CreateCountryLayer(countySource)));
+            Map.Layers.Add(new RasterizingLayer(CreateCountryOutlineLayer(countySource)));
+
+            Point center = new Point(120.65, 23.61);
+            Map.Home = n =>
+            {
+                n.NavigateTo(center, 0.0075f);
+                // Map.PanLock = true;
+                // Map.ZoomLock = true;
+                Map.RotationLock = true;
+            };
+            Map.BackColor = Color.Transparent;
 
             FetchFiles();
 
@@ -94,6 +102,8 @@ namespace rts_map.ViewModels
             ws.OnRtsData += Ws_OnRtsData;
             ws.OnWaveData += Ws_OnWaveData;
             ws.Connect();
+
+            _isInitialized = true;
         }
 
         private async void FetchFiles()

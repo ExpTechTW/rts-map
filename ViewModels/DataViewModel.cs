@@ -1,9 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using rts_map.Models;
 using System;
 using System.Collections.Generic;
 using System.Windows.Media;
 using Wpf.Ui.Common.Interfaces;
+
+using rts_map.Models;
 
 namespace rts_map.ViewModels
 {

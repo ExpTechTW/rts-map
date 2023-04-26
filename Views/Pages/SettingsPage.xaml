@@ -44,7 +44,7 @@
                 <ui:TextBox Width="256"
                             PlaceholderText="API 金鑰"
                             ClearButtonEnabled="False"
-                            Text="{Binding ViewModel.ApiKey}"
+                            Text="{Binding ViewModel.ApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             Cursor="IBeam" />
             </ui:CardControl.Content>
         </ui:CardControl>
@@ -70,7 +70,8 @@
             </ui:CardControl.Header>
             <ui:CardControl.Content>
                 <ComboBox ItemsSource="{Binding ViewModel.ComboCollection, Mode=OneWay}"
-                          SelectedItem="{Binding ViewModel.CurrentTheme}"/>
+                          SelectedItem="{Binding ViewModel.CurrentTheme, Mode=TwoWay}"
+                          IsSynchronizedWithCurrentItem="True"/>
             </ui:CardControl.Content>
         </ui:CardControl>
         <ui:CardExpander Icon="Color24"

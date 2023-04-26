@@ -1,16 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using Newtonsoft.Json.Linq;
-using rts_map.Models;
-using rts_map.Services;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using Wpf.Ui.Common.Interfaces;
+
+using rts_map.Models;
+using rts_map.Services;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace rts_map.ViewModels
 {
-    public partial class SettingsViewModel : ObservableObject, INavigationAware
+    public partial class SettingsViewModel : ObservableObject, INavigationAware, INotifyPropertyChanged
     {
         private readonly ISettingsService _settingsService; 
 
@@ -55,9 +55,11 @@ namespace rts_map.ViewModels
 
                     default:
                         Wpf.Ui.Appearance.Theme.Apply((Wpf.Ui.Appearance.ThemeType)Wpf.Ui.Appearance.Theme.GetSystemTheme());
-                        _currentTheme = Wpf.Ui.Appearance.ThemeType.Dark;
+                        _currentTheme = Wpf.Ui.Appearance.ThemeType.Unknown;
                         break;
                 }
+
+                NotifyPropertyChanged(nameof(CurrentTheme));
 
                 userSettings.AppSettings.AppTheme = value;
                 _settingsService.UpdateUserSettings(userSettings);
@@ -76,6 +78,7 @@ namespace rts_map.ViewModels
                 if (value == ApiKey) return;
 
                 _apiKey = value;
+                NotifyPropertyChanged(nameof(ApiKey));
 
                 UserSettings userSettings = _settingsService.GetUserSettings();
                 userSettings.AppSettings.ApiKey = value;
@@ -116,6 +119,15 @@ namespace rts_map.ViewModels
         private string GetAssemblyVersion()
         {
             return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? String.Empty;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged([CallerMemberName] String propName = "")
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propName));
+            }
         }
     }
 }
