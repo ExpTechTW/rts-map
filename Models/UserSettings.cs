@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.IO;
+﻿using System.ComponentModel;
 
 namespace rts_map.Models
 {
@@ -18,8 +16,9 @@ namespace rts_map.Models
 
     public class AppSettings : INotifyPropertyChanged
     {
-        private string _appTheme;
-        private string _apiKey;
+        private string _appTheme = "system";
+        private string _apiKey = "";
+        private bool _chartsEnabled = true;
 
         public string AppTheme
         {
@@ -40,15 +39,27 @@ namespace rts_map.Models
                 OnPropertyChanged(nameof(ApiKey));
             }
         }
+        
+
+        public bool ChartsEnabled
+        {
+            get => _chartsEnabled;
+            set
+            {
+                _chartsEnabled = value;
+                OnPropertyChanged(nameof(ChartsEnabled));
+            }
+        }
 
         public AppSettings()
         {
             ApiKey = "";
             AppTheme = "system";
+            ChartsEnabled = true;
         }
 
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         protected void OnPropertyChanged(string propertyName)
         {

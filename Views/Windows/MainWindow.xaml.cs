@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.Options;
-using rts_map.Models;
-using System;
-using System.Diagnostics;
+﻿using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using Wpf.Ui.Controls.Interfaces;
@@ -59,6 +57,7 @@ namespace rts_map.Views.Windows
         {
             base.OnClosed(e);
 
+            Properties.Settings.Default.Save();
             // Make sure that closing this window will begin the process of closing the application.
             Application.Current.Shutdown();
         }

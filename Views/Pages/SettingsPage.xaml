@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:helpers="clr-namespace:rts_map.Helpers"
+    xmlns:locale="clr-namespace:rts_map.Localizations"
     xmlns:local="clr-namespace:rts_map.Views.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
@@ -25,7 +26,7 @@
             Margin="0,24,0,0"
             FontSize="20"
             FontWeight="Medium"
-            Text="API" />
+            Text="{x:Static locale:LocaleStrings.SettingsApiHeader}" />
         <ui:CardControl Icon="Key24"
                         Margin="0,12,0,0" >
             <ui:CardControl.Header>
@@ -33,75 +34,93 @@
                     <TextBlock
                         FontSize="13"
                         FontWeight="Medium"
-                        Text="API 金鑰" />
+                        Text="{x:Static locale:LocaleStrings.SettingsApiKeyHeader}" />
                     <TextBlock
                         FontSize="12"
                         Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                        Text="使用個人 API 金鑰" />
+                        Text="{x:Static locale:LocaleStrings.SettingsApiKeyDescription}" />
                 </StackPanel>
-                </ui:CardControl.Header>
-            <ui:CardControl.Content>
-                <ui:TextBox Width="256"
-                            PlaceholderText="API 金鑰"
+            </ui:CardControl.Header>
+            <ui:TextBox Width="256"
+                            PlaceholderText="{x:Static locale:LocaleStrings.SettingsApiKeyHeader}"
                             ClearButtonEnabled="False"
                             Text="{Binding ViewModel.ApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             Cursor="IBeam" />
-            </ui:CardControl.Content>
         </ui:CardControl>
 
         <TextBlock
             Margin="0,24,0,0"
             FontSize="20"
             FontWeight="Medium"
-            Text="個人化" />
-        <ui:CardControl Icon="PaintBrush20"
+            Text="{x:Static locale:LocaleStrings.SettingsChartsHeader}" />
+        <ui:CardControl Icon="Key24"
                         Margin="0,12,0,0" >
             <ui:CardControl.Header>
                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                     <TextBlock
                         FontSize="13"
                         FontWeight="Medium"
-                        Text="主題模式" />
+                        Text="{x:Static locale:LocaleStrings.SettingsChartsEnabledHeader}" />
                     <TextBlock
                         FontSize="12"
                         Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                        Text="程式顯示的色彩模式" />
+                        Text="{x:Static locale:LocaleStrings.SettingsChartsEnabledDescription}" />
+                </StackPanel>
+            </ui:CardControl.Header>
+            <ui:ToggleSwitch IsChecked="{Binding ViewModel.ChartsEnabled}"/>
+        </ui:CardControl>
+        
+        <TextBlock
+            Margin="0,24,0,0"
+            FontSize="20"
+            FontWeight="Medium"
+            Text="{x:Static locale:LocaleStrings.SettingsThemeHeader}" />
+        <ui:CardControl Icon="LocalLanguage24"
+                        Margin="0,12,0,0" >
+            <ui:CardControl.Header>
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock
+                        FontSize="13"
+                        FontWeight="Medium"
+                        Text="{x:Static locale:LocaleStrings.SettingsAppLocaleHeader}" />
+                    <TextBlock
+                        FontSize="12"
+                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                        Text="{x:Static locale:LocaleStrings.SettingsAppLocaleDescription}" />
                 </StackPanel>
             </ui:CardControl.Header>
             <ui:CardControl.Content>
-                <ComboBox ItemsSource="{Binding ViewModel.ComboCollection, Mode=OneWay}"
-                          SelectedItem="{Binding ViewModel.CurrentTheme, Mode=TwoWay}"
-                          IsSynchronizedWithCurrentItem="True"/>
+                <ComboBox ItemsSource="{Binding ViewModel.LocaleCollection}"
+                          SelectedItem="{Binding ViewModel.AppLocale, Mode=TwoWay}"
+                          IsSynchronizedWithCurrentItem="True"
+                          DisplayMemberPath="Label"
+                          SelectedValuePath="Value">
+                </ComboBox>
             </ui:CardControl.Content>
         </ui:CardControl>
-        <ui:CardExpander Icon="Color24"
-                         Margin="0,8,0,0">
-            <ui:CardExpander.Header>
+        <ui:CardControl Icon="PaintBrush20"
+                        Margin="0,8,0,0" >
+            <ui:CardControl.Header>
                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                    <TextBlock FontSize="13"
-                               FontWeight="Medium"
-                               Text="色彩" />
-                    <TextBlock FontSize="12"
-                               Foreground="{DynamicResource TextFillColorTertiaryBrush}"
-                               Text="整個程式的主題色" />
+                    <TextBlock
+                        FontSize="13"
+                        FontWeight="Medium"
+                        Text="{x:Static locale:LocaleStrings.SettingsThemeModeHeader}" />
+                    <TextBlock
+                        FontSize="12"
+                        Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                        Text="{x:Static locale:LocaleStrings.SettingsThemeModeDescription}" />
                 </StackPanel>
-            </ui:CardExpander.Header>
-            <StackPanel Margin="38,0,0,0">
-                
-                <!--<RadioButton Command="{Binding ViewModel.ChangeThemeCommand, Mode=OneWay}"
-                             CommandParameter="theme_light"
-                             Content="淺色"
-                             GroupName="themeSelect"
-                             IsChecked="{Binding ViewModel.CurrentTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light, Mode=OneWay}" />
-                <RadioButton Margin="0,8,0,0"
-                             Command="{Binding ViewModel.ChangeThemeCommand, Mode=OneWay}"
-                             CommandParameter="theme_dark"
-                             Content="深色"
-                             GroupName="themeSelect"
-                             IsChecked="{Binding ViewModel.CurrentTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark, Mode=OneWay}" />-->
-                
-            </StackPanel>
-        </ui:CardExpander>
+            </ui:CardControl.Header>
+            <ui:CardControl.Content>
+                <ComboBox ItemsSource="{Binding ViewModel.ThemeModeCollection}"
+                          SelectedItem="{Binding ViewModel.CurrentTheme, Mode=TwoWay}"
+                          IsSynchronizedWithCurrentItem="True"
+                          DisplayMemberPath="Label"
+                          SelectedValuePath="Value">
+                </ComboBox>
+            </ui:CardControl.Content>
+        </ui:CardControl>
 
         <TextBlock
             Margin="0,24,0,0"

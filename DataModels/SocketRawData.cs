@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace rts_map.DataModels
+﻿namespace rts_map.DataModels
 {
     public class SocketRawData
     {

@@ -1,12 +1,17 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Wpf.Ui.Common.Interfaces;
 
 using rts_map.Models;
 using rts_map.Services;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using rts_map.Localizations;
+using System.Globalization;
+using rts_map.DataModels;
+using System.Linq;
+using System.Diagnostics;
 
 namespace rts_map.ViewModels
 {
@@ -20,28 +25,28 @@ namespace rts_map.ViewModels
         private string _appVersion = String.Empty;
 
         private Wpf.Ui.Appearance.ThemeType _currentTheme = Wpf.Ui.Appearance.ThemeType.Unknown;
-        public string CurrentTheme
+        public ComboboxItem CurrentTheme
         {
             get {
                 switch (_currentTheme)
                 {
                     case Wpf.Ui.Appearance.ThemeType.Light:
-                        return "light";
+                        return Themes["light"];
 
                     case Wpf.Ui.Appearance.ThemeType.Dark:
-                        return "dark";
+                        return Themes["dark"];
 
                     default:
-                        return "system";
+                        return Themes["system"];
                 }
             }
             set
             {
-                if (value == CurrentTheme) return;
+                if (value.Value == CurrentTheme.Value) return;
 
                 UserSettings userSettings = _settingsService.GetUserSettings();
 
-                switch (value)
+                switch (value.Value)
                 {
                     case "light":
                         Wpf.Ui.Appearance.Theme.Apply(Wpf.Ui.Appearance.ThemeType.Light);
@@ -61,8 +66,8 @@ namespace rts_map.ViewModels
 
                 NotifyPropertyChanged(nameof(CurrentTheme));
 
-                userSettings.AppSettings.AppTheme = value;
-                _settingsService.UpdateUserSettings(userSettings);
+                Properties.Settings.Default.AppTheme = value.Value;
+                Properties.Settings.Default.Save();
             }
         }
 
@@ -80,17 +85,71 @@ namespace rts_map.ViewModels
                 _apiKey = value;
                 NotifyPropertyChanged(nameof(ApiKey));
 
-                UserSettings userSettings = _settingsService.GetUserSettings();
-                userSettings.AppSettings.ApiKey = value;
-                _settingsService.UpdateUserSettings(userSettings);
+                Properties.Settings.Default.ApiKey = value;
+                Properties.Settings.Default.Save();
             }
         }
 
-        public IEnumerable<string> ComboCollection { get; set; } = new string[] {
-            "light",
-            "dark",
-            "system"
+        private string _appLocale = String.Empty;
+        public ComboboxItem AppLocale
+        {
+            get
+            {
+                return new ComboboxItem { Value = _appLocale };
+            }
+            set
+            {
+                if (value == AppLocale) return;
+
+                _appLocale = value.Value;
+                NotifyPropertyChanged(nameof(AppLocale));
+
+                Debug.Print($"LocaleChanged\t{_appLocale}");
+
+                System.Threading.Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(value.Value);
+
+                Debug.Print($"CurrentCulture\t{LocaleStrings.Culture}");
+
+                Properties.Settings.Default.AppLocale = value.Value;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        private bool _chartsEnabled = true;
+        public bool ChartsEnabled
+        {
+            get
+            {
+                return _chartsEnabled;
+            }
+            set
+            {
+                if (value == ChartsEnabled) return;
+
+                _chartsEnabled = value;
+                NotifyPropertyChanged(nameof(ChartsEnabled));
+
+                Properties.Settings.Default.ChartsEnabled = value;
+                Properties.Settings.Default.Save();
+            }
+        }
+
+        public static Dictionary<string, ComboboxItem> Themes{ get; set; } = new Dictionary<string, ComboboxItem>
+        {
+            ["light"] = new ComboboxItem { Label = LocaleStrings.SettingsThemeModeOptionLight, Value = "light" },
+            ["dark"] = new ComboboxItem { Label = LocaleStrings.SettingsThemeModeOptionDark, Value = "dark" },
+            ["system"] = new ComboboxItem { Label = LocaleStrings.SettingsThemeModeOptionSystem, Value = "system" }
         };
+
+        public IEnumerable<ComboboxItem> ThemeModeCollection { get; set; } = Themes.ToList().Select(kvp => kvp.Value);
+
+        public static Dictionary<string, ComboboxItem> Locales { get; set; } = new Dictionary<string, ComboboxItem>
+        {
+            ["en"] = new ComboboxItem { Label = LocaleStrings.ResourceManager.GetString("AppLocale", CultureInfo.GetCultureInfo("en")), Value = "en" },
+            ["zh-TW"] = new ComboboxItem { Label = LocaleStrings.ResourceManager.GetString("AppLocale", CultureInfo.GetCultureInfo("zh-TW")), Value = "zh-TW" }
+        };
+
+        public IEnumerable<ComboboxItem> LocaleCollection { get; set; } = Locales.ToList().Select(kvp => kvp.Value);
 
         public SettingsViewModel(ISettingsService settingsService)
         {
@@ -109,9 +168,10 @@ namespace rts_map.ViewModels
 
         private void InitializeViewModel()
         {
-            CurrentTheme = _settingsService.GetUserSettings().AppSettings.AppTheme;
+            CurrentTheme = Themes[Properties.Settings.Default.AppTheme];
             AppVersion = $"rts_map - {GetAssemblyVersion()}";
-            ApiKey = _settingsService.GetUserSettings().AppSettings.ApiKey;
+            ApiKey = Properties.Settings.Default.ApiKey;
+            AppLocale = Locales[Properties.Settings.Default.AppLocale];
 
             _isInitialized = true;
         }

@@ -1,4 +1,5 @@
-﻿using Wpf.Ui.Common.Interfaces;
+﻿using System.Globalization;
+using Wpf.Ui.Common.Interfaces;
 
 namespace rts_map.Views.Pages
 {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using rts_map.Models;
 using rts_map.Services;
 using System.IO;
@@ -90,6 +89,7 @@ namespace rts_map
         /// </summary>
         private async void OnExit(object sender, ExitEventArgs e)
         {
+
             await _host.StopAsync();
 
             _host.Dispose();

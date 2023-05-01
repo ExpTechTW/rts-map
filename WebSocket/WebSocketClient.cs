@@ -1,6 +1,4 @@
-﻿
-
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using rts_map.DataModels;
 using System;
 using System.Collections.Generic;
@@ -24,12 +22,14 @@ namespace rts_map.WebSocket
 
         public void Connect()
         {
-            Trace.WriteLine($"ws create {_apikey}");
+            Debug.Print("WebSocket\tTrying to connect...");
+
             ws = new WebSocketSharp.WebSocket("wss://exptech.com.tw/api");
 
             ws.OnOpen += (sender, e) =>
             {
-                Trace.WriteLine("ws open");
+                Debug.Print("WebSocket\tConnection Opened");
+
                 string message = $$"""
                     {
                         "uuid"     : "rts-map/0.0.1-csharp.beta",
@@ -49,13 +49,11 @@ namespace rts_map.WebSocket
                     }
                     """;
 
-                Trace.WriteLine("ws send");
                 ws.Send(message);
             };
 
             ws.OnMessage += (sender, e) =>
             {
-                // Trace.WriteLine(e.Data);
                 try
                 {
                     SocketRawData parsed = JsonConvert.DeserializeObject<SocketRawData>(e.Data);
@@ -67,11 +65,11 @@ namespace rts_map.WebSocket
                         switch (parsed.response)
                         {
                             case "Connection Succeeded":
-                                Trace.WriteLine("Connection Succeeded");
+                                Debug.Print("WebSocket\tConnection Succeeded");
                                 break;
 
                             default:
-                                Trace.WriteLine(parsed);
+                                Trace.WriteLine($"WebSocket\t{parsed}");
                                 break;
                         }
                     }

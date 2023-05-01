@@ -21,6 +21,7 @@ using rts_map.DataModels;
 using rts_map.Helpers;
 using rts_map.WebSocket;
 using rts_map.Services;
+using System.Threading;
 
 namespace rts_map.ViewModels
 {
@@ -29,8 +30,11 @@ namespace rts_map.ViewModels
         private readonly ISettingsService _settingsService;
 
         private bool _isInitialized = false;
+        public List<string> StationUuids { get; set; } = new();
 
         public Dictionary<string, StationData> StationData { get; set; } = new();
+
+        private readonly Timer _timer;
 
         public Dictionary<string, StationData> ExcludedStationData { get; set; } = new();
 
@@ -77,26 +81,28 @@ namespace rts_map.ViewModels
                     }
                 );
             }
+
+            _timer = new Timer(FetchFiles, null, (int)TimeSpan.Zero.TotalMilliseconds, (int)TimeSpan.FromMinutes(10).TotalMilliseconds);
         }
 
         private void InitializeViewModel()
         {
-            ShapeFile countySource = new ShapeFile(new Uri("./Assets/GeoData/COUNTY_MOI_1090820.shp", UriKind.Relative).ToString(), true);
+            ShapeFile countySource = new(new Uri("./Assets/GeoData/COUNTY_MOI_1090820.shp", UriKind.Relative).ToString(), true);
 
             Map.Layers.Add(new RasterizingLayer(CreateCountryLayer(countySource)));
             Map.Layers.Add(new RasterizingLayer(CreateCountryOutlineLayer(countySource)));
 
-            Point center = new Point(120.65, 23.61);
+            Point center = new(120.65, 23.61);
             Map.Home = n =>
             {
+                Map.PanLock = false;
+                Map.ZoomLock = false;
                 n.NavigateTo(center, 0.0075f);
-                // Map.PanLock = true;
-                // Map.ZoomLock = true;
+                Map.PanLock = true;
+                Map.ZoomLock = true;
                 Map.RotationLock = true;
             };
             Map.BackColor = Color.Transparent;
-
-            FetchFiles();
 
             WebSocketClient ws = new WebSocketClient(_settingsService.GetUserSettings().AppSettings.ApiKey);
             ws.OnRtsData += Ws_OnRtsData;
@@ -106,30 +112,43 @@ namespace rts_map.ViewModels
             _isInitialized = true;
         }
 
-        private async void FetchFiles()
+        private async void FetchFiles(object? state)
         {
-            Dictionary<string, StationData> data = await API.GetStationData();
+            try
+            {
+                Debug.Print("ResourceFetch\tTrying to fetch station.json");
 
-            if (data != null) {
-                Dictionary<string, StationData> mappedStationData = new();
-                Dictionary<string, StationData> excludedStationData = new();
+                Dictionary<string, StationData>? data = await API.GetStationData();
 
-                foreach (var (item, key) in data.Select(v => (v.Value, v.Key)))
+                if (data != null)
                 {
-                    item.Uuid = key;
-                    if (item.Long > 118 && item.Lat < 26.3)
-                    { 
-                        mappedStationData.Add(key.Split("-")[2], item);
-                    }
-                    else
-                    {
-                        excludedStationData.Add(key.Split("-")[2], item);
-                    }
-                }
+                    Debug.Print("ResourceFetch\tFetched station.json");
 
-                StationData = mappedStationData;
-                ExcludedStationData = excludedStationData;
-                UpdateMarkers();
+                    Dictionary<string, StationData> mappedStationData = new();
+                    Dictionary<string, StationData> excludedStationData = new();
+
+                    foreach (var (item, key) in data.Select(v => (v.Value, v.Key)))
+                    {
+                        item.Uuid = key;
+
+                        if (item.Long > 118 && item.Lat < 26.3)
+                        {
+                            mappedStationData.Add(key.Split("-")[2], item);
+                        }
+                        else
+                        {
+                            excludedStationData.Add(key.Split("-")[2], item);
+                        }
+                    }
+
+                    StationData = mappedStationData;
+                    ExcludedStationData = excludedStationData;
+                    UpdateMarkers();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.Print($"ResourceFetch\tFailed to fetch station.json: {ex}");
             }
         }
 
@@ -172,9 +191,12 @@ namespace rts_map.ViewModels
 
         private void UpdateMarkers()
         {
+            if (!_isInitialized) return;
+
             foreach (var (item, key) in StationData.Select(v => (v.Value, v.Key)))
             {
                 Feature feature = new Feature { Geometry = new Point(item.Long, item.Lat) };
+
                 feature.Styles.Add(new SymbolStyle
                 {
                     SymbolScale = .25f,
@@ -192,14 +214,13 @@ namespace rts_map.ViewModels
 
         private void Ws_OnRtsData(object? sender, Dictionary<string, dynamic> e)
         {
-            // textblock.Text = e.ToString();
+            if (!_isInitialized) return;
 
             // REFACTOR: needs to be refactored to not use nested ifs
 
             Dictionary<string, dynamic> filteredData = e.Where(kvp => !ExcludedStationData.ContainsKey(kvp.Key)).ToDictionary(x => x.Key, x => x.Value);
             
             string maxkey = filteredData.MaxBy(kvp => kvp.Key == "Time" ? -500 : (double)kvp.Value.i).Key;
-            Trace.WriteLine(Markers.ContainsKey(maxkey));
 
             foreach (var (item, key) in StationData.Select(v => (v.Value, v.Key)))
             {
@@ -232,6 +253,8 @@ namespace rts_map.ViewModels
 
         private void Ws_OnWaveData(object? sender, WaveData[] e)
         {
+            if (!_isInitialized) return;
+
             DateTime nowTime = DateTime.Now;
 
             for (int i = 0; i < 6; i++)
@@ -257,9 +280,19 @@ namespace rts_map.ViewModels
                     }
                 }
 
-                foreach (var (item, j) in e[i].raw.Select((value, index) => (value, index)))
+                if (e[i].raw != null)
                 {
-                    Datas[i].Add(new DateTimePoint(nowTime.AddMilliseconds((1000 / e[0].raw.Length) * j), item));
+                    foreach (var (item, j) in e[i].raw.Select((value, index) => (value, index)))
+                    {
+                        Datas[i].Add(new DateTimePoint(nowTime.AddMilliseconds(1000 / e[i].raw.Length * j), item));
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < 18; j++)
+                    {
+                        Datas[i].Add(new DateTimePoint(nowTime.AddMilliseconds(1000 / e[i].raw.Length * j), null));
+                    }
                 }
 
                 while (Datas[i].Count > 1000)
@@ -267,7 +300,7 @@ namespace rts_map.ViewModels
                     Datas[i].RemoveAt(0);
                 }
 
-                double? max = (double)Datas[i].Max(x => Math.Abs((decimal)x.Value));
+                double? max = (double)Datas[i].Max(x => x.Value != null ? Math.Abs((decimal)x.Value) : -5);
 
                 if (max.HasValue)
                 {
