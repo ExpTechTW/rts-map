@@ -1,13 +1,13 @@
 :root {
-  --background: 285deg, 100%, 99%;
-  --on-background: 240deg, 7%, 11%;
-  --primary: 211deg, 100%, 37%;
-  --on-primary: 0deg, 0%, 100%;
-  --primary-container: 224deg, 100%, 92%;
-  --on-primary-container: 216deg, 100%, 13%;
-  --outline: 224deg, 5%, 48%;
-  --surface-variant: 230deg, 24%, 90%;
-  --on-surface-variant: 222deg, 7%, 29%;
+  --background: 240deg, 7%, 11%;
+  --on-background: 255deg, 7%, 89%;
+  --primary: 220deg, 100%, 84%;
+  --on-primary: 213deg, 100%, 20% ;
+  --primary-container: 212deg, 100%, 28%;
+  --on-primary-container: 224deg, 100%, 92%;
+  --outline: 229deg, 5%, 58%;
+  --surface-variant: 222deg, 7%, 29%;
+  --on-surface-variant: 230deg, 11%, 79%;
 }
 
 select, input[type=password], input[type=number] {
@@ -15,7 +15,7 @@ select, input[type=password], input[type=number] {
   outline: 1px solid hsl(var(--outline));
   padding: 4px 6px;
   border-radius: 6px;
-  background-color: #25222E;
+  background-color: #2A2831;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 14px;
 }
@@ -48,7 +48,7 @@ select:not(:disabled):hover, input[type=password]:not(:disabled):hover, input[ty
 }
 
 select:not(:disabled):focus, input[type=password]:not(:disabled):focus, input[type=number]:not(:disabled):focus {
-  background-color: #3A3447;
+  background-color: #393543;
   outline: 2px solid hsl(var(--primary));
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, .2);
 }
@@ -63,7 +63,6 @@ select:disabled, input[type=password]:disabled, input[type=number]:disabled {
 input[type=checkbox] {
   all: unset;
   position: relative;
-  margin-right: 8px;
   height: 16px;
   border-radius: 4px;
   aspect-ratio: 1;
@@ -111,7 +110,7 @@ input[type=checkbox]::after {
 }
 
 input[type=checkbox]:checked::before, input[type=checkbox]:checked::after {
-  border-color: #211E29;
+  border-color: #2A2831;
 }
 
 input[type=checkbox]:focus-visible {
@@ -119,20 +118,31 @@ input[type=checkbox]:focus-visible {
   box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.2);
 }
 
-
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --background: 240deg, 7%, 11%;
-    --on-background: 255deg, 7%, 89%;
-    --primary: 220deg, 100%, 84%;
-    --on-primary: 213deg, 100%, 20% ;
-    --primary-container: 212deg, 100%, 28%;
-    --on-primary-container: 224deg, 100%, 92%;
-    --outline: 229deg, 5%, 58%;
-    --surface-variant: 222deg, 7%, 29%;
-    --on-surface-variant: 230deg, 11%, 79%;
+    --background: 285deg, 100%, 99%;
+    --on-background: 240deg, 7%, 11%;
+    --primary: 211deg, 100%, 37%;
+    --on-primary: 0deg, 0%, 100%;
+    --primary-container: 224deg, 100%, 92%;
+    --on-primary-container: 216deg, 100%, 13%;
+    --outline: 224deg, 5%, 48%;
+    --surface-variant: 230deg, 24%, 90%;
+    --on-surface-variant: 222deg, 7%, 29%;
   }
   
+  select, input[type=password], input[type=number] {
+    background-color: #F3EDF7;
+  }
+
+  select:not(:disabled):focus, input[type=password]:not(:disabled):focus, input[type=number]:not(:disabled):focus {
+    background-color: #E7E0F0;
+  }
+  
+  input[type=checkbox]:checked::before, input[type=checkbox]:checked::after {
+    border-color: #F3EDF7;
+  }
+
   ::-ms-reveal {
     filter: invert(100%);
   }

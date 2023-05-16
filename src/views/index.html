@@ -5,8 +5,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../node_modules/leaflet/dist/leaflet.css">
-  <link rel="stylesheet" href="../stylesheets/style.css">
   <link rel="stylesheet" href="../stylesheets/components.css">
+  <link rel="stylesheet" href="../stylesheets/style.css">
   <title>rts-map v0.0.15</title>
 </head>
 <body>
@@ -35,7 +35,7 @@
       </div>
       <div class="heading">震波顯示器</div>
       <div class="option">
-        <label for="option__displaywavecount">波形圖測站數量</label>
+        <label for="option__displaywavecount">波形圖測站數量（需要重新啟動）</label>
         <input type="number" name="option__displaywavecount" id="option__displaywavecount" min="0" max="8">
       </div>
       <div class="option">
@@ -62,6 +62,14 @@
       <div class="option">
         <label for="option__backgroundthrottling">背景節流</label>
         <input type="checkbox" name="option__backgroundthrottling" id="option__backgroundthrottling">
+      </div>
+      <div class="option">
+        <label for="option__debug__alertbypass">DEBUG_FLAG_ALERT_BYPASS</label>
+        <input type="checkbox" name="option__debug__alertbypass" id="option__debug__alertbypass">
+      </div>
+      <div class="option">
+        <label for="option__debug__silly">DEBUG_FLAG_SILLY</label>
+        <input type="checkbox" name="option__debug__silly" id="option__debug__silly">
       </div>
     </div>
     <main>

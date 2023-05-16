@@ -1,4 +1,4 @@
-/* global DEBUG_FLAG_ALERT_BYPASS: true, DEBUG_FLAG_SILLY = false */
+/* global DEBUG_FLAG_ALERT_BYPASS: true, DEBUG_FLAG_SILLY: true */
 const ready = async () => {
   const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:timers");
   const { app, Menu, MenuItem, nativeTheme } = require("@electron/remote");
@@ -247,12 +247,15 @@ const ready = async () => {
         if (!timer.tick)
           timer.tick = setInterval(tick, 1_000);
       } else if (parsed.type == "trem-rts") {
-        rts_raw = parsed.raw;
+        if (parsed.raw != null)
+          rts_raw = parsed.raw;
       } else if (parsed.type == "trem-rts-original") {
         const _wave_raw = {};
         for (let i = 0; i < parsed.raw.length; i++)
           _wave_raw[parsed.raw[i].uuid] = parsed.raw[i].raw;
-        wave_raw = _wave_raw;
+
+        if (_wave_raw != null)
+          wave_raw = _wave_raw;
       }
     });
   };
@@ -286,6 +289,7 @@ const ready = async () => {
   const tick = () => {
     rts(rts_raw);
     wave(wave_raw);
+    wave_raw = null;
   };
 
   connect(5000);
@@ -560,7 +564,7 @@ const ready = async () => {
     const dom = document.createElement("div");
     dom.className = "chart";
     document.getElementById("wave-container").append(dom);
-    charts.push(echarts.init(dom, null, { height: (560 / wave_count) - (wave_count + 1), width: 394 }));
+    charts.push(echarts.init(dom, null, { height: (560 / wave_count) - (6 * (wave_count + 1) / wave_count), width: 394 }));
     chartdata.push([]);
     dom.addEventListener("contextmenu", () => {
       const menu = new Menu();
@@ -842,15 +846,16 @@ const ready = async () => {
     if (event.ctrlKey && event.key === "o") {
       event.preventDefault();
       // Perform the action for the keyboard shortcut
-      displaySettings();
+      document.getElementById("settings").classList.toggle("show");
     }
   });
 
-  const displaySettings = () => {
-    document.getElementById("settings").classList.toggle("show");
-  };
-
   (() => {
+    document.addEventListener("click", (e) => {
+      if (!document.getElementById("settings").contains(e.target))
+        document.getElementById("settings").classList.remove("show");
+    });
+
     document.getElementById("option__muted").checked = localStorage.getItem("muted") == "true";
     document.getElementById("option__muted").addEventListener("click", function() {
       localStorage.setItem("muted", this.checked);
@@ -878,7 +883,6 @@ const ready = async () => {
     document.getElementById("option__displaywavecount").value = +localStorage.getItem("displayWaveCount") ?? 6;
     document.getElementById("option__displaywavecount").addEventListener("input", function() {
       localStorage.setItem("displayWaveCount", this.value);
-      document.getElementById("require-reload").classList.add("show");
       ipcRenderer.send("UPDATE:tray");
     });
     document.getElementById(`option__chartyscale__${localStorage.getItem("chartYScale")}`).selected = true;
@@ -911,6 +915,12 @@ const ready = async () => {
     localStorage.setItem("backgroundThrottling", this.checked);
     ipcRenderer.send("SET:bt", this.checked);
     ipcRenderer.send("UPDATE:tray");
+  });
+  document.getElementById("option__debug__alertbypass").addEventListener("click", function() {
+    DEBUG_FLAG_ALERT_BYPASS = this.checked;
+  });
+  document.getElementById("option__debug__silly").addEventListener("click", function() {
+    DEBUG_FLAG_SILLY = this.checked;
   });
   // #endregion
 };
