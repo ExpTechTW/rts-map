@@ -88,6 +88,7 @@ const ready = async () => {
      */
     stations: {}
   };
+
   const timer = {};
 
   const map = L.map("map", {
@@ -172,7 +173,6 @@ const ready = async () => {
     map.setView([23.61, 120.65], 7.5);
   });
 
-
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", event => {
     isDark = event.matches;
     console.debug(`%c[Theme]%c Theme changed to: ${isDark ? "DARK" : "LIGHT"}`, "color: blueviolet", "color:unset");
@@ -255,6 +255,9 @@ const ready = async () => {
         console.debug("%c[WS]%c WebSocket has connected", "color: blueviolet", "color:unset");
       } else if (parsed.response == "Subscription Succeeded") {
         console.debug("%c[WS]%c Subscribed to trem-rts-v2", "color: blueviolet", "color:unset");
+
+        if (!timer.tick)
+          timer.tick = setInterval(tick, 1_000);
       } else if (parsed.type == "trem-rts") {
         rts_raw = parsed.raw;
       } else if (parsed.type == "trem-rts-original") {
@@ -266,10 +269,10 @@ const ready = async () => {
     });
   };
 
-  setInterval(() => {
+  const tick = () => {
     rts(rts_raw);
     wave(wave_raw);
-  }, 1_000);
+  };
 
   connect(5000);
 
