@@ -21,7 +21,7 @@ const AppThemeMode = Object.freeze({
  * @readonly
  */
 const ChartYScale = Object.freeze({
-  Maxmium : "0",
+  Maximum : "0",
   Normal  : "5",
   Minimum : "20"
 });
@@ -213,10 +213,10 @@ const setTrayMenu = (settings) => {
                 {
                   label   : "最大",
                   type    : "radio",
-                  checked : settings.chartYScale == ChartYScale.Maxmium,
+                  checked : settings.chartYScale == ChartYScale.Maximum,
                   click() {
-                    win.webContents.executeJavaScript(`localStorage.setItem("chartYScale","${ChartYScale.Maxmium}")`);
-                    settings.chartScale = ChartYScale.Maxmium;
+                    win.webContents.executeJavaScript(`localStorage.setItem("chartYScale","${ChartYScale.Maximum}")`);
+                    settings.chartScale = ChartYScale.Maximum;
                   }
                 },
                 {
