@@ -22,12 +22,14 @@
 
 html, body {
   margin: 0px;
-  height: 100%;
+  height: 100svh;
+  width: 100svw;
   color: white;
   background-color: #1C1B1F;
   overflow: hidden;
   font-family: "Google Sans", "Noto Sans TC", sans-serif;
   font-variant-numeric: tabular-nums;
+  user-select: none;
 }
 
 body {
@@ -36,7 +38,8 @@ body {
 }
 
 #app-container {
-  display: flex;
+  height: 100%;
+  width: 100%;
 }
 
 #app-container.has-bg {
@@ -47,6 +50,10 @@ body {
 
 body.blur #app-container.has-bg {
   background-color: hsla(226, 0%, 13%, 1);
+}
+
+main {
+  display: flex;
 }
 
 #map-container {
@@ -255,6 +262,54 @@ body.alert #max-int {
 
 .chart:last-child {
   margin-bottom: 6px;
+}
+
+#settings {
+  position: absolute;
+  inset: 5%;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 512px 0 #000;
+  background-color: #211E29;
+  z-index: 90000000;
+  opacity: 0;
+  transition: opacity .1s ease-in-out;
+  pointer-events: none;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 16px;
+}
+
+#settings.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#settings.show + main {
+  pointer-events: none;
+}
+
+#settings.show + main #map-container {
+  -webkit-app-region: none;
+  pointer-events: none;
+}
+
+#settings > .heading {
+  margin: 8px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+#settings > .heading:not(:first-child) {
+  margin-top: 12px;
+}
+
+#settings > .option {
+  display: flex;
+  margin: 8px;
+}
+
+#settings > .option > label {
+  flex: 1;
 }
 
 @media (prefers-color-scheme: light) {

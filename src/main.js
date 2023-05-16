@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, nativeTheme, dialog } = require("electron");
+const { app, BrowserWindow, Tray, Menu, nativeTheme, dialog, ipcMain } = require("electron");
 require("@electron/remote/main").initialize();
 const path = require("path");
 
@@ -428,9 +428,9 @@ app.whenReady().then(async () => {
     ["alwaysOnTop", false],
     ["backgroundThrottling", true],
     ["themeMode", AppThemeMode.System],
+    ["displayWaveCount", 6],
     ["chartYScale", ChartYScale.Minimum],
     ["autoSwitchWave", true],
-    ["displayWaveCount", 6],
     ["minimumTriggeredStation", 2],
   ].filter(v => !Object.keys(settings).includes(v[0])))
     win.webContents.executeJavaScript(`localStorage.setItem("${value[0]}","${value[1]}")`);
@@ -472,4 +472,17 @@ app.on("before-quit", () => {
   win.destroy();
   tray = null;
   win = null;
+});
+
+ipcMain.on("SET:aot", (e, state) => {
+  win.setAlwaysOnTop(state);
+});
+
+ipcMain.on("SET:bt", (e, state) => {
+  win.webContents.setBackgroundThrottling(state);
+});
+
+ipcMain.on("UPDATE:tray", async (e) => {
+  console.log("update");
+  setTrayMenu(await win.webContents.executeJavaScript("({...localStorage})"));
 });

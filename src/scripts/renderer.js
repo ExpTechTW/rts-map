@@ -1,7 +1,8 @@
 /* global DEBUG_FLAG_ALERT_BYPASS: true, DEBUG_FLAG_SILLY = false */
 const ready = async () => {
   const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:timers");
-  const { app, Menu, MenuItem, BrowserWindow } = require("@electron/remote");
+  const { app, Menu, MenuItem, nativeTheme } = require("@electron/remote");
+  const { ipcRenderer } = require("electron/renderer");
   const { WebSocket } = require("ws");
   const L = require("leaflet");
   const chroma = require("chroma-js");
@@ -834,7 +835,86 @@ const ready = async () => {
     }
   };
   // #endregion
+
+  // #region Shortcuts
+
+  document.addEventListener("keydown", (event) => {
+    if (event.ctrlKey && event.key === "o") {
+      event.preventDefault();
+      // Perform the action for the keyboard shortcut
+      displaySettings();
+    }
+  });
+
+  const displaySettings = () => {
+    document.getElementById("settings").classList.toggle("show");
+  };
+
+  (() => {
+    document.getElementById("option__muted").checked = localStorage.getItem("muted") == "true";
+    document.getElementById("option__muted").addEventListener("click", function() {
+      localStorage.setItem("muted", this.checked);
+      ipcRenderer.send("UPDATE:tray");
+    });
+    document.getElementById("option__area").checked = localStorage.getItem("area") == "true";
+    document.getElementById("option__area").addEventListener("click", function() {
+      localStorage.setItem("area", this.checked);
+      ipcRenderer.send("UPDATE:tray");
+    });
+    document.getElementById("option__alwaysontop").checked = localStorage.getItem("alwaysOnTop") == "true";
+    document.getElementById("option__alwaysontop").addEventListener("click", function() {
+      localStorage.setItem("alwaysOnTop", this.checked);
+      ipcRenderer.send("SET:aot", this.checked);
+      ipcRenderer.send("UPDATE:tray");
+    });
+    document.getElementById(`option__theme__${localStorage.getItem("themeMode")}`).selected = true;
+    document.getElementById("option__theme").addEventListener("change", function() {
+      localStorage.setItem("themeMode", this.selectedOptions[0].value);
+      nativeTheme.themeSource = this.selectedOptions[0].value;
+      ipcRenderer.send("UPDATE:tray");
+    });
+
+    // wave
+    document.getElementById("option__displaywavecount").value = +localStorage.getItem("displayWaveCount") ?? 6;
+    document.getElementById("option__displaywavecount").addEventListener("input", function() {
+      localStorage.setItem("displayWaveCount", this.value);
+      document.getElementById("require-reload").classList.add("show");
+      ipcRenderer.send("UPDATE:tray");
+    });
+    document.getElementById(`option__chartyscale__${localStorage.getItem("chartYScale")}`).selected = true;
+    document.getElementById("option__chartyscale").addEventListener("change", function() {
+      localStorage.setItem("chartYScale", this.selectedOptions[0].value);
+      ipcRenderer.send("UPDATE:tray");
+    });
+    document.getElementById("option__autoswitchwave").checked = localStorage.getItem("autoSwitchWave") == "true";
+    document.getElementById("option__autoswitchwave").addEventListener("click", function() {
+      localStorage.setItem("autoSwitchWave", this.checked);
+      ipcRenderer.send("UPDATE:tray");
+    });
+    document.getElementById("option__minimumtriggeredstation").value = +localStorage.getItem("minimumTriggeredStation") ?? 6;
+    document.getElementById("option__minimumtriggeredstation").setAttribute("max", localStorage.getItem("displayWaveCount") ?? "6");
+    document.getElementById("option__minimumtriggeredstation").addEventListener("input", function() {
+      localStorage.setItem("minimumTriggeredStation", this.value);
+      ipcRenderer.send("UPDATE:tray");
+    });
+  })();
+
+  // api
+  document.getElementById("option__apikey").value = localStorage.getItem("key") ?? "";
+  document.getElementById("option__apikey").addEventListener("change", function() {
+    localStorage.setItem("key", this.value);
+    subscribe();
+    ipcRenderer.send("UPDATE:tray");
+  });
+  document.getElementById("option__backgroundthrottling").checked = localStorage.getItem("backgroundThrottling") == "true";
+  document.getElementById("option__backgroundthrottling").addEventListener("click", function() {
+    localStorage.setItem("backgroundThrottling", this.checked);
+    ipcRenderer.send("SET:bt", this.checked);
+    ipcRenderer.send("UPDATE:tray");
+  });
+  // #endregion
 };
+
 
 document.addEventListener("DOMContentLoaded", ready);
 

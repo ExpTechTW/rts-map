@@ -6,40 +6,96 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../node_modules/leaflet/dist/leaflet.css">
   <link rel="stylesheet" href="../stylesheets/style.css">
+  <link rel="stylesheet" href="../stylesheets/components.css">
   <title>rts-map v0.0.14</title>
 </head>
 <body>
   <div id="app-container">
-    <div id="max-int">
-      <div class="int-container">
-        <span id="int-value"></span>
-        <span id="int-scale"></span>
+    <div id="settings">
+      <div class="heading">設定</div>
+      <div class="option">
+        <label for="option__muted">靜音</label>
+        <input type="checkbox" name="option__muted" id="option__muted">
       </div>
-      <div class="loc-container">
-        <span id="loc-county"></span>
-        <span id="loc-town"></span>
+      <div class="option">
+        <label for="option__area">檢知框框</label>
+        <input type="checkbox" name="option__area" id="option__area">
+      </div>
+      <div class="option">
+        <label for="option__alwaysontop">最上層顯示</label>
+        <input type="checkbox" name="option__alwaysontop" id="option__alwaysontop">
+      </div>
+      <div class="option">
+        <label for="option__theme">主題色</label>
+        <select name="option__theme" id="option__theme">
+          <option value="light" id="option__theme__light">淺色</option>
+          <option value="dark"id="option__theme__dark">深色</option>
+          <option value="system" id="option__theme__system">系統</option>
+        </select>
+      </div>
+      <div class="heading">震波顯示器</div>
+      <div class="option">
+        <label for="option__displaywavecount">波形圖測站數量</label>
+        <input type="number" name="option__displaywavecount" id="option__displaywavecount" min="0" max="8">
+      </div>
+      <div class="option">
+        <label for="option__chartyscale">波形圖縱軸縮放</label>
+        <select name="option__chartyscale" id="option__chartyscale">
+          <option value="0" id="option__chartyscale__0">最大</option>
+          <option value="5" id="option__chartyscale__5">一般</option>
+          <option value="20" id="option__chartyscale__20">最小</option>
+        </select>
+      </div>
+      <div class="option">
+        <label for="option__autoswitchwave">自動切換觸發測站</label>
+        <input type="checkbox" name="option__autoswitchwave" id="option__autoswitchwave">
+      </div>
+      <div class="option">
+        <label for="option__minimumtriggeredstation">自動切換最小觸發測站數</label>
+        <input type="number" name="option__minimumtriggeredstation" id="option__minimumtriggeredstation" min="0" max="8">
+      </div>
+      <div class="heading">API</div>
+      <div class="option">
+        <label for="option__apikey">API 金鑰</label>
+        <input type="password" name="" placeholder="API Key" id="option__apikey">
+      </div>
+      <div class="option">
+        <label for="option__backgroundthrottling">背景節流</label>
+        <input type="checkbox" name="option__backgroundthrottling" id="option__backgroundthrottling">
       </div>
     </div>
-    <div id="time"></div>
-    <div id="map-container">
-      <div id="legend">
-        <div id="max-int-marker" class="legend-marker"></div>
-        <div id="avg-int-marker" class="legend-marker hide"></div>
-        <div id="min-int-marker" class="legend-marker hide"></div>
-        <div class="legend-item seven">7</div>
-        <div class="legend-item sixh">6</div>
-        <div class="legend-item sixl">6</div>
-        <div class="legend-item fiveh">5</div>
-        <div class="legend-item fivel">5</div>
-        <div class="legend-item four">4</div>
-        <div class="legend-item three">3</div>
-        <div class="legend-item two">2</div>
-        <div class="legend-item one">1</div>
-        <div class="legend-item zero">0</div>
+    <main>
+      <div id="max-int">
+        <div class="int-container">
+          <span id="int-value"></span>
+          <span id="int-scale"></span>
+        </div>
+        <div class="loc-container">
+          <span id="loc-county"></span>
+          <span id="loc-town"></span>
+        </div>
       </div>
-      <div id="map"></div>
-    </div>
-    <div id="wave-container"></div>
+      <div id="time"></div>
+      <div id="map-container">
+        <div id="legend">
+          <div id="max-int-marker" class="legend-marker"></div>
+          <div id="avg-int-marker" class="legend-marker hide"></div>
+          <div id="min-int-marker" class="legend-marker hide"></div>
+          <div class="legend-item seven">7</div>
+          <div class="legend-item sixh">6</div>
+          <div class="legend-item sixl">6</div>
+          <div class="legend-item fiveh">5</div>
+          <div class="legend-item fivel">5</div>
+          <div class="legend-item four">4</div>
+          <div class="legend-item three">3</div>
+          <div class="legend-item two">2</div>
+          <div class="legend-item one">1</div>
+          <div class="legend-item zero">0</div>
+        </div>
+        <div id="map"></div>
+      </div>
+      <div id="wave-container"></div>
+    </main>
   </div>
   <script>
     var DEBUG_FLAG_ALERT_BYPASS = false;
