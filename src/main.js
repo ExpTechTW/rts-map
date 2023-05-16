@@ -483,6 +483,5 @@ ipcMain.on("SET:bt", (e, state) => {
 });
 
 ipcMain.on("UPDATE:tray", async (e) => {
-  console.log("update");
   setTrayMenu(await win.webContents.executeJavaScript("({...localStorage})"));
 });
