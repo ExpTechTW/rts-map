@@ -227,20 +227,7 @@ const ready = async () => {
       if (DEBUG_FLAG_SILLY)
         console.debug("%c[WS_OPEN]", "color: blueviolet", ws);
 
-      const message = {
-        uuid     : requestUA,
-        function : "subscriptionService",
-        value    : ["trem-rts-v2", "trem-rts-original-v1"],
-        key      : localStorage.getItem("key") ?? "",
-        addition : {
-          "trem-rts-original-v1": chartuuids
-        }
-      };
-
-      if (DEBUG_FLAG_SILLY)
-        console.debug("%c[WS_SEND]", "color: blueviolet", message);
-
-      ws.send(JSON.stringify(message));
+      while (!subscribe());
     });
 
     ws.on("message", (raw) => {
@@ -267,6 +254,32 @@ const ready = async () => {
         wave_raw = _wave_raw;
       }
     });
+  };
+
+  const subscribe = () => {
+    if (!(ws instanceof WebSocket)) return false;
+
+    if (ws.readyState !== ws.OPEN) return false;
+
+    const message = {
+      uuid     : requestUA,
+      function : "subscriptionService",
+      value    : ["trem-rts-v2", ...(wave_count > 0 ? ["trem-rts-original-v1"] : [])],
+      key      : localStorage.getItem("key") ?? "",
+      ...(wave_count > 0
+        ? {
+          addition: {
+            "trem-rts-original-v1": chartuuids
+          }
+        }
+        : {})
+    };
+
+    if (DEBUG_FLAG_SILLY)
+      console.debug("%c[WS_SEND]", "color: blueviolet", message);
+
+    ws.send(JSON.stringify(message));
+    return true;
   };
 
   const tick = () => {
