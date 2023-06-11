@@ -296,7 +296,7 @@ const ready = async () => {
 
   // #region for debugging: replay
 
-  // let rts_replay_time = new Date("2023/02/17 09:22:50").getTime();
+  // let rts_replay_time = 1686375110598;
 
   // setInterval(async () => {
   //   try {
@@ -309,7 +309,7 @@ const ready = async () => {
   //     rts_replay_time += 1000;
 
   //     if (controller.signal.aborted || ans == undefined) return;
-  //     rts(await ans.json());
+  //     rts_raw = await ans.json();
   //   } catch (err) {
   //     // ignore exceptions
   //   }
@@ -541,7 +541,6 @@ const ready = async () => {
 
     const time = new Date(rts_data.Time || Date.now());
     document.getElementById("time").innerText = `${time.getFullYear()}/${(time.getMonth() + 1) < 10 ? `0${time.getMonth() + 1}` : time.getMonth() + 1}/${time.getDate() < 10 ? `0${time.getDate()}` : time.getDate()} ${time.getHours() < 10 ? `0${time.getHours()}` : time.getHours()}:${time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes()}:${time.getSeconds() < 10 ? `0${time.getSeconds()}` : time.getSeconds()}`;
-    rts_raw = { Time: time.getTime() };
   };
 
   const intensity_float_to_int = function(float) {
