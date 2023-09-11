@@ -21,7 +21,17 @@
   "build": {
     "productName": "rts-map",
     "appId": "tw.exptech.rts-map",
-    "asar": false,
+    "asar": true,
+    "files": [
+      "resources/**/*",
+      "scripts/*",
+      "stylesheets/*",
+      "views/*",
+      "app.ico",
+      "main.js",
+      "package-lock.json",
+      "package.json"
+    ],
     "dmg": {
       "contents": [
         {
