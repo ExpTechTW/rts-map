@@ -356,6 +356,8 @@ const ready = async () => {
   let chartAlerted = [];
 
   const rts = (rts_data) => {
+    if (rts_data == null) return;
+
     const online_list = Object.keys(rts_data);
     let max = { id: null, i: -4 };
     let min = { id: null, i: 8 };
@@ -751,6 +753,8 @@ const ready = async () => {
   }
 
   const wave = (jsondata) => {
+    if (jsondata == null) return;
+
     const now = new Date(Date.now());
 
     for (let i = 0; i < wave_count; i++) {
