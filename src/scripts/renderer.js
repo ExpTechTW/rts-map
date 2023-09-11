@@ -59,12 +59,12 @@ const ready = async () => {
     "H-979-11336952-11"
   ];
 
-  const grad_i
+  const gradIntensity
   = chroma
     .scale(["#0500A3", "#00ceff", "#33ff34", "#fdff32", "#ff8532", "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9"])
     .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-  const wave_count = +(localStorage.getItem("displayWaveCount") ?? 6);
+  const waveCount = +(localStorage.getItem("displayWaveCount") ?? 6);
 
   const int = [
     { value: "0", scale: "級" },
@@ -166,11 +166,11 @@ const ready = async () => {
 
   map.setView([23.61, 120.65], 7.5);
 
-  if (!wave_count)
+  if (!waveCount)
     window.resizeTo(400, 560);
 
   window.addEventListener("resize", () => {
-    window.resizeTo(wave_count ? 800 : 400, 560);
+    window.resizeTo(waveCount ? 800 : 400, 560);
     map.setView([23.61, 120.65], 7.5);
   });
 
@@ -198,11 +198,11 @@ const ready = async () => {
   /**
    * @type {WebSocket}
    */
-  let ws, heartbeat_time, rts_raw = {}, wave_raw = {};
+  let ws, heartbeatTimestamp, rtsRaw = {}, waveRaw = {};
 
   setInterval(() => {
-    if (heartbeat_time && Date.now() - heartbeat_time > 15_000) {
-      heartbeat_time = 0;
+    if (heartbeatTimestamp && Date.now() - heartbeatTimestamp > 15_000) {
+      heartbeatTimestamp = 0;
       ws.terminate();
     }
   }, 25_000);
@@ -214,7 +214,7 @@ const ready = async () => {
       console.debug("%c[WS_CREATE]", "color: blueviolet", ws);
 
     ws.on("close", () => {
-      heartbeat_time = 0;
+      heartbeatTimestamp = 0;
       console.log(`%c[WS]%c WebSocket closed. Reconnect after ${retryTimeout / 1000}s`, "color: blueviolet", "color:unset");
       ws = null;
       setTimeout(() => connect(retryTimeout), retryTimeout).unref();
@@ -238,7 +238,7 @@ const ready = async () => {
         console.debug("%c[WS_MESSAGE]", "color: blueviolet", parsed);
 
       if (parsed.type == "ntp") {
-        heartbeat_time = Date.now();
+        heartbeatTimestamp = Date.now();
       } else if (parsed.response == "Connection Succeeded") {
         console.debug("%c[WS]%c WebSocket has connected", "color: blueviolet", "color:unset");
       } else if (parsed.response == "Subscription Succeeded") {
@@ -248,14 +248,14 @@ const ready = async () => {
           timer.tick = setInterval(tick, 1_000);
       } else if (parsed.type == "trem-rts") {
         if (parsed.raw != null)
-          rts_raw = parsed.raw;
+          rtsRaw = parsed.raw;
       } else if (parsed.type == "trem-rts-original") {
-        const _wave_raw = {};
+        const newWaveRaw = {};
         for (let i = 0; i < parsed.raw.length; i++)
-          _wave_raw[parsed.raw[i].uuid] = parsed.raw[i].raw;
+          newWaveRaw[parsed.raw[i].uuid] = parsed.raw[i].raw;
 
-        if (_wave_raw != null)
-          wave_raw = _wave_raw;
+        if (newWaveRaw != null)
+          waveRaw = newWaveRaw;
       }
     });
   };
@@ -268,9 +268,9 @@ const ready = async () => {
     const message = {
       uuid     : requestUA,
       function : "subscriptionService",
-      value    : ["trem-rts-v2", ...(wave_count > 0 ? ["trem-rts-original-v1"] : [])],
+      value    : ["trem-rts-v2", ...(waveCount > 0 ? ["trem-rts-original-v1"] : [])],
       key      : localStorage.getItem("key") ?? "",
-      ...(wave_count > 0
+      ...(waveCount > 0
         ? {
           addition: {
             "trem-rts-original-v1": chartuuids
@@ -287,9 +287,9 @@ const ready = async () => {
   };
 
   const tick = () => {
-    rts(rts_raw);
-    wave(wave_raw);
-    wave_raw = null;
+    rts(rtsRaw);
+    wave(waveRaw);
+    waveRaw = null;
   };
 
   connect(5000);
@@ -325,7 +325,7 @@ const ready = async () => {
    */
   const markers = {};
 
-  const fetch_files = async () => {
+  const fetchFiles = async () => {
     try {
       if (DEBUG_FLAG_SILLY)
         console.debug("%c[FETCH]%c Fetching https://raw.githubusercontent.com/ExpTechTW/API/master/Json/earthquake/station.json", "color: blueviolet", "color:unset");
@@ -348,17 +348,17 @@ const ready = async () => {
     }
   };
 
-  await fetch_files();
+  await fetchFiles();
 
-  timer.stations = setInterval(fetch_files, 300_000);
+  timer.stations = setInterval(fetchFiles, 300_000);
 
-  let max_id;
+  let maxId;
   let chartAlerted = [];
 
-  const rts = (rts_data) => {
-    if (rts_data == null) return;
+  const rts = (rtsData) => {
+    if (rtsData == null) return;
 
-    const online_list = Object.keys(rts_data);
+    const onlineList = Object.keys(rtsData);
     let max = { id: null, i: -4 };
     let min = { id: null, i: 8 };
     let sum = 0;
@@ -368,36 +368,36 @@ const ready = async () => {
 
     for (let i = 0, k = Object.keys(data.stations), n = k.length; i < n; i++) {
       const id = k[i];
-      const station_data = data.stations[id];
+      const stationData = data.stations[id];
 
       if (markers[id] instanceof L.Marker) {
         const el = markers[id].getElement();
 
-        if (online_list.includes(id)) {
+        if (onlineList.includes(id)) {
           if (!el.classList.contains("has-data"))
             el.classList.add("has-data");
 
-          el.style.backgroundColor = grad_i(rts_data[id].i);
+          el.style.backgroundColor = gradIntensity(rtsData[id].i);
 
-          if (rts_data[id].i > max.i) max = { id, i: rts_data[id].i };
+          if (rtsData[id].i > max.i) max = { id, i: rtsData[id].i };
 
-          if (rts_data[id].i < min.i) min = { id, i: rts_data[id].i };
+          if (rtsData[id].i < min.i) min = { id, i: rtsData[id].i };
 
-          markers[id].setZIndexOffset(rts_data[id].i + 5);
+          markers[id].setZIndexOffset(rtsData[id].i + 5);
 
-          if (rts_data.Alert && rts_data[id].alert) {
-            sum += rts_data[id].i;
+          if (rtsData.Alert && rtsData[id].alert) {
+            sum += rtsData[id].i;
             count++;
 
-            let _i = intensity_float_to_int(rts_data[id].i);
+            let _i = intensityValueToIntensity(rtsData[id].i);
 
             if (_i == 0) _i = 1;
 
-            if (_i > (area[station_data.PGA] ?? 0))
-              area[station_data.PGA] = _i;
+            if (_i > (area[stationData.PGA] ?? 0))
+              area[stationData.PGA] = _i;
           }
 
-          if (rts_data[id].alert)
+          if (rtsData[id].alert)
             alerted.push(id);
         } else {
           if (el.classList.contains("has-data"))
@@ -405,7 +405,7 @@ const ready = async () => {
           el.style.backgroundColor = "";
         }
       } else {
-        markers[id] = L.marker([station_data.Lat, station_data.Long], {
+        markers[id] = L.marker([stationData.Lat, stationData.Long], {
           icon: L.divIcon({
             className : "station-marker",
             iconSize  : [ 8, 8 ]
@@ -417,7 +417,7 @@ const ready = async () => {
       }
     }
 
-    if (wave_count) {
+    if (waveCount) {
       if (alerted.length) {
         if (localStorage.getItem("autoSwitchWave") == "true")
           if (alerted.length >= +localStorage.getItem("minimumTriggeredStation")) {
@@ -436,13 +436,13 @@ const ready = async () => {
         }, 15_000);
       }
 
-      for (let i = 0; i < wave_count; i++)
+      for (let i = 0; i < waveCount; i++)
         if (chartuuids[i]) {
           const id = chartuuids[i].split("-")[2];
 
-          if (id in rts_data)
+          if (id in rtsData)
             charts[i].setOption({
-              backgroundColor: `${grad_i(rts_data[id].i).hex()}10`
+              backgroundColor: `${gradIntensity(rtsData[id].i).hex()}10`
             });
           else
             charts[i].setOption({
@@ -461,15 +461,15 @@ const ready = async () => {
       fill   : false
     });
 
-    if (max_id != null && max.id != null && max_id != max.id) {
-      if (markers[max_id].getElement().classList.contains("max"))
-        markers[max_id].getElement().classList.remove("max");
+    if (maxId != null && max.id != null && maxId != max.id) {
+      if (markers[maxId].getElement().classList.contains("max"))
+        markers[maxId].getElement().classList.remove("max");
 
       if (!markers[max.id].getElement().classList.contains("max"))
         markers[max.id].getElement().classList.add("max");
     }
 
-    max_id = max.id;
+    maxId = max.id;
 
     const avg = (!count) ? 0 : (sum / count).toFixed(1);
 
@@ -481,10 +481,10 @@ const ready = async () => {
     document.getElementById("min-int-marker").style.bottom = `${min.i < 0 ? 2 * min.i : min.i < 5 ? 37.1428571428571 * min.i : 18.5714285714286 * min.i + 92.8571428571427}px`;
     document.getElementById("avg-int-marker").style.bottom = `${avg < 0 ? 2 * avg : avg < 5 ? 37.1428571428571 * avg : 18.5714285714286 * avg + 92.8571428571427}px`;
 
-    if (rts_data || DEBUG_FLAG_ALERT_BYPASS)
-      if ((rts_data.Alert && max.i >= 2) || DEBUG_FLAG_ALERT_BYPASS) {
-        if (!data.alert_loop)
-          data.alert_loop = true;
+    if (rtsData || DEBUG_FLAG_ALERT_BYPASS)
+      if ((rtsData.Alert && max.i >= 2) || DEBUG_FLAG_ALERT_BYPASS) {
+        if (!data.alertLoop)
+          data.alertLoop = true;
 
         if (!document.body.classList.contains("alert"))
           document.body.classList.add("alert");
@@ -494,8 +494,8 @@ const ready = async () => {
           document.getElementById("min-int-marker").classList.remove("hide");
         }
 
-        document.getElementById("int-value").innerText = int[intensity_float_to_int(rts_data[max.id].i)].value;
-        document.getElementById("int-scale").innerText = int[intensity_float_to_int(rts_data[max.id].i)].scale;
+        document.getElementById("int-value").innerText = int[intensityValueToIntensity(rtsData[max.id].i)].value;
+        document.getElementById("int-scale").innerText = int[intensityValueToIntensity(rtsData[max.id].i)].scale;
         document.getElementById("loc-county").innerText = data.stations[max.id]?.Loc?.split(" ")?.[0] ?? "";
         document.getElementById("loc-town").innerText = data.stations[max.id]?.Loc?.split(" ")?.[1] ?? "";
 
@@ -512,7 +512,7 @@ const ready = async () => {
 
         if (!timer.alert)
           timer.alert = setInterval(() => {
-            if (data.alert_loop) {
+            if (data.alertLoop) {
               if (localStorage.getItem("muted") == "false") {
                 data.alert.pause();
                 data.alert.currentTime = 0;
@@ -524,8 +524,8 @@ const ready = async () => {
             }
           }, 1500);
       } else {
-        if (data.alert_loop)
-          data.alert_loop = false;
+        if (data.alertLoop)
+          data.alertLoop = false;
 
         if (document.body.classList.contains("alert"))
           document.body.classList.remove("alert");
@@ -541,11 +541,11 @@ const ready = async () => {
         }
       }
 
-    const time = new Date(rts_data.Time || Date.now());
+    const time = new Date(rtsData.Time || Date.now());
     document.getElementById("time").innerText = `${time.getFullYear()}/${(time.getMonth() + 1) < 10 ? `0${time.getMonth() + 1}` : time.getMonth() + 1}/${time.getDate() < 10 ? `0${time.getDate()}` : time.getDate()} ${time.getHours() < 10 ? `0${time.getHours()}` : time.getHours()}:${time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes()}:${time.getSeconds() < 10 ? `0${time.getSeconds()}` : time.getSeconds()}`;
   };
 
-  const intensity_float_to_int = function(float) {
+  const intensityValueToIntensity = function(float) {
     return (float < 0) ? 0
       : (float < 4.5) ? Math.round(float)
         : (float < 5) ? 5
@@ -561,11 +561,11 @@ const ready = async () => {
   const charts = [];
   const chartdata = [];
 
-  for (let i = 0; i < wave_count; i++) {
+  for (let i = 0; i < waveCount; i++) {
     const dom = document.createElement("div");
     dom.className = "chart";
     document.getElementById("wave-container").append(dom);
-    charts.push(echarts.init(dom, null, { height: (560 / wave_count) - (6 * (wave_count + 1) / wave_count), width: 394 }));
+    charts.push(echarts.init(dom, null, { height: (560 / waveCount) - (6 * (waveCount + 1) / waveCount), width: 394 }));
     chartdata.push([]);
     dom.addEventListener("contextmenu", () => {
       const menu = new Menu();
@@ -622,14 +622,14 @@ const ready = async () => {
     if (DEBUG_FLAG_SILLY)
       console.debug("%c[CHART]%c Setting chart to ids...", "color: blueviolet", "color:unset", ids);
 
-    let ws_send = false;
+    let wsSend = false;
 
-    for (let i = 0; i < wave_count; i++)
+    for (let i = 0; i < waveCount; i++)
       if (data.stations?.[ids[i]]?.uuid) {
         if (chartuuids[i] != data.stations[ids[i]].uuid) {
           chartuuids[i] = data.stations[ids[i]].uuid;
           chartdata[i] = [];
-          ws_send = true;
+          wsSend = true;
         }
 
         charts[i].setOption({
@@ -683,7 +683,7 @@ const ready = async () => {
         });
       }
 
-    if (ws_send) {
+    if (wsSend) {
       const message = {
         uuid     : requestUA,
         function : "subscriptionService",
@@ -705,7 +705,7 @@ const ready = async () => {
     }
   };
 
-  if (wave_count) {
+  if (waveCount) {
     setCharts(runtimedefaultchartuuids.toIds());
 
     for (const chart of charts)
@@ -757,7 +757,7 @@ const ready = async () => {
 
     const now = new Date(Date.now());
 
-    for (let i = 0; i < wave_count; i++) {
+    for (let i = 0; i < waveCount; i++) {
       if (jsondata[chartuuids[i]]) {
         chartdata[i].push(...jsondata[chartuuids[i]].map((value, index, array) => ({
           name  : now.toString(),
@@ -837,9 +837,9 @@ const ready = async () => {
       }
     }
 
-    for (let i = 0; i < Object.keys(wave_raw).length; i++) {
-      const id = Object.keys(wave_raw)[i];
-      wave_raw[id] = null;
+    for (let i = 0; i < Object.keys(waveRaw).length; i++) {
+      const id = Object.keys(waveRaw)[i];
+      waveRaw[id] = null;
     }
   };
   // #endregion

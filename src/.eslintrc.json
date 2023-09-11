@@ -12,6 +12,7 @@
     "arrow-body-style": "warn",
     "arrow-spacing": ["warn", { "before": true, "after": true }],
     "brace-style": ["error", "1tbs", { "allowSingleLine": false }],
+    "camelcase": "error",
     "comma-spacing": "error",
     "comma-style": "error",
     "curly": ["error", "multi", "consistent"],
