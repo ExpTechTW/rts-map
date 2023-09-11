@@ -366,6 +366,11 @@ const ready = async () => {
     const area = {};
     const alerted = [];
 
+    for (const removedStationId of Object.keys(markers).filter(v => !data.stations[v])) {
+      markers[removedStationId].remove();
+      delete markers[removedStationId];
+    }
+
     for (let i = 0, k = Object.keys(data.stations), n = k.length; i < n; i++) {
       const id = k[i];
       const stationData = data.stations[id];
