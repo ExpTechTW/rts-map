@@ -247,8 +247,8 @@ const ready = async () => {
         if (!timer.tick)
           timer.tick = setInterval(tick, 1_000);
       } else if (parsed.type == "trem-rts") {
-        if (parsed.raw != null)
-          rtsRaw = parsed.raw;
+        // if (parsed.raw != null)
+        // rtsRaw = parsed.raw;
       } else if (parsed.type == "trem-rts-original") {
         const newWaveRaw = {};
         for (let i = 0; i < parsed.raw.length; i++)
@@ -296,24 +296,24 @@ const ready = async () => {
 
   // #region for debugging: replay
 
-  // let rts_replay_time = 1686375110598;
+  let rts_replay_time = new Date("2023-10-22 14:52:20").getTime();
 
-  // setInterval(async () => {
-  //   try {
-  //     const controller = new AbortController();
-  //     setTimeout(() => {
-  //       controller.abort();
-  //     }, 1500);
-  //     const ans = await fetch(`https://exptech.com.tw/api/v2/trem/rts?time=${rts_replay_time}`, { signal: controller.signal })
-  //       .catch(() => void 0);
-  //     rts_replay_time += 1000;
+  setInterval(async () => {
+    try {
+      const controller = new AbortController();
+      setTimeout(() => {
+        controller.abort();
+      }, 1500);
+      const ans = await fetch(`https://exptech.com.tw/api/v2/trem/rts?time=${rts_replay_time}`, { signal: controller.signal })
+        .catch(() => void 0);
+      rts_replay_time += 1000;
 
-  //     if (controller.signal.aborted || ans == undefined) return;
-  //     rts_raw = await ans.json();
-  //   } catch (err) {
-  //     // ignore exceptions
-  //   }
-  // }, 1_000);
+      if (controller.signal.aborted || ans == undefined) return;
+      rtsRaw = await ans.json();
+    } catch (err) {
+      // ignore exceptions
+    }
+  }, 1_000);
 
   // #endregion
 
