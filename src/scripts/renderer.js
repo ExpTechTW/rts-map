@@ -204,7 +204,19 @@ const ready = async () => {
   const wsConfig = {
     type    : "start",
     key     : "K0Q9Z4BJ23YVGNM7Q0G6D10V5QLFX4",
-    service : ["trem.rts"],
+    service : ["trem.rts", "trem.rtw"],
+    config  : {
+      "trem.rtw": [
+        4812424,
+        11339620,
+        11370676,
+        11334880,
+        6125804,
+        1480496,
+        6126556,
+        11336952
+      ]
+    }
   };
 
   setInterval(() => {
@@ -242,6 +254,8 @@ const ready = async () => {
 
     ws.on("message", (raw) => {
       const parsed = JSON.parse(raw);
+
+      console.log(parsed);
 
       if (DEBUG_FLAG_SILLY)
         console.debug("%c[WS_MESSAGE]", "color: blueviolet", parsed);
@@ -290,21 +304,17 @@ const ready = async () => {
               rtsRaw = parsed.data.data;
               break;
             }
+
+            case "rtw": {
+              console.log(data);
+              break;
+            }
           }
 
           break;
         }
 
         default: break;
-      }
-
-      if (parsed.type == "trem-rts-original") {
-        const newWaveRaw = {};
-        for (let i = 0; i < parsed.raw.length; i++)
-          newWaveRaw[parsed.raw[i].uuid] = parsed.raw[i].raw;
-
-        if (newWaveRaw != null)
-          waveRaw = newWaveRaw;
       }
     });
   };
@@ -953,7 +963,6 @@ const ready = async () => {
   document.getElementById("option__apikey").value = localStorage.getItem("key") ?? "";
   document.getElementById("option__apikey").addEventListener("change", function() {
     localStorage.setItem("key", this.value);
-    subscribe();
     ipcRenderer.send("UPDATE:tray");
   });
   document.getElementById("option__backgroundthrottling").checked = localStorage.getItem("backgroundThrottling") == "true";
