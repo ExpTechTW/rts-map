@@ -250,6 +250,15 @@ body.alert #max-int {
   bottom: 256px;
 }
 
+#disconnected-overlay {
+  position: absolute;
+  bottom: 36px;
+  left: 16px;
+  height: 24px;
+  aspect-ratio: 1;
+  animation: wave 4s ease-in-out infinite;
+}
+
 .leaflet-stations-pane > canvas{
   z-index: 5000;
 }
@@ -360,5 +369,19 @@ body.alert #max-int {
   #settings {
     background-color: #F3EDF7;
     color: #000;
+  }
+}
+
+@keyframes wave {
+  0% {
+    opacity: 0%;
+  }
+
+  50% {
+    opacity: 60%;
+  }
+
+  100% {
+    opacity: 0%;
   }
 }

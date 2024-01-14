@@ -82,10 +82,11 @@ const ready = async () => {
   const data = {
     map   : require(path.resolve(__dirname, "../resources/tw_county.json")),
     area  : require(path.resolve(__dirname, "../resources/area.json")),
+    code  : require(path.resolve(__dirname, "../resources/code.json")),
     alert : new Audio(path.resolve(__dirname, "../resources/alert.wav")),
 
     /**
-     * @type {Record<string, Station>} stations
+     * @type {Record<StationId, Station>} stations
      */
     stations: {}
   };
@@ -198,24 +199,32 @@ const ready = async () => {
   /**
    * @type {WebSocket}
    */
-  let ws, heartbeatTimestamp, rtsRaw = {}, waveRaw = {};
+  let ws, syncOffset, rtsRaw = {}, waveRaw = {};
+
+  const wsConfig = {
+    type    : "start",
+    key     : "K0Q9Z4BJ23YVGNM7Q0G6D10V5QLFX4",
+    service : ["trem.rts"],
+  };
 
   setInterval(() => {
-    if (heartbeatTimestamp && Date.now() - heartbeatTimestamp > 15_000) {
-      heartbeatTimestamp = 0;
+    if (syncOffset && Date.now() - syncOffset > 15_000) {
+      syncOffset = 0;
       ws.terminate();
     }
   }, 25_000);
 
   const connect = (retryTimeout) => {
-    ws = new WebSocket("wss://exptech.com.tw/api");
+    ws = new WebSocket("wss://ws.exptech.com.tw/websocket");
 
     if (DEBUG_FLAG_SILLY)
       console.debug("%c[WS_CREATE]", "color: blueviolet", ws);
 
-    ws.on("close", () => {
-      heartbeatTimestamp = 0;
-      console.log(`%c[WS]%c WebSocket closed. Reconnect after ${retryTimeout / 1000}s`, "color: blueviolet", "color:unset");
+    ws.on("close", (code) => {
+      document.getElementById("disconnected-overlay").style.display = "";
+
+      syncOffset = 0;
+      console.log(`%c[WS]%c WebSocket closed (code ${code}). Reconnect after ${retryTimeout / 1000}s`, "color: blueviolet", "color:unset");
       ws = null;
       setTimeout(() => connect(retryTimeout), retryTimeout).unref();
     });
@@ -228,7 +237,7 @@ const ready = async () => {
       if (DEBUG_FLAG_SILLY)
         console.debug("%c[WS_OPEN]", "color: blueviolet", ws);
 
-      while (!subscribe());
+      ws.send(JSON.stringify(wsConfig));
     });
 
     ws.on("message", (raw) => {
@@ -237,19 +246,59 @@ const ready = async () => {
       if (DEBUG_FLAG_SILLY)
         console.debug("%c[WS_MESSAGE]", "color: blueviolet", parsed);
 
-      if (parsed.type == "ntp") {
-        heartbeatTimestamp = Date.now();
-      } else if (parsed.response == "Connection Succeeded") {
-        console.debug("%c[WS]%c WebSocket has connected", "color: blueviolet", "color:unset");
-      } else if (parsed.response == "Subscription Succeeded") {
-        console.debug("%c[WS]%c Subscribed to trem-rts-v2", "color: blueviolet", "color:unset");
+      switch (parsed.type) {
+        case "verify":{
+          ws.send(JSON.stringify(wsConfig));
+          break;
+        }
 
-        if (!timer.tick)
-          timer.tick = setInterval(tick, 1_000);
-      } else if (parsed.type == "trem-rts") {
-        // if (parsed.raw != null)
-        // rtsRaw = parsed.raw;
-      } else if (parsed.type == "trem-rts-original") {
+        case "ntp": {
+          syncOffset = Date.now();
+          break;
+        }
+
+        case "info": {
+          switch (parsed.data.code) {
+            case 200: {
+              if (!parsed.data.list.length) {
+                // no permission to use rts
+                ws.close();
+
+                // TODO: show no permission and lock app
+                break;
+              }
+
+              document.getElementById("disconnected-overlay").style.display = "none";
+
+              if (!timer.tick)
+                timer.tick = setInterval(tick, 1_000);
+              break;
+            }
+
+            case 503: {
+              setTimeout(() => ws.send(JSON.stringify(wsConfig)), 3_000);
+              break;
+            }
+          }
+
+          break;
+        }
+
+        case "data": {
+          switch (parsed.data.type) {
+            case "rts": {
+              rtsRaw = parsed.data.data;
+              break;
+            }
+          }
+
+          break;
+        }
+
+        default: break;
+      }
+
+      if (parsed.type == "trem-rts-original") {
         const newWaveRaw = {};
         for (let i = 0; i < parsed.raw.length; i++)
           newWaveRaw[parsed.raw[i].uuid] = parsed.raw[i].raw;
@@ -260,34 +309,10 @@ const ready = async () => {
     });
   };
 
-  const subscribe = () => {
-    if (!(ws instanceof WebSocket)) return false;
-
-    if (ws.readyState !== ws.OPEN) return false;
-
-    const message = {
-      uuid     : requestUA,
-      function : "subscriptionService",
-      value    : ["trem-rts-v2", ...(waveCount > 0 ? ["trem-rts-original-v1"] : [])],
-      key      : localStorage.getItem("key") ?? "",
-      ...(waveCount > 0
-        ? {
-          addition: {
-            "trem-rts-original-v1": chartuuids
-          }
-        }
-        : {})
-    };
-
-    if (DEBUG_FLAG_SILLY)
-      console.debug("%c[WS_SEND]", "color: blueviolet", message);
-
-    ws.send(JSON.stringify(message));
-    return true;
-  };
-
   const tick = () => {
-    rts(rtsRaw);
+    if (ws)
+      rts(rtsRaw);
+
     wave(waveRaw);
     waveRaw = null;
   };
@@ -295,8 +320,10 @@ const ready = async () => {
   connect(5000);
 
   // #region for debugging: replay
+  let rtsReplayTime;
 
-  let rts_replay_time = new Date("2023-10-22 14:52:20").getTime();
+  /*
+  let rtsReplayTime = new Date("2023-12-31 05:57:05").getTime();
 
   setInterval(async () => {
     try {
@@ -304,16 +331,16 @@ const ready = async () => {
       setTimeout(() => {
         controller.abort();
       }, 1500);
-      const ans = await fetch(`https://exptech.com.tw/api/v2/trem/rts?time=${rts_replay_time}`, { signal: controller.signal })
+      const ans = await fetch(`https://data.exptech.com.tw/api/v1/trem/rts?time=${rtsReplayTime}`, { signal: controller.signal })
         .catch(() => void 0);
-      rts_replay_time += 1000;
+      rtsReplayTime += 1000;
 
       if (controller.signal.aborted || ans == undefined) return;
       rtsRaw = await ans.json();
     } catch (err) {
       // ignore exceptions
     }
-  }, 1_000);
+  }, 1_000); */
 
   // #endregion
 
@@ -328,20 +355,23 @@ const ready = async () => {
   const fetchFiles = async () => {
     try {
       if (DEBUG_FLAG_SILLY)
-        console.debug("%c[FETCH]%c Fetching https://raw.githubusercontent.com/ExpTechTW/API/master/Json/earthquake/station.json", "color: blueviolet", "color:unset");
+        console.debug("%c[FETCH]%c Fetching https://data.exptech.com.tw/file/resource/station.json", "color: blueviolet", "color:unset");
 
-      const res = await (await fetch("https://raw.githubusercontent.com/ExpTechTW/API/master/Json/earthquake/station.json")).json();
-      const s = {};
+      const res = await (await fetch("https://data.exptech.com.tw/file/resource/station.json")).json();
+
 
       if (res) {
+        const codes = Object.keys(data.code);
+
         for (let i = 0, k = Object.keys(res), n = k.length; i < n; i++) {
           const id = k[i];
 
-          if (res[id].Long > 118 && res[id].Lat < 26.3)
-            s[id.split("-")[2]] = { uuid: id, ...res[id] };
+          if (!codes.includes(`${res[id].info[0].code}`))
+            delete res[id];
+
         }
 
-        data.stations = s;
+        data.stations = res;
       }
     } catch (error) {
       console.warn("%c[FETCH]%c Failed to load station data!", "color: blueviolet", "color:unset", error);
@@ -358,15 +388,20 @@ const ready = async () => {
   const rts = (rtsData) => {
     if (rtsData == null) return;
 
-    const onlineList = Object.keys(rtsData);
+    const stations = rtsData.station;
+
+    if (!stations) return;
+
+    const onlineList = Object.keys(stations);
     let max = { id: null, i: -4 };
-    let min = { id: null, i: 8 };
+    let min = { id: null, i: 9 };
     let sum = 0;
     let count = 0;
     const area = {};
     const alerted = [];
 
     for (const removedStationId of Object.keys(markers).filter(v => !data.stations[v])) {
+      if (removedStationId) continue;
       markers[removedStationId].remove();
       delete markers[removedStationId];
     }
@@ -382,19 +417,19 @@ const ready = async () => {
           if (!el.classList.contains("has-data"))
             el.classList.add("has-data");
 
-          el.style.backgroundColor = gradIntensity(rtsData[id].i);
+          el.style.backgroundColor = gradIntensity(stations[id].I);
 
-          if (rtsData[id].i > max.i) max = { id, i: rtsData[id].i };
+          if (stations[id].I > max.i) max = { id, i: stations[id].I };
 
-          if (rtsData[id].i < min.i) min = { id, i: rtsData[id].i };
+          if (stations[id].I < min.i) min = { id, i: stations[id].I };
 
-          markers[id].setZIndexOffset(rtsData[id].i + 5);
+          markers[id].setZIndexOffset(stations[id].I + 5);
 
-          if (rtsData.Alert && rtsData[id].alert) {
-            sum += rtsData[id].i;
+          if (rtsData.Alert && stations[id].alert) {
+            sum += stations[id].I;
             count++;
 
-            let _i = intensityValueToIntensity(rtsData[id].i);
+            let _i = intensityValueToIntensity(stations[id].I);
 
             if (_i == 0) _i = 1;
 
@@ -402,7 +437,7 @@ const ready = async () => {
               area[stationData.PGA] = _i;
           }
 
-          if (rtsData[id].alert)
+          if (stations[id].alert)
             alerted.push(id);
         } else {
           if (el.classList.contains("has-data"))
@@ -410,7 +445,7 @@ const ready = async () => {
           el.style.backgroundColor = "";
         }
       } else {
-        markers[id] = L.marker([stationData.Lat, stationData.Long], {
+        markers[id] = L.marker([stationData.info[0].lat, stationData.info[0].lon], {
           icon: L.divIcon({
             className : "station-marker",
             iconSize  : [ 8, 8 ]
@@ -447,7 +482,7 @@ const ready = async () => {
 
           if (id in rtsData)
             charts[i].setOption({
-              backgroundColor: `${gradIntensity(rtsData[id].i).hex()}10`
+              backgroundColor: `${gradIntensity(stations[id].i).hex()}10`
             });
           else
             charts[i].setOption({
@@ -499,13 +534,13 @@ const ready = async () => {
           document.getElementById("min-int-marker").classList.remove("hide");
         }
 
-        document.getElementById("int-value").innerText = int[intensityValueToIntensity(rtsData[max.id].i)].value;
-        document.getElementById("int-scale").innerText = int[intensityValueToIntensity(rtsData[max.id].i)].scale;
-        document.getElementById("loc-county").innerText = data.stations[max.id]?.Loc?.split(" ")?.[0] ?? "";
-        document.getElementById("loc-town").innerText = data.stations[max.id]?.Loc?.split(" ")?.[1] ?? "";
+        document.getElementById("int-value").innerText = int[intensityValueToIntensity(stations[max.id].i)].value;
+        document.getElementById("int-scale").innerText = int[intensityValueToIntensity(stations[max.id].i)].scale;
+        document.getElementById("loc-city").innerText = data.code[data.stations[max.id].info[0].code]?.city ?? "";
+        document.getElementById("loc-town").innerText = data.code[data.stations[max.id].info[0].code]?.town ?? "";
 
         if (markers.polyline)
-          markers.polyline.setLatLngs([[25.26, 119.8], [data.stations[max.id].Lat, data.stations[max.id].Long]]);
+          markers.polyline.setLatLngs([[25.26, 119.8], [data.stations[max.id].info[0].lat, data.stations[max.id].info[0].lon]]);
         else
           markers.polyline = L.polyline([[25.26, 119.8], [25.26, 119.8]], {
             color       : isDark ? "#fff" : "#000",
@@ -514,6 +549,7 @@ const ready = async () => {
             className   : "max-line",
             renderer    : L.svg({ pane: "stations" })
           }).addTo(map);
+
 
         if (!timer.alert)
           timer.alert = setInterval(() => {
@@ -541,12 +577,13 @@ const ready = async () => {
         }
 
         if (markers.polyline) {
+
           markers.polyline.remove();
           delete markers.polyline;
         }
       }
 
-    const time = new Date(rtsData.Time || Date.now());
+    const time = new Date(rtsData.time || Date.now());
     document.getElementById("time").innerText = `${time.getFullYear()}/${(time.getMonth() + 1) < 10 ? `0${time.getMonth() + 1}` : time.getMonth() + 1}/${time.getDate() < 10 ? `0${time.getDate()}` : time.getDate()} ${time.getHours() < 10 ? `0${time.getHours()}` : time.getHours()}:${time.getMinutes() < 10 ? `0${time.getMinutes()}` : time.getMinutes()}:${time.getSeconds() < 10 ? `0${time.getSeconds()}` : time.getSeconds()}`;
   };
 
@@ -940,19 +977,30 @@ document.addEventListener("DOMContentLoaded", ready);
 // #region jsdoc typedef
 
 /**
+ * @typedef {string} StationId
+ */
+
+/**
+* @typedef {object} StationInfo
+* @property {number} code 代號
+* @property {number} lat  緯度
+* @property {number} lon  經度
+* @property {string} time 設立時間
+*/
+
+/**
 * @typedef {object} Station
-* @property {string} uuid 測站 UUID
-* @property {number} Lat  緯度
-* @property {number} Long 經度
-* @property {number} PGA  area 框框編號
-* @property {string} Loc  位置
-* @property {string} area 地區
+* @property {StationInfo[]} info  緯度
+* @property {string} net        位置
+* @property {boolean} work      運行狀態
 */
 
 /**
  * @typedef StationRTS
- * @property {number} v 加速度
+ * @property {number} pga 加速度
+ * @property {number} pgv 速度
  * @property {number} i 震度
+ * @property {number} I 即時震度
  */
 
 // #endregion
