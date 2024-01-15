@@ -274,9 +274,12 @@ body.alert #max-int {
 }
 
 #settings {
+  display: flex;
+  flex-direction: column;
   position: absolute;
   inset: 5%;
   padding: 16px;
+  padding-right: 8px;
   border-radius: 8px;
   box-shadow: 0 0 512px 0 #000;
   background-color: #2A2831;
@@ -286,6 +289,15 @@ body.alert #max-int {
   transition: opacity .1s ease-in-out;
   pointer-events: none;
   font-size: 16px;
+}
+
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 8px;
 }
 
 #settings.show {
@@ -302,23 +314,24 @@ body.alert #max-int {
   pointer-events: none;
 }
 
-#settings > .heading {
-  margin: 6px 8px;
+.settings-container > .heading {
+  margin: 0 8px;
   font-size: 20px;
   font-weight: bold;
 }
 
-#settings > .heading:not(:first-child) {
-  margin-top: 12px;
+.settings-container > .heading:not(:first-child) {
+  margin-top: 4px;
 }
 
-#settings > .option {
+.settings-container > .option {
   display: flex;
-  margin: 6px 8px;
+  margin: 0 8px;
 }
 
-#settings > .option > label {
+.settings-container > .option > label {
   flex: 1;
+  opacity: .85;
 }
 
 @media (prefers-color-scheme: light) {
@@ -384,4 +397,17 @@ body.alert #max-int {
   100% {
     opacity: 0%;
   }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: rgb(255 255 255 / 12%);
 }

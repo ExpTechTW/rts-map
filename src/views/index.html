@@ -12,64 +12,67 @@
 <body>
   <div id="app-container">
     <div id="settings">
-      <div class="heading">設定</div>
-      <div class="option">
-        <label for="option__muted">靜音</label>
-        <input type="checkbox" name="option__muted" id="option__muted">
-      </div>
-      <div class="option">
-        <label for="option__area">檢知框框</label>
-        <input type="checkbox" name="option__area" id="option__area">
-      </div>
-      <div class="option">
-        <label for="option__alwaysontop">最上層顯示</label>
-        <input type="checkbox" name="option__alwaysontop" id="option__alwaysontop">
-      </div>
-      <div class="option">
-        <label for="option__theme">主題色</label>
-        <select name="option__theme" id="option__theme">
-          <option value="light" id="option__theme__light">淺色</option>
-          <option value="dark"id="option__theme__dark">深色</option>
-          <option value="system" id="option__theme__system">系統</option>
-        </select>
-      </div>
-      <div class="heading">震波顯示器</div>
-      <div class="option">
-        <label for="option__displaywavecount">波形圖測站數量（需要重新啟動）</label>
-        <input type="number" name="option__displaywavecount" id="option__displaywavecount" min="0" max="8">
-      </div>
-      <div class="option">
-        <label for="option__chartyscale">波形圖縱軸縮放</label>
-        <select name="option__chartyscale" id="option__chartyscale">
-          <option value="0" id="option__chartyscale__0">最大</option>
-          <option value="5" id="option__chartyscale__5">一般</option>
-          <option value="20" id="option__chartyscale__20">最小</option>
-        </select>
-      </div>
-      <div class="option">
-        <label for="option__autoswitchwave">自動切換觸發測站</label>
-        <input type="checkbox" name="option__autoswitchwave" id="option__autoswitchwave">
-      </div>
-      <div class="option">
-        <label for="option__minimumtriggeredstation">自動切換最小觸發測站數</label>
-        <input type="number" name="option__minimumtriggeredstation" id="option__minimumtriggeredstation" min="0" max="8">
-      </div>
-      <div class="heading">API</div>
-      <div class="option">
-        <label for="option__apikey">API 金鑰</label>
-        <input type="password" name="" placeholder="API Key" id="option__apikey">
-      </div>
-      <div class="option">
-        <label for="option__backgroundthrottling">背景節流</label>
-        <input type="checkbox" name="option__backgroundthrottling" id="option__backgroundthrottling">
-      </div>
-      <div class="option">
-        <label for="option__debug__alertbypass">DEBUG_FLAG_ALERT_BYPASS</label>
-        <input type="checkbox" name="option__debug__alertbypass" id="option__debug__alertbypass">
-      </div>
-      <div class="option">
-        <label for="option__debug__silly">DEBUG_FLAG_SILLY</label>
-        <input type="checkbox" name="option__debug__silly" id="option__debug__silly">
+      <div class="settings-container">
+        <div class="heading">設定</div>
+        <div class="option">
+          <label for="option__muted">靜音</label>
+          <input type="checkbox" name="option__muted" id="option__muted">
+        </div>
+        <div class="option">
+          <label for="option__area">檢知框框</label>
+          <input type="checkbox" name="option__area" id="option__area">
+        </div>
+        <div class="option">
+          <label for="option__alwaysontop">最上層顯示</label>
+          <input type="checkbox" name="option__alwaysontop" id="option__alwaysontop">
+        </div>
+        <div class="option">
+          <label for="option__theme">主題色</label>
+          <select name="option__theme" id="option__theme">
+            <option value="light" id="option__theme__light">淺色</option>
+            <option value="dark"id="option__theme__dark">深色</option>
+            <option value="system" id="option__theme__system">系統</option>
+          </select>
+        </div>
+        <div class="heading">震波顯示器</div>
+        <div class="option">
+          <label for="option__displaywavecount">波形圖測站數量（需要重新啟動）</label>
+          <input type="number" name="option__displaywavecount" id="option__displaywavecount" min="0" max="8">
+        </div>
+        <div class="option">
+          <label for="option__chartyscale">波形圖縱軸縮放</label>
+          <select name="option__chartyscale" id="option__chartyscale">
+            <option value="0" id="option__chartyscale__0">最大</option>
+            <option value="5" id="option__chartyscale__5">一般</option>
+            <option value="20" id="option__chartyscale__20">最小</option>
+          </select>
+        </div>
+        <div class="option">
+          <label for="option__autoswitchwave">自動切換觸發測站</label>
+          <input type="checkbox" name="option__autoswitchwave" id="option__autoswitchwave">
+        </div>
+        <div class="option">
+          <label for="option__minimumtriggeredstation">自動切換最小觸發測站數</label>
+          <input type="number" name="option__minimumtriggeredstation" id="option__minimumtriggeredstation" min="0" max="8">
+        </div>
+        <div class="heading">API</div>
+        <div class="option">
+          <label for="option__apikey">API 金鑰（需要重新啟動）</label>
+          <input type="password" name="" placeholder="API Key" id="option__apikey">
+        </div>
+        <div class="option">
+          <label for="option__backgroundthrottling">背景節流</label>
+          <input type="checkbox" name="option__backgroundthrottling" id="option__backgroundthrottling">
+        </div>
+        <div class="heading">除錯</div>
+        <div class="option">
+          <label for="option__debug__alertbypass">警報音效測試</label>
+          <input type="checkbox" name="option__debug__alertbypass" id="option__debug__alertbypass">
+        </div>
+        <div class="option">
+          <label for="option__debug__silly">主控台紀錄資料</label>
+          <input type="checkbox" name="option__debug__silly" id="option__debug__silly">
+        </div>
       </div>
     </div>
     <main>

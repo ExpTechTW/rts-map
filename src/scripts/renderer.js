@@ -15,15 +15,17 @@ const ready = async () => {
 
   const requestUA = `rts-map/${app.getVersion()} (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`;
 
+  const waveCount = +(localStorage.getItem("displayWaveCount") ?? 6);
+
   const defaultchartuuids = [
-    "H-335-11339620-4",
-    "H-979-11336952-11",
-    "H-711-11334880-12",
-    "H-541-11370676-10",
-    "L-269-11370996-5",
-    "L-648-4832348-9",
-    "L-904-11336816-15",
-    "L-826-11335736-15"
+    4812424,
+    11339620,
+    11370676,
+    11334880,
+    6125804,
+    1480496,
+    6126556,
+    11336952
   ];
 
   const runtimedefaultchartuuids = (() => {
@@ -31,40 +33,31 @@ const ready = async () => {
       if (localStorage.getItem(`chart${i}`) == null)
         localStorage.setItem(`chart${i}`, defaultchartuuids[i]);
 
-    return {
-      list: [
-        localStorage.getItem("chart0"),
-        localStorage.getItem("chart1"),
-        localStorage.getItem("chart2"),
-        localStorage.getItem("chart3"),
-        localStorage.getItem("chart4"),
-        localStorage.getItem("chart5"),
-        localStorage.getItem("chart6"),
-        localStorage.getItem("chart7"),
-      ],
-      toIds() {
-        return this.list.map(v => v.split("-")[2]);
-      }
-    };
+    return [
+      localStorage.getItem("chart0"),
+      localStorage.getItem("chart1"),
+      localStorage.getItem("chart2"),
+      localStorage.getItem("chart3"),
+      localStorage.getItem("chart4"),
+      localStorage.getItem("chart5"),
+      localStorage.getItem("chart6"),
+      localStorage.getItem("chart7"),
+    ].slice(0, waveCount);
   })();
-
-  const chartuuids = [
-    "H-269-4812424-5",
-    "H-335-11339620-4",
-    "H-541-11370676-10",
-    "H-711-11334880-12",
-    "H-905-6125804-15",
-    "H-911-1480496-15",
-    "H-974-6126556-11",
-    "H-979-11336952-11"
-  ];
 
   const gradIntensity
   = chroma
     .scale(["#0500A3", "#00ceff", "#33ff34", "#fdff32", "#ff8532", "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9"])
     .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-  const waveCount = +(localStorage.getItem("displayWaveCount") ?? 6);
+  const toHHmmss = (timestamp) => {
+    const date = new Date(timestamp);
+    return [
+      `${date.getHours()}`.padStart(2, "0"),
+      `${date.getMinutes()}`.padStart(2, "0"),
+      `${date.getSeconds()}`.padStart(2, "0"),
+    ].join(":");
+  };
 
   const int = [
     { value: "0", scale: "級" },
@@ -201,21 +194,17 @@ const ready = async () => {
    */
   let ws, syncOffset, rtsRaw = {}, waveRaw = {};
 
+  /**
+   * How long do wave data persists? (in seconds)
+   */
+  const duration = 30;
+
   const wsConfig = {
     type    : "start",
-    key     : "K0Q9Z4BJ23YVGNM7Q0G6D10V5QLFX4",
+    key     : localStorage.getItem("key"),
     service : ["trem.rts", "trem.rtw"],
     config  : {
-      "trem.rtw": [
-        4812424,
-        11339620,
-        11370676,
-        11334880,
-        6125804,
-        1480496,
-        6126556,
-        11336952
-      ]
+      "trem.rtw": runtimedefaultchartuuids.slice(0, waveCount).map(Number)
     }
   };
 
@@ -235,10 +224,15 @@ const ready = async () => {
     ws.on("close", (code) => {
       document.getElementById("disconnected-overlay").style.display = "";
 
-      syncOffset = 0;
-      console.log(`%c[WS]%c WebSocket closed (code ${code}). Reconnect after ${retryTimeout / 1000}s`, "color: blueviolet", "color:unset");
-      ws = null;
-      setTimeout(() => connect(retryTimeout), retryTimeout).unref();
+      if (code === 1006) {
+        console.log(`%c[WS]%c WebSocket closed unexpectly (code ${code}). Reconnecting`, "color: blueviolet", "color:unset");
+        connect(retryTimeout);
+      } else {
+        syncOffset = 0;
+        console.log(`%c[WS]%c WebSocket closed (code ${code}). Reconnect after ${retryTimeout / 1000}s`, "color: blueviolet", "color:unset");
+        ws = null;
+        setTimeout(() => connect(retryTimeout), retryTimeout).unref();
+      }
     });
 
     ws.on("error", (err) => {
@@ -251,6 +245,8 @@ const ready = async () => {
 
       ws.send(JSON.stringify(wsConfig));
     });
+
+    let waveMemory = [];
 
     ws.on("message", (raw) => {
       const parsed = JSON.parse(raw);
@@ -306,10 +302,78 @@ const ready = async () => {
             }
 
             case "rtw": {
-              console.log(data);
-              break;
+              // FIXME: wait for ws to change its format
             }
           }
+
+          break;
+        }
+
+
+        case "rtw": {
+          if (!chartWaveData[parsed.data.id]) {
+            chartWaveData[parsed.data.id] = [];
+            const fillAmount = duration * 2;
+
+            for (let i = 0; i < fillAmount; i++) {
+              const begin = parsed.data.time - (fillAmount - i) * 500;
+              const end = parsed.data.time - (fillAmount - (i + 1)) * 500;
+              chartWaveData[parsed.data.id].push({
+                time  : begin,
+                empty : true,
+                data  : [{
+                  name  : toHHmmss(begin),
+                  value : [begin, null]
+                }, {
+                  name  : toHHmmss(end),
+                  value : [end, null]
+                }]
+              });
+            }
+
+          }
+
+          if (waveMemory.includes(parsed.data.id)) {
+            const noDataIds = chartIds.filter(v => !waveMemory.includes(v));
+
+            for (const noDataId of noDataIds) {
+              if (!chartWaveData[noDataId]) continue;
+              const time = chartWaveData[noDataId].at(-1).time + 500;
+              chartWaveData[parsed.data.id].push({
+                time  : time,
+                empty : true,
+                data  : [{
+                  name  : toHHmmss(time),
+                  value : [time, null]
+                }, {
+                  name  : toHHmmss(time),
+                  value : [time + 500, null]
+                }]
+              });
+            }
+
+            waveMemory = [];
+          }
+
+          waveMemory.push(parsed.data.id);
+
+          const dataToPush = {
+            time  : parsed.data.time,
+            empty : false,
+            data  : calculateTimeIntervals(parsed.data)
+          };
+
+          const position = chartWaveData[parsed.data.id].findIndex(v => v.empty && (v.data[0].value[0] <= parsed.data.time && parsed.data.time <= v.data[1].value[0]));
+
+          if (position > 0) {
+            console.log(position, parsed.data.id, chartWaveData[parsed.data.id], dataToPush);
+            chartWaveData[parsed.data.id].splice(position, 1, dataToPush);
+          } else {
+            chartWaveData[parsed.data.id].push(dataToPush);
+          }
+
+          while (chartWaveData[parsed.data.id].length > (duration * 2))
+            chartWaveData[parsed.data.id].shift();
 
           break;
         }
@@ -323,7 +387,8 @@ const ready = async () => {
     if (ws)
       rts(rtsRaw);
 
-    wave(waveRaw);
+    updateWaveCharts();
+    setTimeout(updateWaveCharts, 500);
     waveRaw = null;
   };
 
@@ -394,6 +459,8 @@ const ready = async () => {
 
   let maxId;
   let chartAlerted = [];
+
+  const chartIds = wsConfig.config["trem.rtw"];
 
   const rts = (rtsData) => {
     if (rtsData == null) return;
@@ -474,31 +541,28 @@ const ready = async () => {
             for (let i = 0, n = alerted.length; i < n; i++)
               if (!chartAlerted.includes(alerted[i]))
                 chartAlerted.push(alerted[i]);
-            setCharts(chartAlerted);
+            setChartsToIds(chartAlerted);
 
             if (timer.resetWave) timer.resetWave.refresh();
           }
       } else if (chartAlerted.length && !timer.resetWave) {
         timer.resetWave = setTimeout(() => {
           chartAlerted = [];
-          setCharts(runtimedefaultchartuuids.toIds());
+          setChartsToIds(runtimedefaultchartuuids);
           delete timer.resetWave;
         }, 15_000);
       }
 
       for (let i = 0; i < waveCount; i++)
-        if (chartuuids[i]) {
-          const id = chartuuids[i].split("-")[2];
-
-          if (id in rtsData)
+        if (chartIds[i])
+          if (chartIds[i] in rtsData)
             charts[i].setOption({
-              backgroundColor: `${gradIntensity(stations[id].i).hex()}10`
+              backgroundColor: `${gradIntensity(stations[chartIds[i]].i).hex()}10`
             });
           else
             charts[i].setOption({
               backgroundColor: "transparent"
             });
-        }
     }
 
     arealayer.setStyle(localStorage.getItem("area") == "true" ? (feature) => ({
@@ -610,66 +674,89 @@ const ready = async () => {
 
   // #region wave
 
+  /**
+   * @type {echarts.ECharts[]}
+   */
   const charts = [];
-  const chartdata = [];
+
+  /**
+   * @type {Record<number, ChartWaveData[]>}
+   */
+  const chartWaveData = {};
 
   for (let i = 0; i < waveCount; i++) {
     const dom = document.createElement("div");
     dom.className = "chart";
     document.getElementById("wave-container").append(dom);
     charts.push(echarts.init(dom, null, { height: (560 / waveCount) - (6 * (waveCount + 1) / waveCount), width: 394 }));
-    chartdata.push([]);
     dom.addEventListener("contextmenu", () => {
-      const menu = new Menu();
-
       const stations = {};
+      let current;
 
-      for (let j = 0, k = Object.keys(data.stations), n = k.length; j < n; j++) {
-        const loc = data.stations[k[j]].Loc.split(" ");
-        stations[loc[0]] ??= [];
-        stations[loc[0]].push(data.stations[k[j]]);
+      for (const id in data.stations) {
+        const station = data.stations[id];
+        const loc = data.code[station.info[0].code];
+
+        if (wsConfig.config["trem.rtw"][i] == id)
+          current = loc;
+
+        stations[loc.city] ??= {};
+        stations[loc.city][loc.town] ??= [];
+
+        stations[loc.city][loc.town].push(new MenuItem({
+          type    : "checkbox",
+          checked : runtimedefaultchartuuids.includes(id),
+          label   : `${station.net} ${id}`,
+          enabled : !(runtimedefaultchartuuids.includes(id) || runtimedefaultchartuuids[i] == id),
+          click   : (item) => {
+            localStorage.setItem(`chart${i}`, id);
+            runtimedefaultchartuuids[i] = id;
+            setChartsToIds(runtimedefaultchartuuids);
+          }
+        }));
       }
 
-      for (let j = 0, k = Object.keys(stations), n = k.length; j < n; j++) {
-        const group = new Menu();
-        let selected;
+      const cityMenu = new Menu();
 
-        for (let l = 0, nl = stations[k[j]].length; l < nl; l++) {
-          if (runtimedefaultchartuuids.list[i] == stations[k[j]][l].uuid)
-            selected = true;
+      for (const city in stations) {
+        const totalStationCountInThisCity = Object.keys(stations[city])
+          .reduce((acc, v) => (acc += stations[city][v].length, acc), 0);
 
-          group.append(new MenuItem({
-            type     : "checkbox",
-            checked  : runtimedefaultchartuuids.list.includes(stations[k[j]][l].uuid),
-            label    : `${stations[k[j]][l].Loc}　　　`,
-            sublabel : stations[k[j]][l].uuid,
-            enabled  : !(runtimedefaultchartuuids.list.includes(stations[k[j]][l].uuid) && runtimedefaultchartuuids.list[i] != stations[k[j]][l].uuid),
-            click    : (item) => {
-              localStorage.setItem(`chart${i}`, stations[k[j]][l].uuid);
-              runtimedefaultchartuuids.list[i] = stations[k[j]][l].uuid;
-              setCharts(runtimedefaultchartuuids.toIds());
-            }
+        const townMenu = new Menu();
+
+        for (const town in stations[city]) {
+          const stationMenu = new Menu();
+          for (const stationItem of stations[city][town])
+            stationMenu.append(stationItem);
+
+          townMenu.append(new MenuItem({
+            type    : "submenu",
+            label   : `${town} (${stations[city][town].length})`,
+            submenu : stationMenu,
+            ...(current.town == town ? {
+              icon: path.resolve(__dirname, `../resources/images/${window.matchMedia("(prefers-color-scheme: dark)").matches ? "" : "dark/"}check.png`),
+            } : {})
           }));
         }
 
-        menu.append(new MenuItem({
+        cityMenu.append(new MenuItem({
           type    : "submenu",
-          label   : `${k[j]} (${stations[k[j]].length})`,
-          submenu : group,
-          ...(selected ? {
+          label   : `${city} (${totalStationCountInThisCity})`,
+          submenu : townMenu,
+          ...(current.city == city ? {
             icon: path.resolve(__dirname, `../resources/images/${window.matchMedia("(prefers-color-scheme: dark)").matches ? "" : "dark/"}check.png`),
           } : {})
         }));
       }
 
-      menu.popup();
+      cityMenu.popup();
     });
   }
 
   /**
    * @param {string[]} ids
    */
-  const setCharts
+  const setChartsToIds
   = (ids) => {
     if (DEBUG_FLAG_SILLY)
       console.debug("%c[CHART]%c Setting chart to ids...", "color: blueviolet", "color:unset", ids);
@@ -677,20 +764,22 @@ const ready = async () => {
     let wsSend = false;
 
     for (let i = 0; i < waveCount; i++)
-      if (data.stations?.[ids[i]]?.uuid) {
-        if (chartuuids[i] != data.stations[ids[i]].uuid) {
-          chartuuids[i] = data.stations[ids[i]].uuid;
-          chartdata[i] = [];
+      if (data.stations?.[ids[i]]) {
+        const stationData = data.stations?.[ids[i]];
+
+        if (chartIds[i] != ids[i]) {
+          chartIds[i] = ids[i];
+          chartWaveData[i] = [];
           wsSend = true;
         }
 
         charts[i].setOption({
           title: {
-            text: `${data.stations[ids[i]].Loc} | ${chartuuids[i]}`,
+            text: `${data.code[stationData.info[0].code].city} ${data.code[stationData.info[0].code].town} | ${stationData.net} ${chartIds[i]}`,
           }
         });
       } else {
-        chartuuids.splice(i, 1);
+        chartIds.splice(i, 1);
         charts[i].clear();
         charts[i].setOption({
           title: {
@@ -735,30 +824,19 @@ const ready = async () => {
         });
       }
 
-    if (wsSend) {
-      const message = {
-        uuid     : requestUA,
-        function : "subscriptionService",
-        value    : ["trem-rts-v2", "trem-rts-original-v1"],
-        key      : localStorage.getItem("key") ?? "",
-        addition : {
-          "trem-rts-original-v1": chartuuids
-        }
-      };
-
+    if (wsSend)
       if (ws.readyState == ws.OPEN) {
         if (DEBUG_FLAG_SILLY)
-          console.debug("%c[WS_SEND]", "color: blueviolet", message);
+          console.debug("%c[WS_SEND]", "color: blueviolet", wsConfig);
 
-        ws.send(JSON.stringify(message));
+        ws.send(JSON.stringify(wsConfig));
       } else if (DEBUG_FLAG_SILLY) {
-        console.debug("%c[WS_SEND]%c Tried to send, but ws is closed.", "color: blueviolet", "color:unset", message);
+        console.debug("%c[WS_SEND]%c Tried to send, but ws is closed.", "color: blueviolet", "color:unset", wsConfig);
       }
-    }
   };
 
   if (waveCount) {
-    setCharts(runtimedefaultchartuuids.toIds());
+    setChartsToIds(runtimedefaultchartuuids);
 
     for (const chart of charts)
       chart.setOption({
@@ -804,94 +882,88 @@ const ready = async () => {
       });
   }
 
-  const wave = (jsondata) => {
-    if (jsondata == null) return;
+  /**
+   * Pick Z-Axis data, calculates and append time into each points
+   * @param {RawWaveData} rawWaveData
+   * @returns {TimedPoint[]}
+   */
+  const calculateTimeIntervals = (rawWaveData) => {
+    const time = rawWaveData.time;
+    const n = rawWaveData.Z.length;
+    const timeOffset = 500 / n;
 
-    const now = new Date(Date.now());
+    const arr = [];
 
-    for (let i = 0; i < waveCount; i++) {
-      if (jsondata[chartuuids[i]]) {
-        chartdata[i].push(...jsondata[chartuuids[i]].map((value, index, array) => ({
-          name  : now.toString(),
-          value : [
-            new Date(+now + (index * (1000 / array.length))).toISOString(),
-            value
-          ]
-        })));
-
-        charts[i].setOption({
-          title: {
-            textStyle: {
-              color: isDark ? "#bbb" : "#666"
-            }
-          },
-        });
-      } else {
-        for (let j = 0; j < 18; j++)
-          chartdata[i].push({
-            name  : now.toString(),
-            value : [
-              new Date(+now + (j * (1000 / 18))).toISOString(),
-              null
-            ]
-          });
-
-        charts[i].setOption({
-          title: {
-            textStyle: {
-              color: isDark ? "#666" : "#bbb"
-            }
-          },
-        });
-      }
-
-      while (true)
-        if (chartdata[i].length > 1080) {
-          chartdata[i].shift();
-        } else if (chartdata[i].length == 1080) {
-          break;
-        } else if (chartdata[i].length != 1080) {
-          chartdata[i].shift();
-          chartdata[i].unshift({
-            name  : new Date(Date.now() - 60_000).toString(),
-            value : [
-              new Date(Date.now() - 60_000).toISOString(),
-              null
-            ]
-          });
-          break;
-        }
-
-      const values = chartdata[i].map(v => v.value[1]);
-      let maxmin = Math.ceil(Math.max(Math.abs(Math.max(...values)), Math.abs(Math.min(...values))));
-
-
-      if (chartuuids[i]) {
-        const HChartYScale = +localStorage.getItem("chartYScale");
-        const LChartYScale = HChartYScale * 1000;
-
-        if (maxmin < (chartuuids[i].startsWith("H") ? HChartYScale : LChartYScale))
-          maxmin = (chartuuids[i].startsWith("H") ? HChartYScale : LChartYScale);
-
-        charts[i].setOption({
-          animation : false,
-          yAxis     : {
-            max : maxmin,
-            min : -maxmin
-          },
-          series: [
-            {
-              lineStyle : { color: jsondata[chartuuids[i]] == null ? isDark ? "#666" : "#bbb" : isDark ? "#fff" : "#000" },
-              data      : chartdata[i]
-            }
-          ],
-        });
-      }
+    for (let i = 0; i < n; i++) {
+      const calculatedTime = time + (i * timeOffset);
+      arr.push({
+        name  : toHHmmss(calculatedTime),
+        value : [calculatedTime, +rawWaveData.Z[i]]
+      });
     }
 
-    for (let i = 0; i < Object.keys(waveRaw).length; i++) {
-      const id = Object.keys(waveRaw)[i];
-      waveRaw[id] = null;
+    return arr;
+  };
+
+  /**
+   * Find the limit of the data and return the desired bound
+   * @param {TimedPoint[]} points
+   */
+  const findBounds = (points) => {
+    let max = 0;
+
+    for (let i = 0, n = points.length; i < n; i++) {
+      const val = Math.abs(points[i].value[1]);
+
+      if (max < val)
+        max = val;
+    }
+
+    max = Math.ceil(max * 100) / 100;
+    max += max * 0.2;
+    return {
+      max : max,
+      min : -max
+    };
+  };
+
+  /**
+   * Converts `chartWaveData` into series and update the chart
+   * @returns {void}
+   */
+  const updateWaveCharts = () => {
+    const now = Date.now();
+
+    // insert null during websocket disconnection
+    if (!ws || ws instanceof WebSocket && ws.readyState !== ws.OPEN)
+      for (let i = 0, id = chartIds[i]; i < waveCount; i++, id = chartIds[i])
+        if (chartWaveData[id])
+          chartWaveData[id].push({
+            time  : now,
+            empty : true,
+            data  : [{
+              name  : toHHmmss(now),
+              value : [now - 500, null]
+            }, {
+              name  : toHHmmss(now),
+              value : [now, null]
+            }]
+          });
+
+
+    for (let i = 0, id = chartIds[i]; i < waveCount; i++, id = chartIds[i]) {
+      if (!chartWaveData[id]) continue;
+
+      const allPoints = chartWaveData[id].flatMap((v) => v.data);
+      const bounds = findBounds(allPoints);
+      charts[i].setOption({
+        animation : false,
+        yAxis     : bounds,
+        series    : [{
+          type : "line",
+          data : allPoints
+        }]
+      });
     }
   };
   // #endregion
@@ -963,6 +1035,7 @@ const ready = async () => {
   document.getElementById("option__apikey").value = localStorage.getItem("key") ?? "";
   document.getElementById("option__apikey").addEventListener("change", function() {
     localStorage.setItem("key", this.value);
+    wsConfig.key = this.value;
     ipcRenderer.send("UPDATE:tray");
   });
   document.getElementById("option__backgroundthrottling").checked = localStorage.getItem("backgroundThrottling") == "true";
@@ -1010,6 +1083,28 @@ document.addEventListener("DOMContentLoaded", ready);
  * @property {number} pgv 速度
  * @property {number} i 震度
  * @property {number} I 即時震度
+ */
+
+/**
+ * @typedef TimedPoint
+ * @property {string} name
+ * @property {[number, number]} value
+ */
+
+/**
+ * @typedef ChartWaveData
+ * @property {number} time
+ * @property {boolean} empty whether the data is null / empty
+ * @property {TimedPoint[]} data
+ */
+
+/**
+ * @typedef RawWaveData
+ * @property {number} id
+ * @property {number[]} X
+ * @property {number[]} Y
+ * @property {number[]} Z
+ * @property {number} time
  */
 
 // #endregion
