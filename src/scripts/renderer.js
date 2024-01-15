@@ -237,6 +237,8 @@ const ready = async () => {
 
     ws.on("error", (err) => {
       console.error(err);
+
+      ws.close(err.code);
     });
 
     ws.on("open", () => {
