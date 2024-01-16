@@ -201,7 +201,7 @@ const ready = async () => {
 
   const wsConfig = {
     type    : "start",
-    key     : localStorage.getItem("key"),
+    key     : "K0Q9Z4BJ23YVGNM7Q0G6D10V5QLFX4",
     service : ["trem.rts", "trem.rtw"],
     config  : {
       "trem.rtw": runtimedefaultchartuuids.slice(0, waveCount).map(Number)
@@ -214,6 +214,23 @@ const ready = async () => {
       ws.terminate();
     }
   }, 25_000);
+
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const seconds = date.getSeconds().toString().padStart(2, "0");
+    const millis = date.getMilliseconds();
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}_${(millis > 500) ? "down" : "up"}`;
+  };
+
+  let offset = 0;
+  const now = () => Date.now() + offset;
+
+  const waveMemory = [];
 
   const connect = (retryTimeout) => {
     ws = new WebSocket("wss://ws.exptech.com.tw/websocket");
@@ -248,12 +265,10 @@ const ready = async () => {
       ws.send(JSON.stringify(wsConfig));
     });
 
-    let waveMemory = [];
-
     ws.on("message", (raw) => {
       const parsed = JSON.parse(raw);
 
-      console.log(parsed);
+      // console.log(parsed);
 
       if (DEBUG_FLAG_SILLY)
         console.debug("%c[WS_MESSAGE]", "color: blueviolet", parsed);
@@ -266,6 +281,7 @@ const ready = async () => {
 
         case "ntp": {
           syncOffset = Date.now();
+          offset = Date.now() - parsed.time;
           break;
         }
 
@@ -304,78 +320,96 @@ const ready = async () => {
             }
 
             case "rtw": {
-              // FIXME: wait for ws to change its format
+              const info = data.stations[parsed.data.id];
+
+              // console.log(info.net);
+
+              const timestr = formatTime(parsed.data.time);
+
+              const foundItem = waveMemory.find(item => item.time == timestr);
+
+              if (foundItem) {
+                const i = waveMemory.indexOf(foundItem);
+                waveMemory[i][parsed.data.id].X = parsed.data.X.map(str => Math.round(parseFloat(str) * 10000));
+                waveMemory[i][parsed.data.id].Y = parsed.data.Y.map(str => Math.round(parseFloat(str) * 10000));
+                waveMemory[i][parsed.data.id].Z = parsed.data.Z.map(str => Math.round(parseFloat(str) * 10000));
+              }
+
+              console.log(waveMemory);
+
+              // if (!chartWaveData[parsed.data.id]) {
+              //   chartWaveData[parsed.data.id] = [];
+
+
+              //   const fillAmount = duration * 2;
+
+              //   for (let i = 0; i < fillAmount; i++) {
+              //     const begin = parsed.data.time - (fillAmount - i) * 500;
+              //     const end = parsed.data.time - (fillAmount - (i + 1)) * 500;
+              //     console.log(formatTime(begin));
+              //     chartWaveData[parsed.data.id].push({
+              //       time  : begin,
+              //       empty : true,
+              //       data  : [{
+              //         name  : toHHmmss(begin),
+              //         value : [begin, null]
+              //       }, {
+              //         name  : toHHmmss(end),
+              //         value : [end, null]
+              //       }]
+              //     });
+              //   }
+
+              // }
+
+              // if (waveMemory.includes(parsed.data.id)) {
+              //   const noDataIds = chartIds.filter(v => !waveMemory.includes(v));
+
+              //   for (const noDataId of noDataIds) {
+              //     if (!chartWaveData[noDataId]) continue;
+              //     const time = chartWaveData[noDataId].at(-1).time + 500;
+              //     chartWaveData[parsed.data.id].push({
+              //       time  : time,
+              //       empty : true,
+              //       data  : [{
+              //         name  : toHHmmss(time),
+              //         value : [time, null]
+              //       }, {
+              //         name  : toHHmmss(time),
+              //         value : [time + 500, null]
+              //       }]
+              //     });
+              //   }
+
+              //   waveMemory = [];
+              // }
+
+              // waveMemory.push(parsed.data.id);
+
+              // const dataToPush = {
+              //   time  : parsed.data.time,
+              //   empty : false,
+              //   data  : calculateTimeIntervals(parsed.data)
+              // };
+
+              // const position = chartWaveData[parsed.data.id].findIndex(v => v.empty && (v.data[0].value[0] <= parsed.data.time && parsed.data.time <= v.data[1].value[0]));
+
+              // if (position > 0) {
+              //   console.log(position, parsed.data.id, chartWaveData[parsed.data.id], dataToPush);
+              //   chartWaveData[parsed.data.id].splice(position, 1, dataToPush);
+              // } else {
+              //   chartWaveData[parsed.data.id].push(dataToPush);
+              // }
+
+              // while (chartWaveData[parsed.data.id].length > (duration * 2))
+              //   chartWaveData[parsed.data.id].shift();
+
+              // break;
+
+              // console.log(chartWaveData);
+              break;
             }
           }
-
-          break;
-        }
-
-
-        case "rtw": {
-          if (!chartWaveData[parsed.data.id]) {
-            chartWaveData[parsed.data.id] = [];
-            const fillAmount = duration * 2;
-
-            for (let i = 0; i < fillAmount; i++) {
-              const begin = parsed.data.time - (fillAmount - i) * 500;
-              const end = parsed.data.time - (fillAmount - (i + 1)) * 500;
-              chartWaveData[parsed.data.id].push({
-                time  : begin,
-                empty : true,
-                data  : [{
-                  name  : toHHmmss(begin),
-                  value : [begin, null]
-                }, {
-                  name  : toHHmmss(end),
-                  value : [end, null]
-                }]
-              });
-            }
-
-          }
-
-          if (waveMemory.includes(parsed.data.id)) {
-            const noDataIds = chartIds.filter(v => !waveMemory.includes(v));
-
-            for (const noDataId of noDataIds) {
-              if (!chartWaveData[noDataId]) continue;
-              const time = chartWaveData[noDataId].at(-1).time + 500;
-              chartWaveData[parsed.data.id].push({
-                time  : time,
-                empty : true,
-                data  : [{
-                  name  : toHHmmss(time),
-                  value : [time, null]
-                }, {
-                  name  : toHHmmss(time),
-                  value : [time + 500, null]
-                }]
-              });
-            }
-
-            waveMemory = [];
-          }
-
-          waveMemory.push(parsed.data.id);
-
-          const dataToPush = {
-            time  : parsed.data.time,
-            empty : false,
-            data  : calculateTimeIntervals(parsed.data)
-          };
-
-          const position = chartWaveData[parsed.data.id].findIndex(v => v.empty && (v.data[0].value[0] <= parsed.data.time && parsed.data.time <= v.data[1].value[0]));
-
-          if (position > 0) {
-            console.log(position, parsed.data.id, chartWaveData[parsed.data.id], dataToPush);
-            chartWaveData[parsed.data.id].splice(position, 1, dataToPush);
-          } else {
-            chartWaveData[parsed.data.id].push(dataToPush);
-          }
-
-          while (chartWaveData[parsed.data.id].length > (duration * 2))
-            chartWaveData[parsed.data.id].shift();
 
           break;
         }
@@ -934,39 +968,65 @@ const ready = async () => {
    * @returns {void}
    */
   const updateWaveCharts = () => {
-    const now = Date.now();
+    const time = now();
 
-    // insert null during websocket disconnection
-    if (!ws || ws instanceof WebSocket && ws.readyState !== ws.OPEN)
-      for (let i = 0, id = chartIds[i]; i < waveCount; i++, id = chartIds[i])
-        if (chartWaveData[id])
-          chartWaveData[id].push({
-            time  : now,
-            empty : true,
-            data  : [{
-              name  : toHHmmss(now),
-              value : [now - 500, null]
-            }, {
-              name  : toHHmmss(now),
-              value : [now, null]
-            }]
-          });
+    const timestr = formatTime(time);
+    const found = waveMemory.find(item => item.time === timestr);
 
+    if (!found) {
+      const raw = {};
 
-    for (let i = 0, id = chartIds[i]; i < waveCount; i++, id = chartIds[i]) {
-      if (!chartWaveData[id]) continue;
+      for (const id of runtimedefaultchartuuids) {
+        const info = data.stations[id];
+        raw[id] = {
+          X : new Array((info.net == "MS-Net") ? 25 : 10).fill(null),
+          Y : new Array((info.net == "MS-Net") ? 25 : 10).fill(null),
+          Z : new Array((info.net == "MS-Net") ? 25 : 10).fill(null),
+        };
+      }
 
-      const allPoints = chartWaveData[id].flatMap((v) => v.data);
-      const bounds = findBounds(allPoints);
-      charts[i].setOption({
-        animation : false,
-        yAxis     : bounds,
-        series    : [{
-          type : "line",
-          data : allPoints
-        }]
+      waveMemory.push({
+        time: timestr,
+        ...raw
       });
     }
+
+    if (time - new Date(waveMemory[0].time.split("_")[0]).getTime() > 60000) waveMemory.shift();
+
+    console.log(new Date(waveMemory[0].time.split("_")[0]));
+
+
+    // // insert null during websocket disconnection
+    // if (!ws || ws instanceof WebSocket && ws.readyState !== ws.OPEN)
+    //   for (let i = 0, id = chartIds[i]; i < waveCount; i++, id = chartIds[i])
+    //     if (chartWaveData[id])
+    //       chartWaveData[id].push({
+    //         time  : now,
+    //         empty : true,
+    //         data  : [{
+    //           name  : toHHmmss(now),
+    //           value : [now - 500, null]
+    //         }, {
+    //           name  : toHHmmss(now),
+    //           value : [now, null]
+    //         }]
+    //       });
+
+
+    // for (let i = 0, id = chartIds[i]; i < waveCount; i++, id = chartIds[i]) {
+    //   if (!chartWaveData[id]) continue;
+
+    //   const allPoints = chartWaveData[id].flatMap((v) => v.data);
+    //   const bounds = findBounds(allPoints);
+    //   charts[i].setOption({
+    //     animation : false,
+    //     yAxis     : bounds,
+    //     series    : [{
+    //       type : "line",
+    //       data : allPoints
+    //     }]
+    //   });
+    // }
   };
   // #endregion
 
