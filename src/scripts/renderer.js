@@ -728,7 +728,7 @@ const ready = async () => {
         const stationData = data.stations?.[ids[i]];
 
         if (chartIds[i] != ids[i]) {
-          chartIds[i] = ids[i];
+          chartIds[i] = +ids[i];
           chartWaveData[i] = [];
           wsSend = true;
         }
