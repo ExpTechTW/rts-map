@@ -993,9 +993,6 @@ const ready = async () => {
 
     if (time - new Date(waveMemory[0].time.split("_")[0]).getTime() > 60000) waveMemory.shift();
 
-    console.log(new Date(waveMemory[0].time.split("_")[0]));
-
-
     // // insert null during websocket disconnection
     // if (!ws || ws instanceof WebSocket && ws.readyState !== ws.OPEN)
     //   for (let i = 0, id = chartIds[i]; i < waveCount; i++, id = chartIds[i])
