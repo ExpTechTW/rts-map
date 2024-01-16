@@ -248,7 +248,7 @@ const ready = async () => {
       ws.send(JSON.stringify(wsConfig));
     });
 
-    let waveMemory = [];
+    const waveTimeMemory = {};
 
     ws.on("message", (raw) => {
       const parsed = JSON.parse(raw);
@@ -303,79 +303,37 @@ const ready = async () => {
               break;
             }
 
+
             case "rtw": {
-              // FIXME: wait for ws to change its format
-            }
-          }
+              if (!chartWaveData[parsed.data.id]) break;
 
-          break;
-        }
+              let time = ~~(parsed.data.time / 1000) * 1000;
 
+              if (waveTimeMemory[parsed.data.id] == time)
+                time += 500;
 
-        case "rtw": {
-          if (!chartWaveData[parsed.data.id]) {
-            chartWaveData[parsed.data.id] = [];
-            const fillAmount = duration * 2;
+              waveTimeMemory[parsed.data.id] = time;
 
-            for (let i = 0; i < fillAmount; i++) {
-              const begin = parsed.data.time - (fillAmount - i) * 500;
-              const end = parsed.data.time - (fillAmount - (i + 1)) * 500;
-              chartWaveData[parsed.data.id].push({
-                time  : begin,
-                empty : true,
-                data  : [{
-                  name  : toHHmmss(begin),
-                  value : [begin, null]
-                }, {
-                  name  : toHHmmss(end),
-                  value : [end, null]
-                }]
-              });
-            }
+              parsed.data.time = time;
 
-          }
-
-          if (waveMemory.includes(parsed.data.id)) {
-            const noDataIds = chartIds.filter(v => !waveMemory.includes(v));
-
-            for (const noDataId of noDataIds) {
-              if (!chartWaveData[noDataId]) continue;
-              const time = chartWaveData[noDataId].at(-1).time + 500;
-              chartWaveData[parsed.data.id].push({
+              const dataToPush = {
                 time  : time,
-                empty : true,
-                data  : [{
-                  name  : toHHmmss(time),
-                  value : [time, null]
-                }, {
-                  name  : toHHmmss(time),
-                  value : [time + 500, null]
-                }]
-              });
+                empty : false,
+                data  : calculateTimeIntervals(parsed.data)
+              };
+
+              const position = chartWaveData[parsed.data.id].findIndex(v => v.empty && v.time == time);
+
+              if (position >= 0) {
+                console.log(position, parsed.data.id, chartWaveData[parsed.data.id], dataToPush);
+                chartWaveData[parsed.data.id].splice(position, 1, dataToPush);
+              } else {
+                chartWaveData[parsed.data.id].push(dataToPush);
+              }
+
+              break;
             }
-
-            waveMemory = [];
           }
-
-          waveMemory.push(parsed.data.id);
-
-          const dataToPush = {
-            time  : parsed.data.time,
-            empty : false,
-            data  : calculateTimeIntervals(parsed.data)
-          };
-
-          const position = chartWaveData[parsed.data.id].findIndex(v => v.empty && (v.data[0].value[0] <= parsed.data.time && parsed.data.time <= v.data[1].value[0]));
-
-          if (position > 0) {
-            console.log(position, parsed.data.id, chartWaveData[parsed.data.id], dataToPush);
-            chartWaveData[parsed.data.id].splice(position, 1, dataToPush);
-          } else {
-            chartWaveData[parsed.data.id].push(dataToPush);
-          }
-
-          while (chartWaveData[parsed.data.id].length > (duration * 2))
-            chartWaveData[parsed.data.id].shift();
 
           break;
         }
@@ -929,17 +887,25 @@ const ready = async () => {
     };
   };
 
+  let timeMemory;
+
   /**
    * Converts `chartWaveData` into series and update the chart
    * @returns {void}
    */
   const updateWaveCharts = () => {
-    const now = Date.now();
+    let now = ~~(Date.now() / 1000) * 1000;
 
-    // insert null during websocket disconnection
-    if (!ws || ws instanceof WebSocket && ws.readyState !== ws.OPEN)
-      for (let i = 0, id = chartIds[i]; i < waveCount; i++, id = chartIds[i])
-        if (chartWaveData[id])
+    if (timeMemory == now)
+      now += 500;
+
+    timeMemory = now;
+
+    for (let i = 0; i < waveCount; i++) {
+      const id = chartIds[i];
+
+      if (chartWaveData[id]) {
+        if (!chartWaveData[id].find(v => v.time == now))
           chartWaveData[id].push({
             time  : now,
             empty : true,
@@ -951,10 +917,31 @@ const ready = async () => {
               value : [now, null]
             }]
           });
+      } else {
+        // init chartWaveData for this id
+        console.log(`init chartWaveData ${id}`);
+        chartWaveData[id] = [];
 
+        for (let j = duration * 2; j > 0; j--) {
+          const offset = j * 500;
+          const offsetTime = now - offset;
 
-    for (let i = 0, id = chartIds[i]; i < waveCount; i++, id = chartIds[i]) {
-      if (!chartWaveData[id]) continue;
+          chartWaveData[id].push({
+            time  : offsetTime,
+            empty : true,
+            data  : [{
+              name  : toHHmmss(offsetTime),
+              value : [offsetTime, null]
+            }, {
+              name  : toHHmmss(offsetTime),
+              value : [offsetTime + 500, null]
+            }]
+          });
+        }
+      }
+
+      while ((now - chartWaveData[id][0].time) > 30_000)
+        chartWaveData[id].shift();
 
       const allPoints = chartWaveData[id].flatMap((v) => v.data);
       const bounds = findBounds(allPoints);
@@ -1038,6 +1025,10 @@ const ready = async () => {
   document.getElementById("option__apikey").addEventListener("change", function() {
     localStorage.setItem("key", this.value);
     wsConfig.key = this.value;
+
+    if (ws instanceof WebSocket && ws.readyState == ws.OPEN)
+      ws.send(JSON.stringify(wsConfig));
+
     ipcRenderer.send("UPDATE:tray");
   });
   document.getElementById("option__backgroundthrottling").checked = localStorage.getItem("backgroundThrottling") == "true";
