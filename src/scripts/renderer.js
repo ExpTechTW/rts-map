@@ -735,7 +735,8 @@ const ready = async () => {
           title: {
             textStyle: {
               fontSize   : 10,
-              fontFamily : "Consolas"
+              fontFamily : "Consolas",
+              color      : "#888"
             }
           },
           xAxis: {
@@ -793,7 +794,8 @@ const ready = async () => {
         title: {
           textStyle: {
             fontSize   : 10,
-            fontFamily : "Consolas"
+            fontFamily : "Consolas",
+            color      : "#888"
           }
         },
         xAxis: {
@@ -869,8 +871,10 @@ const ready = async () => {
         max = val;
     }
 
+    const scale = 20000 + 10000 * +(localStorage.getItem("chartYScale") ?? "5");
     max = Math.ceil(max * 100) / 100;
     max += max * 0.2;
+    max = Math.max(scale, max);
     return {
       max : max,
       min : -max
@@ -939,9 +943,6 @@ const ready = async () => {
           data : allPoints
         }]
       });
-
-      if (id == 5963580)
-        console.log(allPoints);
     }
   };
   // #endregion
