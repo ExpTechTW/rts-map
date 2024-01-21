@@ -197,7 +197,7 @@ const ready = async () => {
   /**
    * How long do wave data persists? (in seconds)
    */
-  const duration = 4;
+  const duration = 20;
 
   const wsConfig = {
     type    : "start",
@@ -767,7 +767,7 @@ const ready = async () => {
             {
               type       : "line",
               showSymbol : false,
-              lineStyle  : { color: isDark ? "#fff" : "#000", width: 1 },
+              lineStyle  : { color: isDark ? "#fff" : "#000", width: 1.5 },
               data       : []
             }
           ]
@@ -825,7 +825,7 @@ const ready = async () => {
           {
             type       : "line",
             showSymbol : false,
-            lineStyle  : { color: isDark ? "#fff" : "#000", width: 1 },
+            lineStyle  : { color: isDark ? "#fff" : "#000", width: 1.5 },
             data       : []
           }
         ]
@@ -848,7 +848,7 @@ const ready = async () => {
       const calculatedTime = time + (i * timeOffset);
       arr.push({
         name  : toHHmmssS(calculatedTime),
-        value : [calculatedTime, +rawWaveData.Z[i]]
+        value : [calculatedTime, Math.round(+rawWaveData.Z[i] * 10000)]
       });
     }
 
