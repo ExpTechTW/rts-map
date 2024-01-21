@@ -505,7 +505,7 @@ const ready = async () => {
 
       for (let i = 0; i < waveCount; i++)
         if (chartIds[i])
-          if (chartIds[i] in rtsData)
+          if (chartIds[i] in stations)
             charts[i].setOption({
               backgroundColor: `${gradIntensity(stations[chartIds[i]].i).hex()}10`
             });
