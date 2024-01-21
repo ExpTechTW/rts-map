@@ -861,7 +861,7 @@ const ready = async () => {
    * Find the limit of the data and return the desired bound
    * @param {TimedPoint[]} points
    */
-  const findBounds = (points) => {
+  const findBounds = (points, id) => {
     let max = 0;
 
     for (let i = 0, n = points.length; i < n; i++) {
@@ -871,10 +871,12 @@ const ready = async () => {
         max = val;
     }
 
-    const scale = 20000 + 10000 * +(localStorage.getItem("chartYScale") ?? "5");
+    let scale = (data.stations[id].net == "MS-Net") ? 50 : 20000 ;
+    scale += scale * +(localStorage.getItem("chartYScale") ?? "5");
     max = Math.ceil(max * 100) / 100;
     max += max * 0.2;
     max = Math.max(scale, max);
+
     return {
       max : max,
       min : -max
@@ -933,7 +935,7 @@ const ready = async () => {
         chartWaveData[id].shift();
 
       const allPoints = chartWaveData[id].flatMap((v) => v.data);
-      const bounds = findBounds(allPoints);
+      const bounds = findBounds(allPoints, id);
       charts[i].setOption({
         animation : false,
         yAxis     : bounds,
