@@ -50,13 +50,13 @@ const ready = async () => {
     .scale(["#0500A3", "#00ceff", "#33ff34", "#fdff32", "#ff8532", "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9"])
     .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-  const toHHmmss = (timestamp) => {
+  const toHHmmssS = (timestamp) => {
     const date = new Date(timestamp);
     return [
       `${date.getHours()}`.padStart(2, "0"),
       `${date.getMinutes()}`.padStart(2, "0"),
       `${date.getSeconds()}`.padStart(2, "0"),
-    ].join(":");
+    ].join(":") + `.${date.getMilliseconds()}`;
   };
 
   const int = [
@@ -197,7 +197,7 @@ const ready = async () => {
   /**
    * How long do wave data persists? (in seconds)
    */
-  const duration = 30;
+  const duration = 4;
 
   const wsConfig = {
     type    : "start",
@@ -248,12 +248,8 @@ const ready = async () => {
       ws.send(JSON.stringify(wsConfig));
     });
 
-    const waveTimeMemory = {};
-
     ws.on("message", (raw) => {
       const parsed = JSON.parse(raw);
-
-      console.log(parsed);
 
       if (DEBUG_FLAG_SILLY)
         console.debug("%c[WS_MESSAGE]", "color: blueviolet", parsed);
@@ -307,13 +303,7 @@ const ready = async () => {
             case "rtw": {
               if (!chartWaveData[parsed.data.id]) break;
 
-              let time = ~~(parsed.data.time / 1000) * 1000;
-
-              if (waveTimeMemory[parsed.data.id] == time)
-                time += 500;
-
-              waveTimeMemory[parsed.data.id] = time;
-
+              const time = ~~(parsed.data.time / 1000) * 1000 + Math.round((parsed.data.time % 1000) / 1000) * 500;
               parsed.data.time = time;
 
               const dataToPush = {
@@ -325,7 +315,7 @@ const ready = async () => {
               const position = chartWaveData[parsed.data.id].findIndex(v => v.empty && v.time == time);
 
               if (position >= 0) {
-                console.log(position, parsed.data.id, chartWaveData[parsed.data.id], dataToPush);
+                console.debug(position, parsed.data.id, chartWaveData[parsed.data.id], dataToPush);
                 chartWaveData[parsed.data.id].splice(position, 1, dataToPush);
               } else {
                 chartWaveData[parsed.data.id].push(dataToPush);
@@ -777,7 +767,7 @@ const ready = async () => {
             {
               type       : "line",
               showSymbol : false,
-              lineStyle  : { color: isDark ? "#fff" : "#000" },
+              lineStyle  : { color: isDark ? "#fff" : "#000", width: 1 },
               data       : []
             }
           ]
@@ -835,7 +825,7 @@ const ready = async () => {
           {
             type       : "line",
             showSymbol : false,
-            lineStyle  : { color: isDark ? "#fff" : "#000" },
+            lineStyle  : { color: isDark ? "#fff" : "#000", width: 1 },
             data       : []
           }
         ]
@@ -857,7 +847,7 @@ const ready = async () => {
     for (let i = 0; i < n; i++) {
       const calculatedTime = time + (i * timeOffset);
       arr.push({
-        name  : toHHmmss(calculatedTime),
+        name  : toHHmmssS(calculatedTime),
         value : [calculatedTime, +rawWaveData.Z[i]]
       });
     }
@@ -887,34 +877,28 @@ const ready = async () => {
     };
   };
 
-  let timeMemory;
-
   /**
    * Converts `chartWaveData` into series and update the chart
    * @returns {void}
    */
   const updateWaveCharts = () => {
-    let now = ~~(Date.now() / 1000) * 1000;
-
-    if (timeMemory == now)
-      now += 500;
-
-    timeMemory = now;
+    const now = Date.now();
+    const half = ~~(now / 1000) * 1000 + Math.round((now % 1000) / 1000) * 500;
 
     for (let i = 0; i < waveCount; i++) {
       const id = chartIds[i];
 
       if (chartWaveData[id]) {
-        if (!chartWaveData[id].find(v => v.time == now))
+        if (!chartWaveData[id].find(v => v.time == half))
           chartWaveData[id].push({
-            time  : now,
+            time  : half,
             empty : true,
             data  : [{
-              name  : toHHmmss(now),
-              value : [now - 500, null]
+              name  : toHHmmssS(half),
+              value : [half, null]
             }, {
-              name  : toHHmmss(now),
-              value : [now, null]
+              name  : toHHmmssS(half + 250),
+              value : [half + 250, null]
             }]
           });
       } else {
@@ -924,23 +908,25 @@ const ready = async () => {
 
         for (let j = duration * 2; j > 0; j--) {
           const offset = j * 500;
-          const offsetTime = now - offset;
+          const offsetTime = half - offset;
 
           chartWaveData[id].push({
             time  : offsetTime,
             empty : true,
             data  : [{
-              name  : toHHmmss(offsetTime),
+              name  : toHHmmssS(offsetTime),
               value : [offsetTime, null]
             }, {
-              name  : toHHmmss(offsetTime),
-              value : [offsetTime + 500, null]
+              name  : toHHmmssS(offsetTime + 250),
+              value : [offsetTime + 250, null]
             }]
           });
         }
       }
 
-      while ((now - chartWaveData[id][0].time) > 30_000)
+      chartWaveData[id] = chartWaveData[id].sort((a, b) => a.time - b.time);
+
+      while ((half - chartWaveData[id][0].time) > duration * 1000)
         chartWaveData[id].shift();
 
       const allPoints = chartWaveData[id].flatMap((v) => v.data);
@@ -953,6 +939,9 @@ const ready = async () => {
           data : allPoints
         }]
       });
+
+      if (id == 5963580)
+        console.log(allPoints);
     }
   };
   // #endregion
