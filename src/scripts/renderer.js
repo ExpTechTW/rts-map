@@ -158,7 +158,7 @@ const ready = async () => {
 
   // #region set view
 
-  map.setView([23.61, 120.65], 7.5);
+  map.setView([23.61, 120.72], 7.5);
 
   if (!waveCount)
     window.resizeTo(400, 560);
@@ -197,7 +197,7 @@ const ready = async () => {
   /**
    * How long do wave data persists? (in seconds)
    */
-  const duration = 20;
+  const duration = 30;
 
   const wsConfig = {
     type    : "start",
