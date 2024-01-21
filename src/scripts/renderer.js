@@ -907,7 +907,6 @@ const ready = async () => {
           });
       } else {
         // init chartWaveData for this id
-        console.log(`init chartWaveData ${id}`);
         chartWaveData[id] = [];
 
         for (let j = duration * 2; j > 0; j--) {
