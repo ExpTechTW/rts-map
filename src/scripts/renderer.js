@@ -224,15 +224,21 @@ const ready = async () => {
     ws.on("close", (code) => {
       document.getElementById("disconnected-overlay").style.display = "";
 
+      ws.removeAllListeners();
+
+      if (code === 1008) return;
+
       if (code === 1006) {
         console.log(`%c[WS]%c WebSocket closed unexpectly (code ${code}). Reconnecting`, "color: blueviolet", "color:unset");
-        connect(retryTimeout);
-      } else {
-        syncOffset = 0;
-        console.log(`%c[WS]%c WebSocket closed (code ${code}). Reconnect after ${retryTimeout / 1000}s`, "color: blueviolet", "color:unset");
         ws = null;
-        setTimeout(() => connect(retryTimeout), retryTimeout).unref();
+        connect(retryTimeout);
+        return;
       }
+
+      syncOffset = 0;
+      console.log(`%c[WS]%c WebSocket closed (code ${code}). Reconnect after ${retryTimeout / 1000}s`, "color: blueviolet", "color:unset");
+      ws = null;
+      setTimeout(() => connect(retryTimeout), retryTimeout).unref();
     });
 
     ws.on("error", (err) => {
@@ -270,7 +276,7 @@ const ready = async () => {
             case 200: {
               if (!parsed.data.list.length) {
                 // no permission to use rts
-                ws.close();
+                ws.close(1008);
 
                 // TODO: show no permission and lock app
                 break;
@@ -299,7 +305,6 @@ const ready = async () => {
               break;
             }
 
-
             case "rtw": {
               if (!chartWaveData[parsed.data.id]) break;
 
@@ -314,12 +319,10 @@ const ready = async () => {
 
               const position = chartWaveData[parsed.data.id].findIndex(v => v.empty && v.time == time);
 
-              if (position >= 0) {
-                console.debug(position, parsed.data.id, chartWaveData[parsed.data.id], dataToPush);
+              if (position >= 0)
                 chartWaveData[parsed.data.id].splice(position, 1, dataToPush);
-              } else {
+              else
                 chartWaveData[parsed.data.id].push(dataToPush);
-              }
 
               break;
             }
