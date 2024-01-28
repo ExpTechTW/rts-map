@@ -28,7 +28,7 @@ const ready = async () => {
     11336952
   ];
 
-  const runtimedefaultchartuuids = (() => {
+  let runtimedefaultchartuuids = (() => {
     for (let i = 0; i < 8; i++)
       if (localStorage.getItem(`chart${i}`) == null)
         localStorage.setItem(`chart${i}`, defaultchartuuids[i]);
@@ -201,7 +201,7 @@ const ready = async () => {
 
   const wsConfig = {
     type    : "start",
-    key     : localStorage.getItem("key"),
+    key     : localStorage.getItem("apikey"),
     service : ["trem.rts", "trem.rtw"],
     config  : {
       "trem.rtw": runtimedefaultchartuuids.slice(0, waveCount).map(Number)
@@ -216,7 +216,7 @@ const ready = async () => {
   }, 25_000);
 
   const connect = (retryTimeout) => {
-    ws = new WebSocket("wss://ws.exptech.com.tw/websocket");
+    ws = new WebSocket(`wss://lb-${Math.ceil(Math.random() * 4)}.exptech.com.tw/websocket`);
 
     if (DEBUG_FLAG_SILLY)
       console.debug("%c[WS_CREATE]", "color: blueviolet", ws);
@@ -226,12 +226,16 @@ const ready = async () => {
 
       ws.removeAllListeners();
 
-      if (code === 1008) return;
-
-      if (code === 1006) {
+      if (code === 1000) {
+        ws = null;
+        return;
+      } else if (code === 1006) {
         console.log(`%c[WS]%c WebSocket closed unexpectly (code ${code}). Reconnecting`, "color: blueviolet", "color:unset");
         ws = null;
         connect(retryTimeout);
+        return;
+      } else if (code === 1008) {
+        console.log(`%c[WS]%c WebSocket closed (code ${code}).`, "color: blueviolet", "color:unset");
         return;
       }
 
@@ -468,7 +472,7 @@ const ready = async () => {
           }
 
           if (stations[id].alert)
-            alerted.push(id);
+            alerted.push(+id);
         } else {
           if (el.classList.contains("has-data"))
             el.classList.remove("has-data");
@@ -549,7 +553,7 @@ const ready = async () => {
     document.getElementById("avg-int-marker").style.bottom = `${avg < 0 ? 2 * avg : avg < 5 ? 37.1428571428571 * avg : 18.5714285714286 * avg + 92.8571428571427}px`;
 
     if (rtsData || DEBUG_FLAG_ALERT_BYPASS)
-      if ((rtsData.Alert && max.i >= 2) || DEBUG_FLAG_ALERT_BYPASS) {
+      if ((alerted.length && max.i >= 2) || DEBUG_FLAG_ALERT_BYPASS) {
         if (!data.alertLoop)
           data.alertLoop = true;
 
@@ -576,7 +580,6 @@ const ready = async () => {
             className   : "max-line",
             renderer    : L.svg({ pane: "stations" })
           }).addTo(map);
-
 
         if (!timer.alert)
           timer.alert = setInterval(() => {
@@ -721,8 +724,8 @@ const ready = async () => {
         const stationData = data.stations?.[ids[i]];
 
         if (chartIds[i] != ids[i]) {
+          delete chartWaveData[chartIds[i]];
           chartIds[i] = +ids[i];
-          chartWaveData[i] = [];
           wsSend = true;
         }
 
@@ -906,8 +909,8 @@ const ready = async () => {
               name  : toHHmmssS(half),
               value : [half, null]
             }, {
-              name  : toHHmmssS(half + 250),
-              value : [half + 250, null]
+              name  : toHHmmssS(half + 480),
+              value : [half + 480, null]
             }]
           });
       } else {
@@ -925,8 +928,8 @@ const ready = async () => {
               name  : toHHmmssS(offsetTime),
               value : [offsetTime, null]
             }, {
-              name  : toHHmmssS(offsetTime + 250),
-              value : [offsetTime + 250, null]
+              name  : toHHmmssS(offsetTime + 480),
+              value : [offsetTime + 480, null]
             }]
           });
         }
@@ -1015,14 +1018,15 @@ const ready = async () => {
   })();
 
   // api
-  document.getElementById("option__apikey").value = localStorage.getItem("key") ?? "";
+  document.getElementById("option__apikey").value = localStorage.getItem("apikey") ?? "";
   document.getElementById("option__apikey").addEventListener("change", function() {
-    localStorage.setItem("key", this.value);
+    localStorage.setItem("apikey", this.value);
     wsConfig.key = this.value;
 
     if (ws instanceof WebSocket && ws.readyState == ws.OPEN)
       ws.send(JSON.stringify(wsConfig));
-
+    else
+      connect();
     ipcRenderer.send("UPDATE:tray");
   });
   document.getElementById("option__backgroundthrottling").checked = localStorage.getItem("backgroundThrottling") == "true";
@@ -1036,6 +1040,30 @@ const ready = async () => {
   });
   document.getElementById("option__debug__silly").addEventListener("click", function() {
     DEBUG_FLAG_SILLY = this.checked;
+  });
+  document.getElementById("option__clear__wave__ids").addEventListener("click", () => {
+    for (let i = 0; i < 8; i++)
+      localStorage.setItem(`chart${i}`, defaultchartuuids[i]);
+
+    runtimedefaultchartuuids = [
+      localStorage.getItem("chart0"),
+      localStorage.getItem("chart1"),
+      localStorage.getItem("chart2"),
+      localStorage.getItem("chart3"),
+      localStorage.getItem("chart4"),
+      localStorage.getItem("chart5"),
+      localStorage.getItem("chart6"),
+      localStorage.getItem("chart7"),
+    ].slice(0, waveCount);
+
+    setChartsToIds(runtimedefaultchartuuids);
+  });
+  document.getElementById("option__reconnect__websocket").addEventListener("click", () => {
+    if (ws instanceof WebSocket)
+      ws.close(1000);
+
+    console.log("%c[WS]%c Reconnecting WebSocket...", "color: blueviolet", "color:unset");
+    setTimeout(connect, 500);
   });
   // #endregion
 };

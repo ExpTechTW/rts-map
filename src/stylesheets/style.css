@@ -326,12 +326,34 @@ body.alert #max-int {
 
 .settings-container > .option {
   display: flex;
+  gap: 8px;
   margin: 0 8px;
 }
 
 .settings-container > .option > label {
   flex: 1;
   opacity: .85;
+}
+
+.settings-container > .option > button {
+  all: unset;
+  height: 36px;
+  padding: 0 20px;
+  border-radius: 40px;
+  background-color: #4A4458;
+  color: #E8DEF8;
+  filter: none;
+  font-size: 14px;
+  transition: background-color .1 ease-in-out, filter .1 ease-in-out;
+}
+
+.settings-container > .option > button:hover {
+  background-color: #554E65;
+  box-shadow: 0 0 1px 0 #000;
+}
+
+.settings-container > .option > button:active {
+  filter: brightness(.8);
 }
 
 @media (prefers-color-scheme: light) {
