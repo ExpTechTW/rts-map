@@ -405,6 +405,26 @@ body.alert #max-int {
     background-color: #F3EDF7;
     color: #000;
   }
+
+  .settings-container > .option > button {
+    all: unset;
+    height: 36px;
+    padding: 0 20px;
+    border-radius: 40px;
+    background-color: #E8DEF8;
+    color: #1D192B;
+    filter: none;
+    font-size: 14px;
+    transition: background-color .1 ease-in-out, filter .1 ease-in-out;
+  }
+  
+  .settings-container > .option > button:hover {
+    background-color: #DED3F1;
+  }
+  
+  .settings-container > .option > button:active {
+    filter: brightness(.8);
+  }
 }
 
 @keyframes wave {
