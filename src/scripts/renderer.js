@@ -185,6 +185,14 @@ const ready = async () => {
         color  : isDark ? "#fff" : "#000",
         weight : 4,
       });
+
+    for (let i = 0; i < waveCount; i++)
+      if (chartIds[i])
+        charts[i].setOption({
+          series: [{
+            lineStyle: { color: isDark ? "#fff" : "#000", width: 1.5 },
+          }]
+        });
   });
   // #endregion
 
