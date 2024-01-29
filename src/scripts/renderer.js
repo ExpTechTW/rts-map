@@ -250,13 +250,13 @@ const ready = async () => {
       ws.send(JSON.stringify(wsConfig));
 
       timer.ping = setInterval(() => {
-        console.log("%c[WS]%c Pinging.", "color: #7c71c1", "color:unset");
-        ws.ping();
+        console.debug("%c[WS]%c Pinging.", "color: #7c71c1", "color:unset");
+        ws.ping("heartbeat");
       }, 10_000);
     });
 
     ws.on("pong", () => {
-      console.log("%c[WS]%c Received ACK.", "color: #7c71c1", "color:unset");
+      console.debug("%c[WS]%c Received ACK.", "color: #7c71c1", "color:unset");
     });
 
     ws.on("message", (raw) => {
