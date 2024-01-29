@@ -508,7 +508,7 @@ const ready = async () => {
         if (chartIds[i])
           if (chartIds[i] in rtsData.station)
             charts[i].setOption({
-              backgroundColor: `${gradIntensity(rtsData.station[chartIds[i]].I).hex()}${~~(Math.max(rtsData.station[chartIds[i]].I * 10), 10)}`
+              backgroundColor: `${gradIntensity(rtsData.station[chartIds[i]].I).hex()}${~~(Math.max(rtsData.station[chartIds[i]].I * 5), 10)}`
             });
           else
             charts[i].setOption({
