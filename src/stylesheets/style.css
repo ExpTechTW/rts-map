@@ -36,7 +36,7 @@ body {
 }
 
 body.fluent {
-  background-color: hsl(255deg 7% 11% / .4);
+  background-color: hsl(255deg 7% 11% / .54);
   background-blend-mode: multiply;
 }
 
@@ -361,9 +361,15 @@ body.alert #max-int {
 }
 
 @media (prefers-color-scheme: light) {
-  html, body {
+  body {
     color: #000;
-    background-color: #FFFBFE;
+    background-color: hsl(315deg 100% 99%);
+  }
+  
+  body.fluent {
+    background-color: hsl(315deg 100% 99% / .54);
+    background-blend-mode: multiply;
+    filter: contrast(1.2);
   }
 
   #app-container.has-bg {

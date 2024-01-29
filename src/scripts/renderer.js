@@ -150,7 +150,7 @@ const ready = async () => {
 
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", event => {
     isDark = event.matches;
-    console.debug(`%c[Theme]%c Theme changed to: ${isDark ? "DARK" : "LIGHT"}`, "color: blueviolet", "color:unset");
+    console.debug(`%c[Theme]%c Theme changed to: ${isDark ? "DARK" : "LIGHT"}`, "color: #7c71c1", "color:unset");
 
     base.setStyle({
       color       : isDark ? "#d0bcff" : "#6750A4",
@@ -207,7 +207,7 @@ const ready = async () => {
     ws = new WebSocket(`wss://lb-${Math.ceil(Math.random() * 4)}.exptech.com.tw/websocket`);
 
     if (DEBUG_FLAG_SILLY)
-      console.debug("%c[WS_CREATE]", "color: blueviolet", ws);
+      console.debug("%c[WS_CREATE]", "color: #7c71c1", ws);
 
     ws.on("close", (code) => {
       document.getElementById("disconnected-overlay").style.display = "";
@@ -218,17 +218,17 @@ const ready = async () => {
         ws = null;
         return;
       } else if (code === 1006) {
-        console.log(`%c[WS]%c WebSocket closed unexpectly (code ${code}). Reconnecting`, "color: blueviolet", "color:unset");
+        console.log(`%c[WS]%c WebSocket closed unexpectly (code ${code}). Reconnecting`, "color: #7c71c1", "color:unset");
         ws = null;
         connect(retryTimeout);
         return;
       } else if (code === 1008) {
-        console.log(`%c[WS]%c WebSocket closed (code ${code}).`, "color: blueviolet", "color:unset");
+        console.log(`%c[WS]%c WebSocket closed (code ${code}).`, "color: #7c71c1", "color:unset");
         return;
       }
 
       syncOffset = 0;
-      console.log(`%c[WS]%c WebSocket closed (code ${code}). Reconnect after ${retryTimeout / 1000}s`, "color: blueviolet", "color:unset");
+      console.log(`%c[WS]%c WebSocket closed (code ${code}). Reconnect after ${retryTimeout / 1000}s`, "color: #7c71c1", "color:unset");
       ws = null;
       setTimeout(() => connect(retryTimeout), retryTimeout).unref();
     });
@@ -241,7 +241,7 @@ const ready = async () => {
 
     ws.on("open", () => {
       if (DEBUG_FLAG_SILLY)
-        console.debug("%c[WS_OPEN]", "color: blueviolet", ws);
+        console.debug("%c[WS_OPEN]", "color: #7c71c1", ws);
 
       ws.send(JSON.stringify(wsConfig));
     });
@@ -250,7 +250,7 @@ const ready = async () => {
       const parsed = JSON.parse(raw);
 
       if (DEBUG_FLAG_SILLY)
-        console.debug("%c[WS_MESSAGE]", "color: blueviolet", parsed);
+        console.debug("%c[WS_MESSAGE]", "color: #7c71c1", parsed);
 
       switch (parsed.type) {
         case "verify":{
@@ -375,7 +375,7 @@ const ready = async () => {
   const fetchFiles = async () => {
     try {
       if (DEBUG_FLAG_SILLY)
-        console.debug("%c[FETCH]%c Fetching https://data.exptech.com.tw/file/resource/station.json", "color: blueviolet", "color:unset");
+        console.debug("%c[FETCH]%c Fetching https://data.exptech.com.tw/file/resource/station.json", "color: #7c71c1", "color:unset");
 
       const res = await (await fetch("https://data.exptech.com.tw/file/resource/station.json")).json();
 
@@ -394,7 +394,7 @@ const ready = async () => {
         data.stations = res;
       }
     } catch (error) {
-      console.warn("%c[FETCH]%c Failed to load station data!", "color: blueviolet", "color:unset", error);
+      console.warn("%c[FETCH]%c Failed to load station data!", "color: #7c71c1", "color:unset", error);
     }
   };
 
@@ -691,8 +691,7 @@ const ready = async () => {
    */
   const setChartsToIds
   = (ids) => {
-    if (DEBUG_FLAG_SILLY)
-      console.debug("%c[CHART]%c Setting chart to ids...", "color: blueviolet", "color:unset", ids);
+    console.debug("%c[CHART]%c Setting chart to ids:", "color: #7c71c1", "color:unset", ids);
 
     let wsSend = false;
 
@@ -761,11 +760,11 @@ const ready = async () => {
     if (wsSend)
       if (ws.readyState == ws.OPEN) {
         if (DEBUG_FLAG_SILLY)
-          console.debug("%c[WS_SEND]", "color: blueviolet", wsConfig);
+          console.debug("%c[WS_SEND]", "color: #7c71c1", wsConfig);
 
         ws.send(JSON.stringify(wsConfig));
       } else if (DEBUG_FLAG_SILLY) {
-        console.debug("%c[WS_SEND]%c Tried to send, but ws is closed.", "color: blueviolet", "color:unset", wsConfig);
+        console.debug("%c[WS_SEND]%c Tried to send, but ws is closed.", "color: #7c71c1", "color:unset", wsConfig);
       }
   };
 
@@ -1049,7 +1048,7 @@ const ready = async () => {
     if (ws instanceof WebSocket)
       ws.close(1000);
 
-    console.log("%c[WS]%c Reconnecting WebSocket...", "color: blueviolet", "color:unset");
+    console.log("%c[WS]%c Reconnecting WebSocket...", "color: #7c71c1", "color:unset");
     setTimeout(connect, 500);
   });
   // #endregion
