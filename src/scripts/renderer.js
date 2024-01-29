@@ -1,3 +1,5 @@
+const { readFileSync } = require("node:fs");
+
 /* global DEBUG_FLAG_ALERT_BYPASS: true, DEBUG_FLAG_SILLY: true */
 const ready = async () => {
   const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:timers");
@@ -100,37 +102,15 @@ const ready = async () => {
     zoomSnap           : 0.01
   });
 
-  const bgPath = localStorage.getItem("backgroundPath");
+  /**
+   * @type {echarts.ECharts[]}
+   */
+  const charts = [];
 
-  if (bgPath) {
-    document.body.style.backgroundImage = `url(file://${bgPath.replace("/", "\\\\")})`;
-    document.body.style.backgroundSize = `${window.screen.width}px ${window.screen.height}px`;
-
-    document.getElementById("app-container").classList.add("has-bg");
-
-    const moveBackground = () => {
-      document.body.style.backgroundPosition = `${-window.screenX}px ${-window.screenY}px`;
-    };
-
-    const move = setInterval(moveBackground);
-
-    const blur = () => {
-      document.body.classList.add("blur");
-    };
-
-    const rmblur = () => {
-      document.body.classList.remove("blur");
-    };
-
-    window.addEventListener("focus", rmblur);
-    window.addEventListener("blur", blur);
-
-    window.addEventListener("beforeunload", () => {
-      window.removeEventListener("focus", rmblur);
-      window.removeEventListener("blur", blur);
-      clearInterval(move);
-    });
-  }
+  /**
+   * @type {Record<number, ChartWaveData[]>}
+   */
+  const chartWaveData = {};
 
   // #region map layer
 
@@ -637,17 +617,6 @@ const ready = async () => {
   // #endregion
 
   // #region wave
-
-  /**
-   * @type {echarts.ECharts[]}
-   */
-  const charts = [];
-
-  /**
-   * @type {Record<number, ChartWaveData[]>}
-   */
-  const chartWaveData = {};
-
   for (let i = 0; i < waveCount; i++) {
     const dom = document.createElement("div");
     dom.className = "chart";
@@ -973,6 +942,16 @@ const ready = async () => {
   });
 
   (() => {
+    if (localStorage.getItem("fluentWindow") == "true")
+      document.body.classList.add("fluent");
+
+    ipcRenderer.on("CONFIG:fluentWindow", (_, v) => {
+      if (v)
+        document.body.classList.add("fluent");
+      else
+        document.body.classList.remove("fluent");
+    });
+
     document.addEventListener("click", (e) => {
       if (!document.getElementById("settings").contains(e.target))
         document.getElementById("settings").classList.remove("show");

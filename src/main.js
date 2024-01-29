@@ -40,15 +40,18 @@ let win;
 
 const createWindow = () => {
   win = new BrowserWindow({
-    width           : 800,
-    height          : 560,
-    resizable       : false,
-    fullscreenable  : false,
-    autoHideMenuBar : true,
-    frame           : false,
-    icon            : path.resolve(__dirname, "app.ico"),
-    show            : false,
-    webPreferences  : {
+    width              : 800,
+    height             : 560,
+    resizable          : false,
+    maximizable        : false,
+    fullscreenable     : false,
+    autoHideMenuBar    : true,
+    icon               : path.resolve(__dirname, "app.ico"),
+    show               : false,
+    titleBarOverlay    : false,
+    titleBarStyle      : "hidden",
+    backgroundMaterial : "acrylic",
+    webPreferences     : {
       contextIsolation     : false,
       nodeIntegration      : true,
       backgroundThrottling : false,
@@ -167,27 +170,12 @@ const setTrayMenu = (settings) => {
             {
               label   : "Win11 視窗效果",
               type    : "checkbox",
-              checked : settings.backgroundPath != null,
-              click   : () => {
-                if (settings.backgroundPath == null) {
-                  dialog.showOpenDialog(win, {
-                    title   : "請選擇背景圖片",
-                    filters : [
-                      { name: "圖片", extensions: ["jpg", "jpeg", "png", "webp", "gif"] }
-                    ]
-                  }).then((result) => {
-                    if (!result.canceled)
-                      if (result.filePaths.length) {
-                        settings.backgroundPath = result.filePaths[0].replace(/\\/g, "/");
-                        win.webContents.executeJavaScript(`localStorage.setItem("backgroundPath","${result.filePaths[0].replace(/\\/g, "/")}")`).then(relaunch);
-                      }
-
-                    setTrayMenu(settings);
-                  });
-                } else {
-                  delete settings.backgroundPath;
-                  win.webContents.executeJavaScript("localStorage.removeItem(\"backgroundPath\")").then(relaunch);
-                }
+              checked : settings.fluentWindow == "true",
+              click   : (item) => {
+                win.webContents.executeJavaScript(`localStorage.setItem("fluentWindow","${item.checked}")`);
+                win.webContents.send("CONFIG:fluentWindow", item.checked);
+                settings.fluentWindow = `${item.checked}`;
+                win.setBackgroundMaterial(item.checked ? "acrylic" : "none");
               }
             },
           ]
@@ -432,8 +420,10 @@ app.whenReady().then(async () => {
     ["chartYScale", ChartYScale.Minimum],
     ["autoSwitchWave", true],
     ["minimumTriggeredStation", 2],
+    ["fluentWindow", true],
   ].filter(v => !Object.keys(settings).includes(v[0])))
     win.webContents.executeJavaScript(`localStorage.setItem("${value[0]}","${value[1]}")`);
+
 
   if (settings.displayWaveCount == 0)
     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",\"2\")");
@@ -444,6 +434,7 @@ app.whenReady().then(async () => {
 
   nativeTheme.themeSource = settings.themeMode;
   win.webContents.setBackgroundThrottling(settings.backgroundThrottling == "true");
+  win.setBackgroundMaterial(settings.fluentWindow == "true" ? "acrylic" : "none");
   win.setAlwaysOnTop(settings.alwaysOnTop == "true");
 
   tray = new Tray(path.resolve(__dirname, "app.ico"));
