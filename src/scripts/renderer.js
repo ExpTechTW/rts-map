@@ -1,8 +1,6 @@
-const { readFileSync } = require("node:fs");
-
 /* global DEBUG_FLAG_ALERT_BYPASS: true, DEBUG_FLAG_SILLY: true */
 const ready = async () => {
-  const { setTimeout, setInterval, clearTimeout, clearInterval } = require("node:timers");
+  const { setTimeout, setInterval, clearInterval } = require("node:timers");
   const { app, Menu, MenuItem, nativeTheme } = require("@electron/remote");
   const { ipcRenderer } = require("electron/renderer");
   const { WebSocket } = require("ws");
@@ -10,12 +8,13 @@ const ready = async () => {
   const chroma = require("chroma-js");
   const echarts = require("echarts");
   const path = require("node:path");
-  const os = require("node:os");
+  // const os = require("node:os");
+  // const requestUA = `rts-map/${app.getVersion()} (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`;
+
   let isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
   document.title = `rts-map v${app.getVersion()}`;
 
-  const requestUA = `rts-map/${app.getVersion()} (${os.hostname()}; platform; ${os.version()}; ${os.platform()}; ${os.arch()})`;
 
   const waveCount = +(localStorage.getItem("displayWaveCount") ?? 6);
 
@@ -124,7 +123,7 @@ const ready = async () => {
     }
   }).addTo(map);
 
-  const pane = map.createPane("stations");
+  map.createPane("stations");
 
   const arealayer = L.geoJSON(data.area, {
     pane  : "stations",
@@ -180,7 +179,7 @@ const ready = async () => {
   /**
    * @type {WebSocket}
    */
-  let ws, syncOffset, rtsRaw = {}, waveRaw = {};
+  let ws, syncOffset, rtsRaw = {};
 
   /**
    * How long do wave data persists? (in seconds)
@@ -214,6 +213,11 @@ const ready = async () => {
 
       ws.removeAllListeners();
 
+      if (timer.ping) {
+        clearInterval(timer.ping);
+        delete timer.ping;
+      }
+
       if (code === 1000) {
         ws = null;
         return;
@@ -244,6 +248,15 @@ const ready = async () => {
         console.debug("%c[WS_OPEN]", "color: #7c71c1", ws);
 
       ws.send(JSON.stringify(wsConfig));
+
+      timer.ping = setInterval(() => {
+        console.log("%c[WS]%c Pinging.", "color: #7c71c1", "color:unset");
+        ws.ping();
+      }, 10_000);
+    });
+
+    ws.on("pong", () => {
+      console.log("%c[WS]%c Received ACK.", "color: #7c71c1", "color:unset");
     });
 
     ws.on("message", (raw) => {
@@ -334,7 +347,6 @@ const ready = async () => {
 
     updateWaveCharts();
     setTimeout(updateWaveCharts, 500);
-    waveRaw = null;
   };
 
   connect(5000);
@@ -410,16 +422,17 @@ const ready = async () => {
   const rts = (rtsData) => {
     if (rtsData == null) return;
 
-    const stations = rtsData.station;
+    if (!rtsData.station) return;
 
-    if (!stations) return;
-
-    const onlineList = Object.keys(stations);
+    const onlineList = Object.keys(rtsData.station);
     let max = { id: null, i: -4 };
     let min = { id: null, i: 9 };
     let sum = 0;
     let count = 0;
-    const area = {};
+
+    /**
+     * @type {string[]}
+     */
     const alerted = [];
 
     for (const removedStationId of Object.keys(markers).filter(v => !data.stations[v])) {
@@ -439,28 +452,21 @@ const ready = async () => {
           if (!el.classList.contains("has-data"))
             el.classList.add("has-data");
 
-          el.style.backgroundColor = gradIntensity(stations[id].I);
+          el.style.backgroundColor = gradIntensity(rtsData.station[id].I);
 
-          if (stations[id].I > max.i) max = { id, i: stations[id].I };
+          if (rtsData.station[id].I > max.i) max = { id, i: rtsData.station[id].I };
 
-          if (stations[id].I < min.i) min = { id, i: stations[id].I };
+          if (rtsData.station[id].I < min.i) min = { id, i: rtsData.station[id].I };
 
-          markers[id].setZIndexOffset(stations[id].I + 5);
+          markers[id].setZIndexOffset(rtsData.station[id].I + 5);
 
-          if (rtsData.Alert && stations[id].alert) {
-            sum += stations[id].I;
+          if (rtsData.Alert && rtsData.station[id].alert) {
+            sum += rtsData.station[id].I;
             count++;
-
-            let _i = intensityValueToIntensity(stations[id].I);
-
-            if (_i == 0) _i = 1;
-
-            if (_i > (area[stationData.PGA] ?? 0))
-              area[stationData.PGA] = _i;
           }
 
-          if (stations[id].alert)
-            alerted.push(+id);
+          if (rtsData.station[id].alert)
+            alerted.push(id);
         } else {
           if (el.classList.contains("has-data"))
             el.classList.remove("has-data");
@@ -500,9 +506,9 @@ const ready = async () => {
 
       for (let i = 0; i < waveCount; i++)
         if (chartIds[i])
-          if (chartIds[i] in stations)
+          if (chartIds[i] in rtsData.station)
             charts[i].setOption({
-              backgroundColor: `${gradIntensity(stations[chartIds[i]].i).hex()}10`
+              backgroundColor: `${gradIntensity(rtsData.station[chartIds[i]].i).hex()}10`
             });
           else
             charts[i].setOption({
@@ -511,8 +517,8 @@ const ready = async () => {
     }
 
     arealayer.setStyle(localStorage.getItem("area") == "true" ? (feature) => ({
-      stroke : area[feature.id] > 0,
-      color  : ["transparent", "#00ceff", "#33ff34", "#fdff32", "#ff8532", "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9"][area[feature.id]],
+      stroke : rtsData.box[feature.id] > 0,
+      color  : ["transparent", "#00ceff", "#33ff34", "#fdff32", "#ff8532", "#fc5235", "#c03e3c", "#9b4544", "#9a4c86", "#b720e9"][rtsData.box[feature.id]],
       weight : 2,
       fill   : false
     }) : {
@@ -553,8 +559,8 @@ const ready = async () => {
           document.getElementById("min-int-marker").classList.remove("hide");
         }
 
-        document.getElementById("int-value").innerText = int[intensityValueToIntensity(stations[max.id].i)].value;
-        document.getElementById("int-scale").innerText = int[intensityValueToIntensity(stations[max.id].i)].scale;
+        document.getElementById("int-value").innerText = int[intensityValueToIntensity(rtsData.station[max.id].i)].value;
+        document.getElementById("int-scale").innerText = int[intensityValueToIntensity(rtsData.station[max.id].i)].scale;
         document.getElementById("loc-city").innerText = data.code[data.stations[max.id].info[0].code]?.city ?? "";
         document.getElementById("loc-town").innerText = data.code[data.stations[max.id].info[0].code]?.town ?? "";
 
@@ -635,13 +641,12 @@ const ready = async () => {
 
         stations[loc.city] ??= {};
         stations[loc.city][loc.town] ??= [];
-
         stations[loc.city][loc.town].push(new MenuItem({
           type    : "checkbox",
           checked : runtimedefaultchartuuids.includes(id),
           label   : `${station.net} ${id}`,
           enabled : !(runtimedefaultchartuuids.includes(id) || runtimedefaultchartuuids[i] == id),
-          click   : (item) => {
+          click   : () => {
             localStorage.setItem(`chart${i}`, id);
             runtimedefaultchartuuids[i] = id;
             setChartsToIds(runtimedefaultchartuuids);
