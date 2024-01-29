@@ -424,7 +424,6 @@ app.whenReady().then(async () => {
   ].filter(v => !Object.keys(settings).includes(v[0])))
     win.webContents.executeJavaScript(`localStorage.setItem("${value[0]}","${value[1]}")`);
 
-
   if (settings.displayWaveCount == 0)
     win.webContents.executeJavaScript("localStorage.setItem(\"minimumTriggeredStation\",\"2\")");
   else if (+settings.displayWaveCount < +settings.minimumTriggeredStation)
@@ -469,10 +468,15 @@ ipcMain.on("SET:aot", (e, state) => {
   win.setAlwaysOnTop(state);
 });
 
+ipcMain.on("SET:fw", (e, state) => {
+  win.setBackgroundMaterial(state ? "acrylic" : "none");
+  win.webContents.send("CONFIG:fluentWindow", state);
+});
+
 ipcMain.on("SET:bt", (e, state) => {
   win.webContents.setBackgroundThrottling(state);
 });
 
-ipcMain.on("UPDATE:tray", async (e) => {
+ipcMain.on("UPDATE:tray", async () => {
   setTrayMenu(await win.webContents.executeJavaScript("({...localStorage})"));
 });

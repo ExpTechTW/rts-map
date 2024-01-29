@@ -983,6 +983,12 @@ const ready = async () => {
       nativeTheme.themeSource = this.selectedOptions[0].value;
       ipcRenderer.send("UPDATE:tray");
     });
+    document.getElementById("option__fluentwindow").checked = localStorage.getItem("fluentWindow") == "true";
+    document.getElementById("option__fluentwindow").addEventListener("click", function() {
+      localStorage.setItem("fluentWindow", this.checked);
+      ipcRenderer.send("SET:fw", this.checked);
+      ipcRenderer.send("UPDATE:tray");
+    });
 
     // wave
     document.getElementById("option__displaywavecount").value = +localStorage.getItem("displayWaveCount") ?? 6;
