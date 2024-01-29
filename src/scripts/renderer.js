@@ -222,7 +222,7 @@ const ready = async () => {
         ws = null;
         return;
       } else if (code === 1006) {
-        console.log(`%c[WS]%c WebSocket closed unexpectly (code ${code}). Reconnecting`, "color: #7c71c1", "color:unset");
+        console.warn(`%c[WS]%c WebSocket closed unexpectly (code ${code}). Reconnecting`, "color: #7c71c1", "color:unset");
         ws = null;
         connect(retryTimeout);
         return;
@@ -252,7 +252,7 @@ const ready = async () => {
       timer.ping = setInterval(() => {
         console.debug("%c[WS]%c Pinging.", "color: #7c71c1", "color:unset");
         ws.ping("heartbeat");
-      }, 10_000);
+      }, 15_000);
     });
 
     ws.on("pong", () => {
@@ -508,7 +508,7 @@ const ready = async () => {
         if (chartIds[i])
           if (chartIds[i] in rtsData.station)
             charts[i].setOption({
-              backgroundColor: `${gradIntensity(rtsData.station[chartIds[i]].i).hex()}10`
+              backgroundColor: `${gradIntensity(rtsData.station[chartIds[i]].I).hex()}${~~(Math.max(rtsData.station[chartIds[i]].I * 10), 10)}`
             });
           else
             charts[i].setOption({
@@ -861,7 +861,7 @@ const ready = async () => {
     let scale = (data.stations[id].net == "MS-Net") ? 50 : 20000 ;
     scale += scale * +(localStorage.getItem("chartYScale") ?? "5");
     max = Math.ceil(max * 100) / 100;
-    max += max * 0.2;
+    max += max * 0.1;
     max = Math.max(scale, max);
 
     return {
