@@ -434,6 +434,7 @@ const ready = async () => {
      * @type {string[]}
      */
     const alerted = [];
+    const Alert = Object.keys(rtsData.box).length;
 
     for (const removedStationId of Object.keys(markers).filter(v => !data.stations[v])) {
       if (removedStationId) continue;
@@ -449,24 +450,24 @@ const ready = async () => {
         const el = markers[id].getElement();
 
         if (onlineList.includes(id)) {
+          const I = (rtsData.station[id].alert) ? rtsData.station[id].I : rtsData.station[id].i;
+
           if (!el.classList.contains("has-data"))
             el.classList.add("has-data");
 
-          el.style.backgroundColor = gradIntensity(rtsData.station[id].I);
+          el.style.backgroundColor = gradIntensity(I);
 
-          if (rtsData.station[id].I > max.i) max = { id, i: rtsData.station[id].I };
+          if (I > max.i) max = { id, i: I };
 
-          if (rtsData.station[id].I < min.i) min = { id, i: rtsData.station[id].I };
+          if (I < min.i) min = { id, i: I };
 
-          markers[id].setZIndexOffset(rtsData.station[id].I + 5);
+          markers[id].setZIndexOffset(I + 5);
 
-          if (rtsData.Alert && rtsData.station[id].alert) {
-            sum += rtsData.station[id].I;
+          if (Alert && rtsData.station[id].alert) {
+            sum += I;
             count++;
-          }
-
-          if (rtsData.station[id].alert)
             alerted.push(id);
+          }
         } else {
           if (el.classList.contains("has-data"))
             el.classList.remove("has-data");
@@ -547,7 +548,7 @@ const ready = async () => {
     document.getElementById("avg-int-marker").style.bottom = `${avg < 0 ? 2 * avg : avg < 5 ? 37.1428571428571 * avg : 18.5714285714286 * avg + 92.8571428571427}px`;
 
     if (rtsData || DEBUG_FLAG_ALERT_BYPASS)
-      if ((alerted.length && max.i >= 2) || DEBUG_FLAG_ALERT_BYPASS) {
+      if ((alerted.length && max.i >= 1) || DEBUG_FLAG_ALERT_BYPASS) {
         if (!data.alertLoop)
           data.alertLoop = true;
 
