@@ -352,7 +352,7 @@ const ready = async () => {
   connect(5000);
 
   // #region for debugging: replay
-  let rtsReplayTime;
+  // let rtsReplayTime;
 
   /*
   let rtsReplayTime = new Date("2023-12-31 05:57:05").getTime();
@@ -387,9 +387,9 @@ const ready = async () => {
   const fetchFiles = async () => {
     try {
       if (DEBUG_FLAG_SILLY)
-        console.debug("%c[FETCH]%c Fetching https://data.exptech.com.tw/file/resource/station.json", "color: #7c71c1", "color:unset");
+        console.debug("%c[FETCH]%c Fetching https://lb-1.exptech.com.tw/file/resource/station.json", "color: #7c71c1", "color:unset");
 
-      const res = await (await fetch("https://data.exptech.com.tw/file/resource/station.json")).json();
+      const res = await (await fetch("https://lb-1.exptech.com.tw/file/resource/station.json")).json();
 
 
       if (res) {
