@@ -400,7 +400,7 @@ const ready = async () => {
         for (let i = 0, k = Object.keys(res), n = k.length; i < n; i++) {
           const id = k[i];
 
-          if (!codes.includes(`${res[id].info[0].code}`))
+          if (!codes.includes(`${res[id].info.at(-1).code}`))
             delete res[id];
 
         }
@@ -476,7 +476,7 @@ const ready = async () => {
           el.style.backgroundColor = "";
         }
       } else {
-        markers[id] = L.marker([stationData.info[0].lat, stationData.info[0].lon], {
+        markers[id] = L.marker([stationData.info.at(-1).lat, stationData.info.at(-1).lon], {
           icon: L.divIcon({
             className : "station-marker",
             iconSize  : [ 8, 8 ]
@@ -529,11 +529,11 @@ const ready = async () => {
       fill   : false
     });
 
-    if (maxId != null && max.id != null && maxId != max.id) {
-      if (markers[maxId].getElement().classList.contains("max"))
+    if (maxId != max.id) {
+      if (maxId != null && markers[maxId].getElement().classList.contains("max"))
         markers[maxId].getElement().classList.remove("max");
 
-      if (!markers[max.id].getElement().classList.contains("max"))
+      if (max.id != null && !markers[max.id].getElement().classList.contains("max"))
         markers[max.id].getElement().classList.add("max");
     }
 
@@ -562,13 +562,13 @@ const ready = async () => {
           document.getElementById("min-int-marker").classList.remove("hide");
         }
 
-        document.getElementById("int-value").innerText = int[intensityValueToIntensity(rtsData.station[max.id].i)].value;
-        document.getElementById("int-scale").innerText = int[intensityValueToIntensity(rtsData.station[max.id].i)].scale;
-        document.getElementById("loc-city").innerText = data.code[data.stations[max.id].info[0].code]?.city ?? "";
-        document.getElementById("loc-town").innerText = data.code[data.stations[max.id].info[0].code]?.town ?? "";
+        document.getElementById("int-value").innerText = int[intensityValueToIntensity(max.i)].value;
+        document.getElementById("int-scale").innerText = int[intensityValueToIntensity(max.i)].scale;
+        document.getElementById("loc-city").innerText = data.code[data.stations[max.id].info.at(-1).code]?.city ?? "";
+        document.getElementById("loc-town").innerText = data.code[data.stations[max.id].info.at(-1).code]?.town ?? "";
 
         if (markers.polyline)
-          markers.polyline.setLatLngs([[25.26, 119.8], [data.stations[max.id].info[0].lat, data.stations[max.id].info[0].lon]]);
+          markers.polyline.setLatLngs([[25.26, 119.8], [data.stations[max.id].info.at(-1).lat, data.stations[max.id].info.at(-1).lon]]);
         else
           markers.polyline = L.polyline([[25.26, 119.8], [25.26, 119.8]], {
             color       : isDark ? "#fff" : "#000",
@@ -637,7 +637,7 @@ const ready = async () => {
 
       for (const id in data.stations) {
         const station = data.stations[id];
-        const loc = data.code[station.info[0].code];
+        const loc = data.code[station.info.at(-1).code];
 
         if (wsConfig.config["trem.rtw"][i] == id)
           current = loc;
@@ -715,7 +715,7 @@ const ready = async () => {
 
         charts[i].setOption({
           title: {
-            text: `${data.code[stationData.info[0].code].city} ${data.code[stationData.info[0].code].town} | ${stationData.net} ${chartIds[i]}`,
+            text: `${data.code[stationData.info.at(-1).code].city} ${data.code[stationData.info.at(-1).code].town} | ${stationData.net} ${chartIds[i]}`,
           }
         });
       } else {
