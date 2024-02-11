@@ -386,10 +386,12 @@ const ready = async () => {
 
   const fetchFiles = async () => {
     try {
-      if (DEBUG_FLAG_SILLY)
-        console.debug("%c[FETCH]%c Fetching https://lb-1.exptech.com.tw/file/resource/station.json", "color: #7c71c1", "color:unset");
+      const num = Math.ceil(Math.random() * 4);
 
-      const res = await (await fetch("https://lb-1.exptech.com.tw/file/resource/station.json")).json();
+      if (DEBUG_FLAG_SILLY)
+        console.debug(`%c[FETCH]%c Fetching https://lb-${num}.exptech.com.tw/file/resource/station.json`, "color: #7c71c1", "color:unset");
+
+      const res = await (await fetch(`https://lb-${num}.exptech.com.tw/file/resource/station.json`)).json();
 
 
       if (res) {
