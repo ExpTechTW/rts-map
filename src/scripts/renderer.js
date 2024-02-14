@@ -179,7 +179,7 @@ const ready = async () => {
   /**
    * @type {WebSocket}
    */
-  let ws, syncOffset, rtsRaw = {};
+  let ws, syncedTime, lastSync, rtsRaw = {};
 
   /**
    * How long do wave data persists? (in seconds)
@@ -195,15 +195,10 @@ const ready = async () => {
     }
   };
 
-  setInterval(() => {
-    if (syncOffset && Date.now() - syncOffset > 15_000) {
-      syncOffset = 0;
-      ws.terminate();
-    }
-  }, 25_000);
-
   const connect = (retryTimeout) => {
-    ws = new WebSocket(`wss://lb-${Math.ceil(Math.random() * 4)}.exptech.com.tw/websocket`);
+    const url = `wss://lb-${Math.ceil(Math.random() * 4)}.exptech.com.tw/websocket`;
+
+    ws = new WebSocket(url);
 
     if (DEBUG_FLAG_SILLY)
       console.debug("%c[WS_CREATE]", "color: #7c71c1", ws);
@@ -212,11 +207,6 @@ const ready = async () => {
       document.getElementById("disconnected-overlay").style.display = "";
 
       ws.removeAllListeners();
-
-      if (timer.ping) {
-        clearInterval(timer.ping);
-        delete timer.ping;
-      }
 
       if (code === 1000) {
         ws = null;
@@ -231,7 +221,6 @@ const ready = async () => {
         return;
       }
 
-      syncOffset = 0;
       console.log(`%c[WS]%c WebSocket closed (code ${code}). Reconnect after ${retryTimeout / 1000}s`, "color: #7c71c1", "color:unset");
       ws = null;
       setTimeout(() => connect(retryTimeout), retryTimeout).unref();
@@ -239,24 +228,15 @@ const ready = async () => {
 
     ws.on("error", (err) => {
       console.error(err);
-
       ws.close(err.code);
     });
 
     ws.on("open", () => {
-      if (DEBUG_FLAG_SILLY)
-        console.debug("%c[WS_OPEN]", "color: #7c71c1", ws);
+      console.log(url);
+
+      if (DEBUG_FLAG_SILLY) console.debug("%c[WS_OPEN]", "color: #7c71c1", ws);
 
       ws.send(JSON.stringify(wsConfig));
-
-      timer.ping = setInterval(() => {
-        console.debug("%c[WS]%c Pinging.", "color: #7c71c1", "color:unset");
-        ws.ping("heartbeat");
-      }, 15_000);
-    });
-
-    ws.on("pong", () => {
-      console.debug("%c[WS]%c Received ACK.", "color: #7c71c1", "color:unset");
     });
 
     ws.on("message", (raw) => {
@@ -272,7 +252,8 @@ const ready = async () => {
         }
 
         case "ntp": {
-          syncOffset = Date.now();
+          syncedTime = parsed.time;
+          lastSync = Date.now();
           break;
         }
 
@@ -878,7 +859,7 @@ const ready = async () => {
    * @returns {void}
    */
   const updateWaveCharts = () => {
-    const now = Date.now();
+    const now = syncedTime + (Date.now() - lastSync);
     const half = ~~(now / 1000) * 1000 + Math.round((now % 1000) / 1000) * 500;
 
     for (let i = 0; i < waveCount; i++) {
