@@ -12,7 +12,7 @@
     "ws": "^8.16.0"
   },
   "name": "rts-map",
-  "version": "0.1.0-beta.1",
+  "version": "0.1.0",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
