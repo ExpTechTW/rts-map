@@ -188,15 +188,17 @@ const ready = async () => {
 
   const wsConfig = {
     type    : "start",
-    key     : localStorage.getItem("apikey"),
     service : ["trem.rts", "trem.rtw"],
-    config  : {
+    user    : {
+      email : "whes1015@gmail.com",
+      key   : "df37462ac4882d8"
+    },
       "trem.rtw": runtimedefaultchartuuids.slice(0, waveCount).map(Number)
     }
   };
 
   const connect = (retryTimeout) => {
-    const url = `wss://lb-${Math.ceil(Math.random() * 4)}.exptech.com.tw/websocket`;
+    const url = "ws://127.0.0.1:1015/websocket";
 
     ws = new WebSocket(url);
 
