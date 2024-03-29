@@ -193,6 +193,7 @@ const ready = async () => {
       email : "whes1015@gmail.com",
       key   : "df37462ac4882d8"
     },
+    config: {
       "trem.rtw": runtimedefaultchartuuids.slice(0, waveCount).map(Number)
     }
   };
