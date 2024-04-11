@@ -1,3 +1,7 @@
 {
-  "terminal.integrated.cwd": "src"
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
