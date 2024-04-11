@@ -26,7 +26,7 @@ export function getBuildConfig(env: ConfigEnv<'build'>): UserConfig {
 }
 
 export function getDefineKeys(names: string[]) {
-  const define: { [name: string]: VitePluginRuntimeKeys } = {};
+  const define: { [name: string]: VitePluginRuntimeKeys; } = {};
 
   return names.reduce((acc, name) => {
     const NAME = name.toUpperCase();
@@ -66,7 +66,7 @@ export function pluginExposeRenderer(name: string): Plugin {
       process.viteDevServers[name] = server;
 
       server.httpServer?.once('listening', () => {
-        const addressInfo = server.httpServer!.address() as AddressInfo;
+        const addressInfo = server.httpServer.address() as AddressInfo;
         // Expose env constant for main process use.
         process.env[VITE_DEV_SERVER_URL] = `http://localhost:${addressInfo?.port}`;
       });
@@ -81,7 +81,7 @@ export function pluginHotRestart(command: 'reload' | 'restart'): Plugin {
       if (command === 'reload') {
         for (const server of Object.values(process.viteDevServers)) {
           // Preload scripts hot reload.
-          server.ws.send({ type: 'full-reload' });
+          server.hot.send({ type: 'full-reload' });
         }
       } else {
         // Main process hot restart.

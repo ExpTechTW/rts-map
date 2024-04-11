@@ -1,6 +1,7 @@
 import type { ConfigEnv, UserConfig } from 'vite';
 import { defineConfig } from 'vite';
 import { pluginExposeRenderer } from './vite.base.config';
+import { resolve } from "path";
 import vue from '@vitejs/plugin-vue';
 
 // https://vitejs.dev/config
@@ -19,6 +20,9 @@ export default defineConfig((env) => {
     plugins: [pluginExposeRenderer(name), vue()],
     resolve: {
       preserveSymlinks: true,
+      alias: [
+        { find: "@", replacement: resolve("./src") },
+      ]
     },
     clearScreen: false,
   } as UserConfig;

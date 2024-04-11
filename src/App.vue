@@ -1,4 +1,16 @@
+<script setup lang="ts">
+import TitleBar from "@/components/TitleBar.vue";
+import Toast from "primevue/toast";
+
+import { useRts } from "@/stores/rts";
+
+const rts = useRts();
+
+console.log(rts);
+</script>
+
 <template>
+  <TitleBar />
   <router-view v-slot="{ Component }">
     <transition name="fade">
       <keep-alive>
@@ -6,8 +18,5 @@
       </keep-alive>
     </transition>
   </router-view>
+  <Toast />
 </template>
-
-<script setup>
-console.log('👋 This message is being logged by "App.vue", included via Vite');
-</script>

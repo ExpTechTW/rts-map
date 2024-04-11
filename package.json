@@ -38,8 +38,17 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@exptechtw/api-wrapper": "github:ExpTechTW/api-wrapper",
+    "chart.js": "^4.4.2",
     "electron-squirrel-startup": "^1.0.0",
+    "grid-layout-plus": "^1.0.4",
+    "i": "^0.3.7",
+    "maplibre-gl": "^4.1.2",
+    "npm": "^10.5.2",
+    "pinia": "^2.1.7",
+    "primevue": "^4.0.0-beta.1",
     "vue": "^3.4.21",
+    "vue-chartjs": "^5.3.1",
     "vue-router": "^4.3.0"
   }
 }
