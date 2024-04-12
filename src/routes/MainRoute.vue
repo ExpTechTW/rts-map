@@ -14,23 +14,33 @@ import { onMounted } from "vue";
 import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 
+import type { ChartWaveData } from "@/types";
+
 import Global from "@/global";
-import { ChartData, Point } from "chart.js";
-import { markRaw } from "vue";
 
 const router = useRouter();
 const rtsStore = useRtsStore();
 const stationStore = useStationStore();
-const rtwStore = reactive<Record<number, ChartData<"line", Point[], unknown>>>(
-  {}
-);
+const rtwStore = reactive<Record<number, ChartWaveData>>({});
+
+const isStationLoaded = ref(false);
 
 const ws = new ExpTechWebsocket({
   key: localStorage.getItem("token"),
   service: [SupportedService.RealtimeStation, SupportedService.RealtimeWave],
   config: {
-    [SupportedService.RealtimeWave]: [11366940],
+    [SupportedService.RealtimeWave]: [
+      11366940, 6024428, 13898616, 4812424, 11339620, 6125804,
+    ],
   },
+});
+
+ws.websocketConfig.config?.[SupportedService.RealtimeWave]?.forEach((id) => {
+  rtwStore[id] = {
+    X: [],
+    Y: [],
+    Z: [],
+  };
 });
 
 ws.on(WebSocketEvent.Info, (info) => {
@@ -52,33 +62,55 @@ ws.on(WebSocketEvent.Rtw, (rtw) => {
   try {
     if (rtwStore[rtw.id] == undefined) {
       rtwStore[rtw.id] = {
-        datasets: [
-          { label: "X", data: [], borderColor: "rgba(255,80,80,0.2)" },
-          { label: "Y", data: [], borderColor: "rgba(80,255,80,0.2)" },
-          { label: "Z", data: [], borderColor: "rgb(80,80,255)" },
-        ],
-      } as ChartData<"line", Point[], unknown>;
+        X: [],
+        Y: [],
+        Z: [],
+      };
     }
 
     const interval = 500 / rtw.X.length;
 
     // X
-    rtwStore[rtw.id].datasets[0].data.splice(0, rtw.X.length);
-    rtwStore[rtw.id].datasets[0].data.push(
-      ...rtw.X.map((h, i) => ({ x: rtw.time + interval * i, y: h }))
-    );
+    rtwStore[rtw.id].X.push({
+      startTime: rtw.time,
+      endTime: rtw.time + 500,
+      isEmpty: false,
+      data: rtw.X.map((h, i) => {
+        const time = rtw.time + interval * i;
+        return { name: `${time}`, value: [time, h * 10000] };
+      }),
+    });
+    while (rtwStore[rtw.id].X.length > 60) {
+      rtwStore[rtw.id].X.shift();
+    }
 
     // Y
-    rtwStore[rtw.id].datasets[1].data.splice(0, rtw.Y.length);
-    rtwStore[rtw.id].datasets[1].data.push(
-      ...rtw.Y.map((h, i) => ({ x: rtw.time + interval * i, y: h }))
-    );
+    rtwStore[rtw.id].Y.push({
+      startTime: rtw.time,
+      endTime: rtw.time + 500,
+      isEmpty: false,
+      data: rtw.Y.map((h, i) => {
+        const time = rtw.time + interval * i;
+        return { name: `${time}`, value: [time, h * 10000] };
+      }),
+    });
+    while (rtwStore[rtw.id].Y.length > 60) {
+      rtwStore[rtw.id].Y.shift();
+    }
 
     // Z
-    rtwStore[rtw.id].datasets[2].data.splice(0, rtw.Z.length);
-    rtwStore[rtw.id].datasets[2].data.push(
-      ...rtw.Z.map((h, i) => ({ x: rtw.time + interval * i, y: h }))
-    );
+    rtwStore[rtw.id].Z.push({
+      startTime: rtw.time,
+      endTime: rtw.time + 500,
+      isEmpty: false,
+      data: rtw.Z.map((h, i) => {
+        const time = rtw.time + interval * i;
+        return { name: `${time}`, value: [time, h * 10000] };
+      }),
+    });
+    while (rtwStore[rtw.id].Z.length > 60) {
+      rtwStore[rtw.id].Z.shift();
+    }
   } catch (error) {
     console.log(error);
   }
@@ -110,6 +142,7 @@ const resize = () => {
 onMounted(() => {
   Global.api.getStations().then((stations) => {
     stationStore.$patch(stations);
+    isStationLoaded.value = true;
   });
 
   window.addEventListener("resize", resize);
@@ -138,7 +171,11 @@ onBeforeUnmount(() => {
         use-css-transforms
       >
         <template #item="{ item }">
-          <WaveView :chart-data="rtwStore[item.i]" />
+          <WaveView
+            v-if="isStationLoaded"
+            :type="stationStore.$state[`${item.i}`].net"
+            :chart-data="rtwStore[item.i]"
+          />
         </template>
       </GridLayout>
     </div>

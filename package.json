@@ -25,7 +25,6 @@
     "@typescript-eslint/eslint-plugin": "^7.6.0",
     "@typescript-eslint/parser": "^7.6.0",
     "@vitejs/plugin-vue": "^5.0.4",
-    "chartjs-adapter-moment": "^1.0.1",
     "electron": "29.3.0",
     "eslint": "^8.57.0",
     "eslint-plugin-import": "^2.29.1",
@@ -42,8 +41,8 @@
   "license": "MIT",
   "dependencies": {
     "@exptechtw/api-wrapper": "github:ExpTechTW/api-wrapper",
-    "chart.js": "^4.4.2",
     "chroma-js": "^2.4.2",
+    "echarts": "^5.5.0",
     "electron-squirrel-startup": "^1.0.0",
     "grid-layout-plus": "^1.0.4",
     "i": "^0.3.7",
@@ -52,7 +51,7 @@
     "pinia": "^2.1.7",
     "primevue": "^4.0.0-beta.1",
     "vue": "^3.4.21",
-    "vue-chartjs": "^5.3.1",
+    "vue-echarts": "^6.6.9",
     "vue-router": "^4.3.0"
   }
 }
