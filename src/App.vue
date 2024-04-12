@@ -2,11 +2,9 @@
 import TitleBar from "@/components/TitleBar.vue";
 import Toast from "primevue/toast";
 
-import { useRts } from "@/stores/rts";
+import { useRtsStore } from "@/stores/rts_store";
 
-const rts = useRts();
-
-console.log(rts);
+const rts = useRtsStore();
 </script>
 
 <template>

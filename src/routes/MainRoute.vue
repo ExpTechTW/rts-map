@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import MapView from "@/components/MapView.vue";
 import WaveView from "@/components/WaveView.vue";
+
+import { useRtsStore } from "@/stores/rts_store";
+import { useStationStore } from "@/stores/station_store";
 import {
   ExpTechWebsocket,
   SupportedService,
@@ -8,17 +11,92 @@ import {
 } from "@exptechtw/api-wrapper";
 import { onBeforeUnmount } from "vue";
 import { onMounted } from "vue";
-import { markRaw, reactive, ref } from "vue";
+import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 
-const router = useRouter();
+import Global from "@/global";
+import { ChartData, Point } from "chart.js";
+import { markRaw } from "vue";
 
-const layout = reactive([
-  { x: 0, y: 0, w: 1, h: 1, i: "1", component: markRaw(WaveView) },
-  { x: 0, y: 3, w: 1, h: 1, i: "2", component: markRaw(WaveView) },
-  { x: 0, y: 6, w: 1, h: 1, i: "3", component: markRaw(WaveView) },
-  { x: 0, y: 9, w: 1, h: 1, i: "4", component: markRaw(WaveView) },
-]);
+const router = useRouter();
+const rtsStore = useRtsStore();
+const stationStore = useStationStore();
+const rtwStore = reactive<Record<number, ChartData<"line", Point[], unknown>>>(
+  {}
+);
+
+const ws = new ExpTechWebsocket({
+  key: localStorage.getItem("token"),
+  service: [SupportedService.RealtimeStation, SupportedService.RealtimeWave],
+  config: {
+    [SupportedService.RealtimeWave]: [11366940],
+  },
+});
+
+ws.on(WebSocketEvent.Info, (info) => {
+  console.log(ws.ws.url);
+
+  if (info.code == 401) {
+    if (info.message == "Invaild key!") {
+      localStorage.removeItem("token");
+      router.replace("/login");
+    }
+  }
+});
+
+ws.on(WebSocketEvent.Rts, (rts) => {
+  rtsStore.$patch(rts);
+});
+
+ws.on(WebSocketEvent.Rtw, (rtw) => {
+  try {
+    if (rtwStore[rtw.id] == undefined) {
+      rtwStore[rtw.id] = {
+        datasets: [
+          { label: "X", data: [], borderColor: "rgba(255,80,80,0.2)" },
+          { label: "Y", data: [], borderColor: "rgba(80,255,80,0.2)" },
+          { label: "Z", data: [], borderColor: "rgb(80,80,255)" },
+        ],
+      } as ChartData<"line", Point[], unknown>;
+    }
+
+    const interval = 500 / rtw.X.length;
+
+    // X
+    rtwStore[rtw.id].datasets[0].data.splice(0, rtw.X.length);
+    rtwStore[rtw.id].datasets[0].data.push(
+      ...rtw.X.map((h, i) => ({ x: rtw.time + interval * i, y: h }))
+    );
+
+    // Y
+    rtwStore[rtw.id].datasets[1].data.splice(0, rtw.Y.length);
+    rtwStore[rtw.id].datasets[1].data.push(
+      ...rtw.Y.map((h, i) => ({ x: rtw.time + interval * i, y: h }))
+    );
+
+    // Z
+    rtwStore[rtw.id].datasets[2].data.splice(0, rtw.Z.length);
+    rtwStore[rtw.id].datasets[2].data.push(
+      ...rtw.Z.map((h, i) => ({ x: rtw.time + interval * i, y: h }))
+    );
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+const layout = reactive(
+  ws.websocketConfig.config
+    ? ws.websocketConfig.config[SupportedService.RealtimeWave].map(
+        (id, index) => ({
+          x: 0,
+          y: index,
+          w: 1,
+          h: 1,
+          i: id,
+        })
+      )
+    : []
+);
 
 const rowHeight = ref(
   (window.innerHeight - 32 - layout.length * 12) / layout.length
@@ -29,21 +107,11 @@ const resize = () => {
     (window.innerHeight - 32 - layout.length * 12) / layout.length;
 };
 
-const ws = new ExpTechWebsocket({
-  key: localStorage.getItem("token"),
-  service: [SupportedService.RealtimeStation],
-});
-
-ws.on(WebSocketEvent.Info, (info) => {
-  if (info.code == 401) {
-    if (info.message == "Invaild key!") {
-      router.replace("/login");
-    }
-  }
-  console.log(info);
-});
-
 onMounted(() => {
+  Global.api.getStations().then((stations) => {
+    stationStore.$patch(stations);
+  });
+
   window.addEventListener("resize", resize);
 });
 
@@ -70,7 +138,7 @@ onBeforeUnmount(() => {
         use-css-transforms
       >
         <template #item="{ item }">
-          <component :is="item.component" />
+          <WaveView :chart-data="rtwStore[item.i]" />
         </template>
       </GridLayout>
     </div>

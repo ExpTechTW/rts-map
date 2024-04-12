@@ -1,35 +1,62 @@
 <script setup lang="ts">
-import { Bar } from "vue-chartjs";
+import { Line } from "vue-chartjs";
 import {
   Chart as ChartJS,
   Title,
   Tooltip,
   Legend,
-  BarElement,
   CategoryScale,
+  TimeSeriesScale,
   LinearScale,
+  PointElement,
+  LineElement,
+  ChartData,
+  Point,
 } from "chart.js";
-import { ref } from "vue";
+import "chartjs-adapter-moment";
 
 ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  BarElement,
   CategoryScale,
-  LinearScale
+  TimeSeriesScale,
+  LinearScale,
+  LineElement,
+  PointElement
 );
 
-const chartData = ref({
-  labels: ["January", "February", "March"],
-  datasets: [{ data: [40, 20, 12] }],
-});
-
-const chartOptions = ref({
-  responsive: true,
-});
+defineProps<{
+  chartData: ChartData<"line", Point[], unknown>;
+}>();
 </script>
 
 <template>
-  <Bar :options="chartOptions" :data="chartData" />
+  <Line
+    v-if="chartData != undefined"
+    :options="{
+      responsive: true,
+      animation: false,
+      parsing: false,
+      elements: {
+        point: {
+          radius: 0,
+        },
+      },
+      scales: {
+        xAxis: {
+          type: 'timeseries',
+          axis: 'x',
+          display: false,
+        },
+        yAxis: {
+          type: 'linear',
+          axis: 'y',
+          max: 20,
+          min: -20,
+        },
+      },
+    }"
+    :data="chartData"
+  />
 </template>

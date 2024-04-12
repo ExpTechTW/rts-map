@@ -1,7 +1,7 @@
 import type { Rts } from "@exptechtw/api-wrapper";
 import { defineStore } from "pinia";
 
-export const useRts = defineStore("rts", {
+export const useRtsStore = defineStore("rts", {
   state: (): Rts => ({
     station: {},
     box: {},
