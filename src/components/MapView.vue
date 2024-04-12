@@ -28,7 +28,8 @@ onMounted(() => {
           source: "tw",
           type: "fill",
           paint: {
-            "fill-color": "#27272a",
+            "fill-color": "#71717a",
+            "fill-opacity": 0.2,
           },
         },
         {
@@ -36,7 +37,7 @@ onMounted(() => {
           source: "tw",
           type: "line",
           paint: {
-            "line-color": "#52525b",
+            "line-color": "#71717a",
           },
         },
       ],

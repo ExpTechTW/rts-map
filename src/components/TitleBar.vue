@@ -2,8 +2,8 @@
   <div id="app-title">
     <div class="title">rts-map</div>
     <div class="window-actions">
-      <div id="minimize" class="action">🗕</div>
-      <div id="close" class="action">🗙</div>
+      <button type="button" id="minimize" class="window-action">🗕</button>
+      <button type="button" id="close" class="window-action">🗙</button>
     </div>
   </div>
 </template>
@@ -24,5 +24,36 @@
 
 .window-actions {
   display: flex;
+}
+
+.window-action {
+  all: unset;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 100%;
+  transition: background-color 0.1s ease-in-out;
+  -webkit-app-region: none;
+}
+
+.window-action:hover {
+  background-color: var(--p-surface-200);
+}
+
+#close:hover {
+  color: var(--p-red-50);
+  background-color: var(--p-red-600);
+}
+
+@media (prefers-color-scheme: dark) {
+  .window-action:hover {
+    background-color: var(--p-surface-800);
+  }
+
+  #close:hover {
+    color: var(--p-red-950);
+    background-color: var(--p-red-400);
+  }
 }
 </style>
