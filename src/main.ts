@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 
 if (require('electron-squirrel-startup')) {
@@ -10,6 +10,7 @@ const createWindow = () => {
     width: 800,
     height: 600,
     frame: false,
+    maximizable: false,
     backgroundMaterial: "acrylic",
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -21,6 +22,14 @@ const createWindow = () => {
   } else {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
+
+  ipcMain.on("win:minimize", () => {
+    mainWindow.minimize();
+  });
+
+  ipcMain.on("win:close", () => {
+    mainWindow.close();
+  });
 };
 
 app.on('ready', createWindow);

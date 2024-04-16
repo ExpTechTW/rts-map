@@ -1,9 +1,28 @@
+<script setup lang="ts">
+const minimizeWindow = () => window.ipcRenderer.minimizeWindow();
+const closeWindow = () => window.ipcRenderer.closeWindow();
+</script>
+
 <template>
   <div id="app-title">
     <div class="title">rts-map</div>
     <div class="window-actions">
-      <button type="button" id="minimize" class="window-action">🗕</button>
-      <button type="button" id="close" class="window-action">🗙</button>
+      <button
+        type="button"
+        id="minimize"
+        class="window-action"
+        @click="minimizeWindow"
+      >
+        🗕
+      </button>
+      <button
+        type="button"
+        id="close"
+        class="window-action"
+        @click="closeWindow"
+      >
+        🗙
+      </button>
     </div>
   </div>
 </template>
@@ -14,6 +33,7 @@
   left: 0;
   right: 0;
   height: 32px;
+  user-select: none;
   -webkit-app-region: drag;
 }
 

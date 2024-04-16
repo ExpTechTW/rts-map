@@ -12,6 +12,7 @@ import type {
 } from "echarts/components";
 
 import { ChartWaveData, PointData } from "@/types";
+import codes from "@/assets/code.json";
 
 import VChart from "vue-echarts";
 
@@ -22,6 +23,8 @@ type EChartsOption = ComposeOption<
 >;
 
 const props = defineProps<{
+  id: number;
+  time: number;
   type: string;
   chartData: ChartWaveData;
 }>();
@@ -73,43 +76,52 @@ const bounds = computed(() =>
   )
 );
 
-const option = computed(() => ({
-  title: {
-    textStyle: {
-      fontSize: 10,
-      fontFamily: "Consolas",
-      color: "#888",
-    },
-  },
-  xAxis: {
-    type: "time",
-    splitLine: {
-      show: false,
-    },
-    show: false,
-  },
-  yAxis: {
-    type: "value",
+const option = computed(() => {
+  const key = `${props.id}` as keyof typeof codes;
+  const location = codes[key];
+
+  return {
     animation: false,
-    splitLine: {
+    title: {
+      text: `${location.city} ${location.town} | ${props.type} ${props.id}`,
+      textStyle: {
+        fontSize: 10,
+        fontFamily: "Consolas",
+        color: "#888",
+      },
+    },
+    xAxis: {
+      type: "time",
+      splitLine: {
+        show: false,
+      },
       show: false,
+      min: props.time - 30 * 1000,
+      max: props.time,
     },
-    splitNumber: 3,
-    axisLabel: {
-      fontSize: 10,
-      inside: true,
+    yAxis: {
+      type: "value",
+      animation: false,
+      splitLine: {
+        show: false,
+      },
+      splitNumber: 3,
+      axisLabel: {
+        fontSize: 10,
+        inside: true,
+      },
+      max: bounds.value,
+      min: -bounds.value,
     },
-    max: bounds.value,
-    min: -bounds.value,
-  },
-  grid: {
-    top: 24,
-    right: 0,
-    bottom: 8,
-    left: 0,
-  },
-  series: series.value,
-}));
+    grid: {
+      top: 24,
+      right: 0,
+      bottom: 8,
+      left: 0,
+    },
+    series: series.value,
+  };
+});
 </script>
 
 <template>

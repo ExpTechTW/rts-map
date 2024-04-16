@@ -7,6 +7,7 @@ import ToastService from "primevue/toastservice";
 
 import App from './App.vue';
 import MainRoute from "./routes/MainRoute.vue";
+import ConfigRoute from "./routes/ConfigRoute.vue";
 import LoginRoute from "./routes/LoginRoute.vue";
 
 import "./index.css";
@@ -16,8 +17,19 @@ const pinia = createPinia();
 const router = createRouter({
   history: createMemoryHistory(),
   routes: [
-    { path: "/", component: MainRoute },
-    { path: "/login", component: LoginRoute },
+    {
+      path: "/",
+      component: MainRoute,
+      children: [
+        {
+          path: "config",
+          component: ConfigRoute,
+        }
+      ]
+    },
+    {
+      path: "/login", component: LoginRoute
+    },
   ]
 });
 
