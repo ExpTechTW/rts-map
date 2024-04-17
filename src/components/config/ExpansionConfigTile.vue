@@ -1,0 +1,100 @@
+<script setup lang="ts">
+import MaterialSymbols from "@/components/MaterialSymbols.vue";
+import { ref, useSlots } from "vue";
+
+const isExpanded = ref(false);
+
+const toggleExpanded = () => {
+  isExpanded.value = !isExpanded.value;
+};
+
+const slots = useSlots();
+</script>
+
+<template>
+  <div class="expansion-config-tile" :class="{ expanded: isExpanded }">
+    <div class="config-tile" v-ripple @click="toggleExpanded">
+      <div v-if="slots.leading" class="tile-leading">
+        <slot name="leading" />
+      </div>
+      <div class="tile-content">
+        <div class="tile-title">
+          <slot name="title" />
+        </div>
+        <div v-if="slots.subtitle" class="tile-subtitle">
+          <slot name="subtitle" />
+        </div>
+      </div>
+      <div class="tile-trailing">
+        <MaterialSymbols name="arrow_drop_down" rounded />
+      </div>
+    </div>
+    <div class="content">
+      <slot name="content" />
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.expansion-config-tile {
+  --p-c-surface-350: color-mix(
+    in lab,
+    var(--p-surface-300),
+    var(--p-surface-400)
+  );
+
+  position: relative;
+  display: grid;
+  grid-template-rows: min-content 0fr;
+  width: 100%;
+  transition: grid-template-rows 0.4s ease-out;
+}
+
+.expansion-config-tile.expanded {
+  grid-template-rows: min-content 1fr;
+}
+
+.config-tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 56px;
+  overflow: hidden;
+}
+
+.tile-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tile-leading,
+.tile-trailing {
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  color: var(--p-c-surface-350);
+}
+
+.tile-trailing {
+  transition: rotate 0.1s ease-in-out;
+}
+
+.expansion-config-tile.expanded .tile-trailing {
+  rotate: 180deg;
+}
+
+.tile-subtitle {
+  color: var(--p-c-surface-350);
+}
+
+.content {
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.expansion-config-tile.expanded .content {
+  pointer-events: all;
+}
+</style>

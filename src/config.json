@@ -1,0 +1,99 @@
+{
+  "$version": 1,
+  "alert.enabled": {
+    "$name": "播放音效",
+    "$description": "在觸發門檻到達時播放警示音效",
+    "$icon": "music_note",
+    "$default": true
+  },
+  "alert.list": {
+    "$name": "音效列表",
+    "$description": "自定義音效播放門檻",
+    "$icon": "queue_music",
+    "$value": {
+      "name": {
+        "$name": "音效名稱",
+        "$description": "要播放的音效的名稱"
+      },
+      "condition": {
+        "$name": "播放門檻",
+        "$description": "定義音效播放的條件，當所有條件測試通過時播放音效"
+      },
+      "volume": {
+        "$name": "音量",
+        "$description": "音效播放音量"
+      }
+    },
+    "$default": [
+      {
+        "name": "alert",
+        "condition": ["intensity", ">=", 2],
+        "volume": 0.8
+      }
+    ]
+  },
+  "wave.enabled": {
+    "$name": "波形圖",
+    "$description": "顯示測站三軸波形圖",
+    "$icon": "earthquake",
+    "$default": true
+  },
+  "wave.list": {
+    "$name": "波形圖測站",
+    "$description": "自定義要顯示波形圖的測站列表",
+    "$icon": "splitscreen",
+    "$value": {
+      "id": {
+        "$name": "測站 ID",
+        "$description": "要顯示波形圖的測站 ID"
+      },
+      "x": {
+        "$name": "X 軸",
+        "$description": "是否顯示 X 軸",
+        "$default": false
+      },
+      "y": {
+        "$name": "Y 軸",
+        "$description": "是否顯示 Y 軸",
+        "$default": false
+      },
+      "z": {
+        "$name": "Z 軸",
+        "$description": "是否顯示 Z 軸",
+        "$default": true
+      }
+    },
+    "$default": [
+      {
+        "id": "13898616",
+        "x": false,
+        "y": false,
+        "z": true
+      },
+      {
+        "id": "4812424",
+        "x": false,
+        "y": false,
+        "z": true
+      },
+      {
+        "id": "11339620",
+        "x": false,
+        "y": false,
+        "z": true
+      },
+      {
+        "id": "6125804",
+        "x": false,
+        "y": false,
+        "z": true
+      }
+    ]
+  },
+  "monitor.enabled": {
+    "$name": "監測模式",
+    "$description": "監測模式將會隱藏程式標題列，停用大部分介面互動。",
+    "$icon": "browse_activity",
+    "$default": false
+  }
+}

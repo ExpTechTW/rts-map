@@ -4,6 +4,7 @@ import { createMemoryHistory, createRouter } from "vue-router";
 import { GridItem, GridLayout } from "grid-layout-plus";
 import PrimeVueStyled from 'primevue/styled';
 import ToastService from "primevue/toastservice";
+import Ripple from 'primevue/ripple';
 
 import App from './App.vue';
 import MainRoute from "./routes/MainRoute.vue";
@@ -36,8 +37,9 @@ const router = createRouter({
 createApp(App)
   .use(pinia)
   .use(router)
-  .use(PrimeVueStyled as unknown as Plugin)
+  .use(PrimeVueStyled as unknown as Plugin, { ripple: true })
   .use(ToastService)
+  .directive("ripple", Ripple)
   .component("GridLayout", GridLayout)
   .component("GridItem", GridItem)
   .mount('#app');

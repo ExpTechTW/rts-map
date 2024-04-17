@@ -12,18 +12,18 @@ import type {
 } from "echarts/components";
 
 import { ChartWaveData, PointData } from "@/types";
+import Global from "@/global";
 import codes from "@/assets/code.json";
 
 import VChart from "vue-echarts";
+import { useStationStore } from "@/stores/station_store";
 
 use([TitleComponent, GridComponent, LineChart, CanvasRenderer]);
 
-type EChartsOption = ComposeOption<
-  TitleComponentOption | GridComponentOption | LineSeriesOption
->;
+const stationStore = useStationStore();
 
 const props = defineProps<{
-  id: number;
+  id: string;
   time: number;
   type: string;
   chartData: ChartWaveData;
@@ -38,7 +38,7 @@ const findBounds = (points: PointData[]) => {
     if (max < val) max = val;
   }
 
-  let scale = props.type == "MS-Net" ? 5 : 2500;
+  let scale = props.type == "MS-Net" ? 5 : 3000;
   scale += scale * +(localStorage.getItem("chartYScale") ?? "25");
   max = Math.ceil(max * 100) / 100;
   max += max * 0.1;
@@ -47,38 +47,54 @@ const findBounds = (points: PointData[]) => {
   return max;
 };
 
-const series = computed(() => [
-  {
-    type: "line",
-    showSymbol: false,
-    lineStyle: { color: "#f88", width: 1.5 },
-    data: props.chartData.X.flatMap((v) => v.data),
-  },
-  {
-    type: "line",
-    showSymbol: false,
-    lineStyle: { color: "#8f8", width: 1.5 },
-    data: props.chartData.Y.flatMap((v) => v.data),
-  },
-  {
-    type: "line",
-    showSymbol: false,
-    lineStyle: { color: "#88f", width: 1.5 },
-    data: props.chartData.Z.flatMap((v) => v.data),
-  },
-]);
+const series = computed(() => {
+  const data = [];
+  const config = Global.config.config["wave.list"].find(
+    (e) => e.id == props.id
+  );
+
+  if (config.x) {
+    data.push({
+      type: "line",
+      showSymbol: false,
+      lineStyle: { color: "#f88", width: 1.5 },
+      data: props.chartData.X.flatMap((v) => v.data),
+    });
+  }
+
+  if (config.y) {
+    data.push({
+      type: "line",
+      showSymbol: false,
+      lineStyle: { color: "#8f8", width: 1.5 },
+      data: props.chartData.Y.flatMap((v) => v.data),
+    });
+  }
+
+  if (config.z) {
+    data.push({
+      type: "line",
+      showSymbol: false,
+      lineStyle: { color: "#88f", width: 1.5 },
+      data: props.chartData.Z.flatMap((v) => v.data),
+    });
+  }
+
+  return data;
+});
 
 const bounds = computed(() =>
   Math.max(
-    findBounds(series.value[0].data),
-    findBounds(series.value[1].data),
-    findBounds(series.value[2].data)
+    series.value.length > 0 ? findBounds(series.value[0].data) : 0,
+    series.value.length > 1 ? findBounds(series.value[1].data) : 0,
+    series.value.length > 2 ? findBounds(series.value[2].data) : 0
   )
 );
 
 const option = computed(() => {
-  const key = `${props.id}` as keyof typeof codes;
-  const location = codes[key];
+  const id = `${props.id}`;
+  const code = `${stationStore.$state[id].info[0].code}` as keyof typeof codes;
+  const location = codes[code];
 
   return {
     animation: false,
@@ -125,7 +141,5 @@ const option = computed(() => {
 </script>
 
 <template>
-  <VChart class="chart" :option="option" />
+  <VChart class="chart" autoresize :option="option" />
 </template>
-
-<style scoped></style>

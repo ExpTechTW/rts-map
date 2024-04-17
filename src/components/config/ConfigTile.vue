@@ -29,6 +29,7 @@ const slots = useSlots();
   display: flex;
   align-items: center;
   gap: 16px;
+  padding: 8px 0;
   min-height: 56px;
 
   --p-c-surface-350: color-mix(
