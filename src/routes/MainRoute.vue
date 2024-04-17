@@ -216,7 +216,7 @@ onBeforeUnmount(() => {
       @click.prevent="openConfig"
     >
       <template #icon>
-        <MaterialSymbols name="settings" rounded />
+        <MaterialSymbols id="md-config-icon" name="settings" rounded />
       </template>
     </Button>
     <div class="map-panel">
@@ -273,9 +273,24 @@ onBeforeUnmount(() => {
   position: absolute;
   bottom: 8px;
   left: 8px;
+  opacity: 0.4;
+  transition: opacity 0.2s ease-in-out;
   z-index: 999;
   pointer-events: all;
   -webkit-app-region: none;
+}
+
+#nav-config:hover {
+  opacity: 1;
+}
+
+#nav-config #md-config-icon {
+  rotate: 0;
+}
+
+#nav-config:hover #md-config-icon {
+  rotate: 360deg;
+  transition: rotate 0.5s ease-in-out;
 }
 
 .monitor {

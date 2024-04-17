@@ -58,7 +58,6 @@ const slots = useSlots();
   position: relative;
   display: flex;
   align-items: center;
-  gap: 16px;
   min-height: 56px;
   overflow: hidden;
 }
@@ -67,6 +66,7 @@ const slots = useSlots();
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .tile-leading,
@@ -75,6 +75,7 @@ const slots = useSlots();
   align-items: center;
   justify-content: center;
   color: var(--p-c-surface-350);
+  padding: 0 16px;
 }
 
 .tile-trailing {
@@ -87,6 +88,7 @@ const slots = useSlots();
 
 .tile-subtitle {
   color: var(--p-c-surface-350);
+  font-size: 85%;
 }
 
 .content {

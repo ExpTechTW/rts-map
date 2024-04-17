@@ -28,7 +28,6 @@ const slots = useSlots();
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 16px;
   padding: 8px 0;
   min-height: 56px;
 
@@ -43,6 +42,7 @@ const slots = useSlots();
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .tile-leading,
@@ -50,10 +50,12 @@ const slots = useSlots();
   display: grid;
   align-items: center;
   justify-content: center;
+  padding: 0 16px;
   color: var(--p-c-surface-350);
 }
 
 .tile-subtitle {
   color: var(--p-c-surface-350);
+  font-size: 85%;
 }
 </style>
