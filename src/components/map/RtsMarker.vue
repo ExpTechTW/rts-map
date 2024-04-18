@@ -46,10 +46,10 @@ onMounted(() => {
   <div class="marker" ref="markerElement">
     <div
       class="rts-marker"
-      :class="{ alerted: rts.alert }"
+      :class="{ alerted: rts?.alert }"
       :style="{
         backgroundColor: getRtsColor(rts),
-        zIndex: rts.alert ? rts.I : rts.i,
+        zIndex: rts == undefined ? 0 : rts.alert ? rts.I : rts.i,
       }"
     />
   </div>
