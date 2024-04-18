@@ -5,7 +5,15 @@ const closeWindow = () => window.ipcRenderer.closeWindow();
 
 <template>
   <div id="app-title">
-    <div class="title">rts-map</div>
+    <div class="title">
+      <img
+        class="app-icon"
+        src="@/assets/images/icon.png"
+        alt="app-icon"
+        draggable="false"
+      />
+      <span>rts-map</span>
+    </div>
     <div class="window-actions">
       <button
         type="button"
@@ -32,14 +40,24 @@ const closeWindow = () => window.ipcRenderer.closeWindow();
   display: flex;
   left: 0;
   right: 0;
-  height: 32px;
+  min-height: 32px;
   user-select: none;
   -webkit-app-region: drag;
 }
 
 .title {
   flex: 1;
-  padding: 8px 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 0 16px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif !important;
+}
+
+.app-icon {
+  height: 18px;
+  width: 18px;
 }
 
 .window-actions {
@@ -61,6 +79,10 @@ const closeWindow = () => window.ipcRenderer.closeWindow();
   background-color: var(--p-surface-200);
 }
 
+.window-action:active {
+  opacity: 0.8;
+}
+
 #close:hover {
   color: var(--p-red-50);
   background-color: var(--p-red-600);
@@ -68,7 +90,7 @@ const closeWindow = () => window.ipcRenderer.closeWindow();
 
 @media (prefers-color-scheme: dark) {
   .window-action:hover {
-    background-color: var(--p-surface-800);
+    background-color: color-mix(in lab, transparent, var(--p-surface-700));
   }
 
   #close:hover {

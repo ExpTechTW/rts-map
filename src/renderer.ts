@@ -3,6 +3,7 @@ import { createPinia } from 'pinia';
 import { createMemoryHistory, createRouter } from "vue-router";
 import { GridItem, GridLayout } from "grid-layout-plus";
 import PrimeVueStyled from 'primevue/styled';
+import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from "primevue/toastservice";
 import Ripple from 'primevue/ripple';
 
@@ -38,6 +39,7 @@ createApp(App)
   .use(pinia)
   .use(router)
   .use(PrimeVueStyled as unknown as Plugin, { ripple: true })
+  .use(ConfirmationService)
   .use(ToastService)
   .directive("ripple", Ripple)
   .component("GridLayout", GridLayout)

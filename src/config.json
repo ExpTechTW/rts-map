@@ -1,7 +1,7 @@
 {
   "$version": 1,
   "alert.enabled": {
-    "$name": "播放音效",
+    "$name": "音效",
     "$description": "在觸發門檻到達時播放警示音效",
     "$icon": "music_note",
     "$default": true
@@ -39,7 +39,7 @@
     "$default": true
   },
   "wave.list": {
-    "$name": "波形圖測站",
+    "$name": "波形圖測站列表",
     "$description": "自定義要顯示波形圖的測站列表",
     "$icon": "splitscreen",
     "$value": {

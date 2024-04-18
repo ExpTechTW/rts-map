@@ -2,7 +2,7 @@
 import RtsMarker from "@/components/map/RtsMarker.vue";
 
 import { Map as MaplibreMap } from "maplibre-gl";
-import { onMounted, shallowRef } from "vue";
+import { onMounted, onUnmounted, shallowRef } from "vue";
 import { useRtsStore } from "@/stores/rts_store";
 import { useStationStore } from "@/stores/station_store";
 import type { LngLatBoundsLike, StyleSpecification } from "maplibre-gl";
@@ -73,12 +73,16 @@ onMounted(() => {
     }
   });
 });
+
+onUnmounted(() => {
+  map.value.remove();
+});
 </script>
 
 <template>
   <div id="map-view">
     <div id="map" ref="mapElement" />
-    <div class="map-layers">
+    <div v-if="map" class="map-layers">
       <div class="markers">
         <template v-for="(station, id) in stationStore.$state">
           <RtsMarker

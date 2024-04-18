@@ -69,4 +69,9 @@ export class ConfigManager extends EventEmitter {
 
     return conf as ConfigScheme;
   }
+
+  reset() {
+    Object.assign(this.config, ConfigManager.getDefaultConfig());
+    localStorage.setItem("config", JSON.stringify(this.config));
+  }
 }

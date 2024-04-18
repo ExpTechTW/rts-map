@@ -1,6 +1,8 @@
 export interface ipcMethods {
   minimizeWindow: () => void,
   closeWindow: () => void,
+  enableBackgroundThrottle: () => void,
+  disableBackgroundThrottle: () => void,
 }
 
 declare global {

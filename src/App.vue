@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import TitleBar from "@/components/TitleBar.vue";
+import ConfirmDialog from "primevue/confirmdialog";
 import Toast from "primevue/toast";
+
+import TitleBar from "@/components/TitleBar.vue";
 
 import Global from "@/global";
 
@@ -13,12 +15,11 @@ const rts = useRtsStore();
   <TitleBar v-if="!Global.config.config['monitor.enabled']" />
   <router-view v-slot="{ Component }">
     <transition name="fade">
-      <keep-alive>
-        <component :is="Component" />
-      </keep-alive>
+      <component :is="Component" />
     </transition>
   </router-view>
   <Toast />
+  <ConfirmDialog />
 </template>
 
 <style>

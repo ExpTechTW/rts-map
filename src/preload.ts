@@ -9,5 +9,11 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   },
   closeWindow(): void {
     ipcRenderer.send("win:close");
-  }
+  },
+  enableBackgroundThrottle(): void {
+    ipcRenderer.send("win:enable_background_throttle");
+  },
+  disableBackgroundThrottle(): void {
+    ipcRenderer.send("win:disable_background_throttle");
+  },
 });

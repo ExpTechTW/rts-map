@@ -30,6 +30,14 @@ const createWindow = () => {
   ipcMain.on("win:close", () => {
     mainWindow.close();
   });
+
+  ipcMain.on("win:disable_background_throttle", () => {
+    mainWindow.webContents.setBackgroundThrottling(false);
+  });
+
+  ipcMain.on("win:enable_background_throttle", () => {
+    mainWindow.webContents.setBackgroundThrottling(true);
+  });
 };
 
 app.on('ready', createWindow);

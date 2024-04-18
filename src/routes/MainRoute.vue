@@ -220,6 +220,8 @@ Global.config.on("change", () => {
 });
 
 onMounted(() => {
+  console.log("mounted");
+
   Global.api.getStations().then((stations) => {
     stationStore.$patch(stations);
     isStationLoaded.value = true;
@@ -233,6 +235,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  console.log("unmounted");
   ws.ws.close();
   window.clearInterval(lifeCucleTimer);
   window.removeEventListener("resize", resize);
@@ -296,7 +299,7 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   background-color: rgb(0 0 0 / 0.4);
-  z-index: 9999;
+  z-index: 1000;
   pointer-events: all;
   -webkit-app-region: none;
 }

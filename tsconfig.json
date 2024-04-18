@@ -13,6 +13,7 @@
     "resolveJsonModule": true,
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": ["./src/interface.d.ts"]
   }
 }

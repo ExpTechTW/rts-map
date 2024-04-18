@@ -13,7 +13,9 @@ import type { WaveConfig } from "@/class/config_manager";
 import Global from "@/global";
 
 import { useRouter } from "vue-router";
+import { useConfirm } from "primevue/useconfirm";
 
+const confirm = useConfirm();
 const router = useRouter();
 
 const closeConfig = () => {
@@ -33,6 +35,47 @@ const resetWaveConfig = () => {
     Global.config.config["wave.list"].length,
     ...(Global.config.scheme["wave.list"].$default as WaveConfig[])
   );
+};
+
+const resetConfig = () => {
+  confirm.require({
+    message: "你確定你要重置設定嗎？",
+    header: "重置設定",
+    icon: "pi pi-exclamation-triangle",
+    rejectProps: {
+      label: "取消",
+      severity: "secondary",
+      text: true,
+    },
+    acceptProps: {
+      label: "重置",
+      severity: "danger",
+    },
+    accept: () => {
+      Global.config.reset();
+    },
+  });
+};
+
+const logout = () => {
+  confirm.require({
+    message: "你確定你要登出嗎？",
+    header: "登出",
+    icon: "pi pi-exclamation-triangle",
+    rejectProps: {
+      label: "取消",
+      severity: "secondary",
+      text: true,
+    },
+    acceptProps: {
+      label: "登出",
+      severity: "danger",
+    },
+    accept: () => {
+      localStorage.removeItem("token");
+      router.replace("/login");
+    },
+  });
 };
 </script>
 
@@ -138,6 +181,20 @@ const resetWaveConfig = () => {
           </template>
         </ExpansionConfigTile>
       </template>
+      <div class="config-danger-zone">
+        <Button
+          label="登出"
+          severity="danger"
+          outlined
+          @click.prevent="logout"
+        />
+        <Button
+          label="重置設定"
+          severity="danger"
+          outlined
+          @click.prevent="resetConfig"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -194,5 +251,11 @@ const resetWaveConfig = () => {
   align-items: center;
   gap: 8px;
   margin-bottom: 4px;
+}
+
+.config-danger-zone {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
 }
 </style>
