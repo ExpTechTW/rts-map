@@ -52,6 +52,7 @@ export class ConfigManager extends EventEmitter {
     this.scheme = rest;
 
     watch(this.config, (newValue) => {
+      this.emit("change", newValue);
       localStorage.setItem("config", JSON.stringify(newValue));
     });
   }

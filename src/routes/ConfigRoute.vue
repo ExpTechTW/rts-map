@@ -19,6 +19,21 @@ const router = useRouter();
 const closeConfig = () => {
   router.back();
 };
+
+const addWaveConfig = () => {
+  Global.config.config["wave.list"].unshift({
+    id: "",
+    axis: ["z"],
+  });
+};
+
+const resetWaveConfig = () => {
+  Global.config.config["wave.list"].splice(
+    0,
+    Global.config.config["wave.list"].length,
+    ...(Global.config.scheme["wave.list"].$default as WaveConfig[])
+  );
+};
 </script>
 
 <template>
@@ -72,6 +87,26 @@ const closeConfig = () => {
           </template>
           <template v-if="k == 'wave.list'" #content>
             <div class="wave-config-list">
+              <div class="wave-config-actions">
+                <Button label="新增" outlined @click.prevent="addWaveConfig">
+                  <template #icon>
+                    <MaterialSymbols name="add" style="margin-right: 8px" />
+                  </template>
+                </Button>
+                <Button
+                  label="重置"
+                  severity="secondary"
+                  outlined
+                  @click.prevent="resetWaveConfig"
+                >
+                  <template #icon>
+                    <MaterialSymbols name="restore" style="margin-right: 8px" />
+                  </template>
+                </Button>
+                <div class="wave-config-count">
+                  波形圖數量： {{ Global.config.config["wave.list"].length }}
+                </div>
+              </div>
               <WaveConfigItem v-for="w in (c as WaveConfig[])">
                 <ConfigTile v-for="(wc, wk) in w">
                   <template #title>
@@ -85,6 +120,7 @@ const closeConfig = () => {
                   <template #trailing>
                     <InputText
                       v-if="typeof w[wk] == 'string'"
+                      :invalid="!w[wk].length"
                       v-model="w[wk]"
                       style="width: 100px; text-align: right"
                     />
@@ -92,6 +128,7 @@ const closeConfig = () => {
                       v-else-if="Array.isArray(wc)"
                       v-model="w[wk]"
                       :options="['x', 'y', 'z']"
+                      :invalid="!w[wk].length"
                       multiple
                     />
                   </template>
@@ -150,5 +187,12 @@ const closeConfig = () => {
   display: flex;
   flex-direction: column;
   padding: 4px 0px;
+}
+
+.wave-config-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 </style>

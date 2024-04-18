@@ -29,7 +29,7 @@ import Global from "@/global";
 
 const rtsStore = useRtsStore();
 const stationStore = useStationStore();
-const rtwStore = reactive<Record<number, ChartWaveData>>({});
+const rtwStore = reactive<Record<string, ChartWaveData>>({});
 const time = ref(Date.now());
 let timeOffset = 0;
 let lifeCucleTimer: number;
@@ -158,15 +158,33 @@ ws.on(WebSocketEvent.Rtw, (rtw) => {
 
 const layout = computed(() =>
   Global.config.config["wave.enabled"]
-    ? Global.config.config["wave.list"].map((w, index) => ({
-        x: 0,
-        y: index,
-        w: 1,
-        h: 1,
-        i: `${w.id}`,
-      }))
+    ? Global.config.config["wave.list"].flatMap((w, index) =>
+        w.id.length
+          ? [
+              {
+                x: 0,
+                y: index,
+                w: 1,
+                h: 1,
+                i: `${w.id}`,
+              },
+            ]
+          : []
+      )
     : []
 );
+
+const getChartData = (id: string) => {
+  if (!(id in rtwStore)) {
+    rtwStore[id] = {
+      X: [],
+      Y: [],
+      Z: [],
+    };
+  }
+
+  return rtwStore[id];
+};
 
 const rowHeight = ref(
   (window.innerHeight -
@@ -186,6 +204,20 @@ const resize = () => {
 const openConfig = () => {
   router.push("/config");
 };
+
+Global.config.on("change", () => {
+  resize();
+
+  if (!Global.config.config["wave.enabled"]) return;
+
+  const current = config.value.config[SupportedService.RealtimeWave];
+
+  if (current != ws.websocketConfig?.config[SupportedService.RealtimeWave]) {
+    console.log("ws updateConfig");
+
+    ws.updateConfig(config.value);
+  }
+});
 
 onMounted(() => {
   Global.api.getStations().then((stations) => {
@@ -239,7 +271,7 @@ onBeforeUnmount(() => {
             :time="time"
             :id="item.i"
             :type="stationStore.$state[`${item.i}`].net"
-            :chart-data="rtwStore[item.i]"
+            :chart-data="getChartData(item.i)"
           />
         </template>
       </GridLayout>
