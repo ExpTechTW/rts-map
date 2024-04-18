@@ -198,6 +198,7 @@ onUnmounted(() => {
                 :alert-config="w"
                 :index="i"
                 :enableStep="isShifted"
+                :key="`alert-config-${i}`"
               />
             </div>
           </template>
@@ -227,7 +228,7 @@ onUnmounted(() => {
                 v-for="(w, i) in (c as WaveConfig[])"
                 :wave-config="w"
                 :index="i"
-                :key="`wave-config-${w.id}`"
+                :key="`wave-config-${i}`"
               />
             </div>
           </template>
