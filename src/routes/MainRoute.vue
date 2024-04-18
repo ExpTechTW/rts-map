@@ -120,7 +120,7 @@ ws.on(WebSocketEvent.Rtw, (rtw) => {
         return { name: `${time}`, value: [time, h * 10000] };
       }),
     });
-    while (rtwStore[rtw.id].X.length > 60) {
+    while (rtwStore[rtw.id].X.length > 62) {
       rtwStore[rtw.id].X.shift();
     }
 
@@ -134,7 +134,7 @@ ws.on(WebSocketEvent.Rtw, (rtw) => {
         return { name: `${time}`, value: [time, h * 10000] };
       }),
     });
-    while (rtwStore[rtw.id].Y.length > 60) {
+    while (rtwStore[rtw.id].Y.length > 62) {
       rtwStore[rtw.id].Y.shift();
     }
 
@@ -148,7 +148,7 @@ ws.on(WebSocketEvent.Rtw, (rtw) => {
         return { name: `${time}`, value: [time, h * 10000] };
       }),
     });
-    while (rtwStore[rtw.id].Z.length > 60) {
+    while (rtwStore[rtw.id].Z.length > 62) {
       rtwStore[rtw.id].Z.shift();
     }
   } catch (error) {
@@ -228,8 +228,8 @@ onBeforeUnmount(() => {
         :col-num="1"
         :max-rows="layout.length"
         :row-height="rowHeight"
+        :is-resizable="false"
         is-draggable
-        is-resizable
         vertical-compact
         use-css-transforms
       >

@@ -47,46 +47,28 @@
         "$name": "測站 ID",
         "$description": "要顯示波形圖的測站 ID"
       },
-      "x": {
-        "$name": "X 軸",
-        "$description": "是否顯示 X 軸",
-        "$default": false
-      },
-      "y": {
-        "$name": "Y 軸",
-        "$description": "是否顯示 Y 軸",
-        "$default": false
-      },
-      "z": {
-        "$name": "Z 軸",
-        "$description": "是否顯示 Z 軸",
-        "$default": true
+      "axis": {
+        "$name": "顯示軸",
+        "$description": "切換是否顯示 X, Y, Z 軸",
+        "$default": ["z"]
       }
     },
     "$default": [
       {
         "id": "13898616",
-        "x": false,
-        "y": false,
-        "z": true
+        "axis": ["z"]
       },
       {
         "id": "4812424",
-        "x": false,
-        "y": false,
-        "z": true
+        "axis": ["z"]
       },
       {
         "id": "11339620",
-        "x": false,
-        "y": false,
-        "z": true
+        "axis": ["z"]
       },
       {
         "id": "6125804",
-        "x": false,
-        "y": false,
-        "z": true
+        "axis": ["z"]
       }
     ]
   },

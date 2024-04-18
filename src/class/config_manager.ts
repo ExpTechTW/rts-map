@@ -17,9 +17,7 @@ export type AlertConfig = {
 
 export type WaveConfig = {
   id: string,
-  x: boolean,
-  y: boolean,
-  z: boolean;
+  axis: ("x" | "y" | "z")[];
 };
 
 export interface ConfigScheme {

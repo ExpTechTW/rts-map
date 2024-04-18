@@ -47,11 +47,12 @@ const slots = useSlots();
   display: grid;
   grid-template-rows: min-content 0fr;
   width: 100%;
-  transition: grid-template-rows 0.4s ease-out;
+  transition: grid-template-rows 0.4s ease-out, border-bottom 0.4s ease-out;
 }
 
 .expansion-config-tile.expanded {
   grid-template-rows: min-content 1fr;
+  border-bottom: 1px solid var(--p-surface-600);
 }
 
 .config-tile {
@@ -67,6 +68,7 @@ const slots = useSlots();
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding-left: 8px;
 }
 
 .tile-leading,
@@ -75,7 +77,7 @@ const slots = useSlots();
   align-items: center;
   justify-content: center;
   color: var(--p-c-surface-350);
-  padding: 0 16px;
+  padding: 0 8px;
 }
 
 .tile-trailing {

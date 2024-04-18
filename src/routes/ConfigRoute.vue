@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import ConfigTile from "@/components/config/ConfigTile.vue";
-import MaterialSymbols from "@/components/MaterialSymbols.vue";
 import Button from "primevue/button";
 import InputSwitch from "primevue/inputswitch";
 import InputText from "primevue/inputtext";
+import SelectButton from "primevue/selectbutton";
+
+import ConfigTile from "@/components/config/ConfigTile.vue";
+import MaterialSymbols from "@/components/MaterialSymbols.vue";
 import ExpansionConfigTile from "@/components/config/ExpansionConfigTile.vue";
 import WaveConfigItem from "@/components/config/wave/WaveConfigItem.vue";
 
@@ -72,9 +74,6 @@ const closeConfig = () => {
             <div class="wave-config-list">
               <WaveConfigItem v-for="w in (c as WaveConfig[])">
                 <ConfigTile v-for="(wc, wk) in w">
-                  <template #leading>
-                    <MaterialSymbols name="" rounded />
-                  </template>
                   <template #title>
                     <span>{{ Global.config.scheme[k].$value[wk].$name }} </span>
                   </template>
@@ -84,14 +83,16 @@ const closeConfig = () => {
                     }}</span>
                   </template>
                   <template #trailing>
-                    <InputSwitch
-                      v-if="typeof w[wk] == 'boolean'"
-                      v-model="w[wk]"
-                    />
                     <InputText
                       v-if="typeof w[wk] == 'string'"
                       v-model="w[wk]"
                       style="width: 100px; text-align: right"
+                    />
+                    <SelectButton
+                      v-else-if="Array.isArray(wc)"
+                      v-model="w[wk]"
+                      :options="['x', 'y', 'z']"
+                      multiple
                     />
                   </template>
                 </ConfigTile>
@@ -124,6 +125,7 @@ const closeConfig = () => {
 }
 
 .title {
+  padding-left: 8px;
   line-height: 20px;
   font-size: 20px;
   font-weight: 700;
@@ -142,5 +144,11 @@ const closeConfig = () => {
 .column {
   display: flex;
   flex-direction: column;
+}
+
+.wave-config-list {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0px;
 }
 </style>

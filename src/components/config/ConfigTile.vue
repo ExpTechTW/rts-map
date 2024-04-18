@@ -43,6 +43,7 @@ const slots = useSlots();
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding-left: 8px;
 }
 
 .tile-leading,
@@ -50,7 +51,7 @@ const slots = useSlots();
   display: grid;
   align-items: center;
   justify-content: center;
-  padding: 0 16px;
+  padding: 0 8px;
   color: var(--p-c-surface-350);
 }
 

@@ -53,7 +53,7 @@ const series = computed(() => {
     (e) => e.id == props.id
   );
 
-  if (config.x) {
+  if (config.axis.includes("x")) {
     data.push({
       type: "line",
       showSymbol: false,
@@ -62,7 +62,7 @@ const series = computed(() => {
     });
   }
 
-  if (config.y) {
+  if (config.axis.includes("y")) {
     data.push({
       type: "line",
       showSymbol: false,
@@ -71,7 +71,7 @@ const series = computed(() => {
     });
   }
 
-  if (config.z) {
+  if (config.axis.includes("z")) {
     data.push({
       type: "line",
       showSymbol: false,
