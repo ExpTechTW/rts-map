@@ -44,7 +44,14 @@ onMounted(() => {
 
 <template>
   <div class="marker" ref="markerElement">
-    <div class="rts-marker" :style="{ backgroundColor: getRtsColor(rts) }" />
+    <div
+      class="rts-marker"
+      :class="{ alerted: rts.alert }"
+      :style="{
+        backgroundColor: getRtsColor(rts),
+        zIndex: rts.alert ? rts.I : rts.i,
+      }"
+    />
   </div>
 </template>
 
@@ -53,6 +60,10 @@ onMounted(() => {
   width: 8px;
   height: 8px;
   border-radius: 8px;
-  border: 1px solid var(--p-surface-500);
+  outline: 1px solid var(--p-surface-500);
+}
+
+.rts-marker.alerted {
+  outline: 2px solid var(--p-surface-200);
 }
 </style>
