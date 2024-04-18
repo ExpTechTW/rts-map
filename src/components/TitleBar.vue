@@ -20,9 +20,9 @@ onMounted(() => {
         alt="app-icon"
         draggable="false"
       />
-      <span
-        >rts-map <span class="app-version">v{{ version }}</span></span
-      >
+      <span>
+        rts-map <span class="app-version">v{{ version }}</span>
+      </span>
     </div>
     <div class="window-actions">
       <button

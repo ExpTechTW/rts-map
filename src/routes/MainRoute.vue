@@ -24,7 +24,6 @@ import {
 import { useRoute, useRouter } from "vue-router";
 
 import type { ChartWaveData } from "@/types";
-
 import Global from "@/global";
 
 const rtsStore = useRtsStore();
@@ -34,6 +33,7 @@ const time = ref(Date.now());
 let timeOffset = 0;
 let lifeCucleTimer: number;
 
+const alertAudio = ref<HTMLAudioElement>();
 const showModal = ref(false);
 const isStationLoaded = ref(false);
 
@@ -69,6 +69,23 @@ const config = computed<Omit<WebSocketConnectionConfig, "type">>(() => {
   };
 });
 
+const compare = (a: number, method: string, b: number): boolean => {
+  switch (method) {
+    case ">":
+      return a > b;
+    case "<":
+      return a < b;
+    case "=":
+      return a == b;
+    case ">=":
+      return a >= b;
+    case "<=":
+      return a <= b;
+    default:
+      return false;
+  }
+};
+
 const ws = new ExpTechWebsocket(config.value);
 
 ws.websocketConfig.config?.[SupportedService.RealtimeWave]?.forEach((id) => {
@@ -96,6 +113,46 @@ ws.on(WebSocketEvent.Ntp, (n) => {
 
 ws.on(WebSocketEvent.Rts, (rts) => {
   rtsStore.$patch(rts);
+
+  if (Global.config.config["alert.enabled"]) {
+    for (const c of Global.config.config["alert.list"]) {
+      if (!c.name.length) continue;
+
+      const list = Object.keys(rts.station).filter((id) => {
+        return compare(
+          c.condition[2] == "realtime" ? rts.station[id].i : rts.station[id].I,
+          c.condition[3],
+          c.condition[4]
+        );
+      });
+
+      switch (c.condition[0]) {
+        case "exactly": {
+          if (c.condition[1] != list.length) continue;
+        }
+
+        case "least": {
+          c.condition[1];
+          if (c.condition[1] > list.length) continue;
+        }
+
+        case "id": {
+          if (!list.includes(`${c.condition[1]}`)) continue;
+        }
+
+        default:
+          break;
+      }
+
+      if (c.name == "alert") {
+        alertAudio.value.play();
+      } else {
+        const audio = new Audio(c.name);
+        audio.volume = c.volume;
+        audio.play();
+      }
+    }
+  }
 });
 
 ws.on(WebSocketEvent.Rtw, (rtw) => {
@@ -120,7 +177,7 @@ ws.on(WebSocketEvent.Rtw, (rtw) => {
         return { name: `${time}`, value: [time, h * 10000] };
       }),
     });
-    while (rtwStore[rtw.id].X.length > 62) {
+    while (rtwStore[rtw.id].X.length > 60) {
       rtwStore[rtw.id].X.shift();
     }
 
@@ -134,7 +191,7 @@ ws.on(WebSocketEvent.Rtw, (rtw) => {
         return { name: `${time}`, value: [time, h * 10000] };
       }),
     });
-    while (rtwStore[rtw.id].Y.length > 62) {
+    while (rtwStore[rtw.id].Y.length > 60) {
       rtwStore[rtw.id].Y.shift();
     }
 
@@ -148,7 +205,8 @@ ws.on(WebSocketEvent.Rtw, (rtw) => {
         return { name: `${time}`, value: [time, h * 10000] };
       }),
     });
-    while (rtwStore[rtw.id].Z.length > 62) {
+
+    while (rtwStore[rtw.id].Z.length > 60) {
       rtwStore[rtw.id].Z.shift();
     }
   } catch (error) {
@@ -213,8 +271,6 @@ Global.config.on("change", () => {
   const current = config.value.config[SupportedService.RealtimeWave];
 
   if (current != ws.websocketConfig?.config[SupportedService.RealtimeWave]) {
-    console.log("ws updateConfig");
-
     ws.updateConfig(config.value);
   }
 });
@@ -226,11 +282,11 @@ onMounted(() => {
   });
 
   lifeCucleTimer = window.setInterval(() => {
-    time.value = Date.now() - timeOffset;
+    time.value = Date.now() - timeOffset + 500;
   }, 500);
 
-  resize();
   window.addEventListener("resize", resize);
+  resize();
 });
 
 onBeforeUnmount(() => {
@@ -256,7 +312,7 @@ onBeforeUnmount(() => {
     <div class="map-panel">
       <MapView />
     </div>
-    <div class="wave-panel">
+    <div v-if="Global.config.config['wave.enabled']" class="wave-panel">
       <GridLayout
         v-model:layout="layout"
         :col-num="1"
@@ -282,6 +338,8 @@ onBeforeUnmount(() => {
     <div v-if="showModal" id="modal-view">
       <router-view></router-view>
     </div>
+
+    <audio ref="alertAudio" src="/src/assets/alert.wav"></audio>
   </div>
 </template>
 
@@ -300,7 +358,6 @@ onBeforeUnmount(() => {
   background-color: rgb(0 0 0 / 0.4);
   z-index: 1000;
   pointer-events: all;
-  -webkit-app-region: none;
 }
 
 #nav-config {
@@ -337,5 +394,12 @@ onBeforeUnmount(() => {
 
 .wave-panel {
   flex: 3;
+}
+
+audio {
+  display: absolute;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: -1;
 }
 </style>

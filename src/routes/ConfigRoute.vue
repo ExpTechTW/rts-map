@@ -9,14 +9,17 @@ import MaterialSymbols from "@/components/MaterialSymbols.vue";
 import ExpansionConfigTile from "@/components/config/ExpansionConfigTile.vue";
 import WaveConfigItem from "@/components/config/wave/WaveConfigItem.vue";
 
-import type { WaveConfig } from "@/class/config_manager";
+import type { AlertConfig, WaveConfig } from "@/class/config_manager";
 import Global from "@/global";
 
 import { useRouter } from "vue-router";
 import { useConfirm } from "primevue/useconfirm";
+import { onMounted, onUnmounted, ref } from "vue";
+import AlertConfigItem from "@/components/config/alert/AlertConfigItem.vue";
 
 const confirm = useConfirm();
 const router = useRouter();
+const isShifted = ref(false);
 
 const closeConfig = () => {
   router.back();
@@ -34,6 +37,22 @@ const resetWaveConfig = () => {
     0,
     Global.config.config["wave.list"].length,
     ...(Global.config.scheme["wave.list"].$default as WaveConfig[])
+  );
+};
+
+const addAlertConfig = () => {
+  Global.config.config["alert.list"].unshift({
+    name: "",
+    condition: ["least", 2, "intensity", ">=", 2],
+    volume: 0.8,
+  });
+};
+
+const resetAlertConfig = () => {
+  Global.config.config["alert.list"].splice(
+    0,
+    Global.config.config["alert.list"].length,
+    ...(Global.config.scheme["alert.list"].$default as AlertConfig[])
   );
 };
 
@@ -77,6 +96,24 @@ const logout = () => {
     },
   });
 };
+
+const toggle = (event: KeyboardEvent) => {
+  if (event.shiftKey) {
+    isShifted.value = true;
+  } else {
+    isShifted.value = false;
+  }
+};
+
+onMounted(() => {
+  window.addEventListener("keydown", toggle);
+  window.addEventListener("keyup", toggle);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("keydown", toggle);
+  window.removeEventListener("keyup", toggle);
+});
 </script>
 
 <template>
@@ -115,7 +152,13 @@ const logout = () => {
             />
           </template>
         </ConfigTile>
-        <ExpansionConfigTile v-else>
+        <ExpansionConfigTile
+          v-else
+          :disabled="
+            (!Global.config.config['alert.enabled'] && k == 'alert.list') ||
+            (!Global.config.config['wave.enabled'] && k == 'wave.list')
+          "
+        >
           <template
             #leading
             v-if="typeof Global.config.scheme[k].$icon == 'string'"
@@ -127,6 +170,36 @@ const logout = () => {
           </template>
           <template #subtitle>
             <span>{{ Global.config.scheme[k].$description }}</span>
+          </template>
+          <template v-if="k == 'alert.list'" #content>
+            <div class="alert-config-list">
+              <div class="alert-config-actions">
+                <Button label="新增" outlined @click.prevent="addAlertConfig">
+                  <template #icon>
+                    <MaterialSymbols name="add" style="margin-right: 8px" />
+                  </template>
+                </Button>
+                <Button
+                  label="重置"
+                  severity="secondary"
+                  outlined
+                  @click.prevent="resetAlertConfig"
+                >
+                  <template #icon>
+                    <MaterialSymbols name="restore" style="margin-right: 8px" />
+                  </template>
+                </Button>
+                <div class="alert-config-count">
+                  音效數量： {{ Global.config.config["alert.list"].length }}
+                </div>
+              </div>
+              <AlertConfigItem
+                v-for="(w, i) in (c as AlertConfig[])"
+                :alert-config="w"
+                :index="i"
+                :enableStep="isShifted"
+              />
+            </div>
           </template>
           <template v-if="k == 'wave.list'" #content>
             <div class="wave-config-list">
@@ -150,33 +223,12 @@ const logout = () => {
                   波形圖數量： {{ Global.config.config["wave.list"].length }}
                 </div>
               </div>
-              <WaveConfigItem v-for="w in (c as WaveConfig[])">
-                <ConfigTile v-for="(wc, wk) in w">
-                  <template #title>
-                    <span>{{ Global.config.scheme[k].$value[wk].$name }} </span>
-                  </template>
-                  <template #subtitle>
-                    <span>{{
-                      Global.config.scheme[k].$value[wk].$description
-                    }}</span>
-                  </template>
-                  <template #trailing>
-                    <InputText
-                      v-if="typeof w[wk] == 'string'"
-                      :invalid="!w[wk].length"
-                      v-model="w[wk]"
-                      style="width: 100px; text-align: right"
-                    />
-                    <SelectButton
-                      v-else-if="Array.isArray(wc)"
-                      v-model="w[wk]"
-                      :options="['x', 'y', 'z']"
-                      :invalid="!w[wk].length"
-                      multiple
-                    />
-                  </template>
-                </ConfigTile>
-              </WaveConfigItem>
+              <WaveConfigItem
+                v-for="(w, i) in (c as WaveConfig[])"
+                :wave-config="w"
+                :index="i"
+                :key="`wave-config-${w.id}`"
+              />
             </div>
           </template>
         </ExpansionConfigTile>
@@ -210,6 +262,7 @@ const logout = () => {
   border: 1px solid var(--p-surface-700);
   max-height: 90svh;
   max-width: 90svw;
+  -webkit-app-region: none;
 }
 
 .header {
@@ -240,17 +293,20 @@ const logout = () => {
   flex-direction: column;
 }
 
+.alert-config-list,
 .wave-config-list {
   display: flex;
   flex-direction: column;
   padding: 4px 0px;
 }
 
+.alert-config-actions,
 .wave-config-actions {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 4px;
+  padding: 0 4px;
 }
 
 .config-danger-zone {

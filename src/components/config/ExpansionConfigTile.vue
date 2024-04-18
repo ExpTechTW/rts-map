@@ -2,6 +2,10 @@
 import MaterialSymbols from "@/components/MaterialSymbols.vue";
 import { ref, useSlots } from "vue";
 
+defineProps<{
+  disabled?: boolean;
+}>();
+
 const isExpanded = ref(false);
 
 const toggleExpanded = () => {
@@ -12,7 +16,11 @@ const slots = useSlots();
 </script>
 
 <template>
-  <div class="expansion-config-tile" :class="{ expanded: isExpanded }">
+  <div
+    class="expansion-config-tile"
+    :class="{ expanded: isExpanded && !disabled, disabled }"
+    :inert="disabled"
+  >
     <div class="config-tile" v-ripple @click="toggleExpanded">
       <div v-if="slots.leading" class="tile-leading">
         <slot name="leading" />
@@ -53,6 +61,12 @@ const slots = useSlots();
 .expansion-config-tile.expanded {
   grid-template-rows: min-content 1fr;
   border-bottom: 1px solid var(--p-surface-600);
+}
+
+.expansion-config-tile.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .config-tile {

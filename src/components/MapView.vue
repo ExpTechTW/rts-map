@@ -2,14 +2,13 @@
 import RtsMarker from "@/components/map/RtsMarker.vue";
 
 import { Map as MaplibreMap } from "maplibre-gl";
-import { onMounted, onUnmounted, shallowRef } from "vue";
+import { markRaw, onMounted, onUnmounted, shallowRef } from "vue";
 import { useRtsStore } from "@/stores/rts_store";
 import { useStationStore } from "@/stores/station_store";
 import type { LngLatBoundsLike, StyleSpecification } from "maplibre-gl";
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import geojson from "@/assets/tw_county.json";
-import { markRaw } from "vue";
 
 const stationStore = useStationStore();
 const rtsStore = useRtsStore();
@@ -20,8 +19,6 @@ let cameraResetTimer: number;
 const map = shallowRef<MaplibreMap>();
 
 onMounted(() => {
-  console.log("map mount");
-
   map.value = markRaw(
     new MaplibreMap({
       container: mapElement.value,

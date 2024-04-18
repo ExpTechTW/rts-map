@@ -17,7 +17,7 @@
       },
       "condition": {
         "$name": "播放門檻",
-        "$description": "定義音效播放的條件，當所有條件測試通過時播放音效"
+        "$description": "定義音效播放的條件，當條件測試通過時播放音效"
       },
       "volume": {
         "$name": "音量",
@@ -27,7 +27,7 @@
     "$default": [
       {
         "name": "alert",
-        "condition": ["intensity", ">=", 2],
+        "condition": ["least", 2, "intensity", ">=", 2],
         "volume": 0.8
       }
     ]
@@ -55,19 +55,19 @@
     },
     "$default": [
       {
-        "id": "13898616",
-        "axis": ["z"]
-      },
-      {
         "id": "4812424",
         "axis": ["z"]
       },
       {
-        "id": "11339620",
+        "id": "11336952",
         "axis": ["z"]
       },
       {
-        "id": "6125804",
+        "id": "11334880",
+        "axis": ["z"]
+      },
+      {
+        "id": "11370676",
         "axis": ["z"]
       }
     ]

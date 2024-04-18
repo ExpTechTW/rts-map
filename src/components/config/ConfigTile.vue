@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { useSlots } from "vue";
 
+defineProps<{
+  disabled?: boolean;
+}>();
+
 const slots = useSlots();
 </script>
 
 <template>
-  <div class="config-tile">
+  <div class="config-tile" :class="{ disabled }" :inert="disabled">
     <div v-if="slots.leading" class="tile-leading">
       <slot name="leading" />
     </div>
@@ -38,6 +42,12 @@ const slots = useSlots();
   );
 }
 
+.config-tile.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 .tile-content {
   flex: 1;
   display: flex;
@@ -48,7 +58,7 @@ const slots = useSlots();
 
 .tile-leading,
 .tile-trailing {
-  display: grid;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 8px;

@@ -4,9 +4,17 @@ import config from "../config.json";
 import { reactive, watch } from "vue";
 
 export type AlertCondition = [
-  "intensity" | "realtimeIntensity",
+  "exactly" | "least",
+  number,
+  "intensity" | "realtime",
   ">" | "<" | "=" | ">=" | "<=",
-  number | string
+  number
+] | [
+  "id",
+  string,
+  "intensity" | "realtime",
+  ">" | "<" | "=" | ">=" | "<=",
+  number
 ];
 
 export type AlertConfig = {

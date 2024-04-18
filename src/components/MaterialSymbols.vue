@@ -17,7 +17,7 @@ withDefaults(
 <template>
   <div
     :class="`material-symbols${rounded ? '-rounded' : ''}`"
-    :style="{ height: `${size}px`, width: `${size}px` }"
+    :style="{ height: `${size}px`, width: `${size}px`, fontSize: `${size}px` }"
   >
     {{ name }}
   </div>
