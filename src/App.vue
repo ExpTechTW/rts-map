@@ -3,12 +3,9 @@ import ConfirmDialog from "primevue/confirmdialog";
 import Toast from "primevue/toast";
 
 import TitleBar from "@/components/TitleBar.vue";
-
 import Global from "@/global";
 
 import { useRtsStore } from "@/stores/rts_store";
-
-const rts = useRtsStore();
 </script>
 
 <template>

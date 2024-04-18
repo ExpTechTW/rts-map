@@ -10,6 +10,7 @@ import { useRouter } from "vue-router";
 
 import type { AuthenticationDetail } from "@exptechtw/api-wrapper";
 import Global from "@/global";
+import AutoComplete, { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 
 const toast = useToast();
 const router = useRouter();
@@ -53,6 +54,30 @@ const onLogin = () => {
       loading.value = false;
     });
 };
+
+const emailSuggestions = ref([]);
+
+const search = (event: AutoCompleteCompleteEvent) => {
+  if (event.query.includes("@") && !event.query.endsWith("@")) {
+    emailSuggestions.value = [
+      "gmail.com",
+      "yahoo.com",
+      "hotmail.com",
+      "outlook.com",
+    ]
+      .filter((v) => v.startsWith(event.query.split("@")[1]))
+      .map((item) => event.query.split("@")[0] + "@" + item);
+  } else {
+    emailSuggestions.value = [
+      "gmail.com",
+      "yahoo.com",
+      "hotmail.com",
+      "outlook.com",
+    ].map(
+      (item) => event.query + (event.query.includes("@") ? "" : "@") + item
+    );
+  }
+};
 </script>
 
 <template>
@@ -68,17 +93,28 @@ const onLogin = () => {
         <template #content>
           <div class="form-content">
             <div class="form-item">
-              <label for="login-email">Email</label>
-              <InputText v-model="email" id="login-email" :disabled="loading" />
+              <label for="login-email">電子郵件地址</label>
+              <AutoComplete
+                v-model="email"
+                type="email"
+                input-id="login-email"
+                :input-style="{ width: '100%' }"
+                :suggestions="emailSuggestions"
+                :disabled="loading"
+                :delay="100"
+                @complete="search"
+              />
             </div>
             <div class="form-item">
               <label for="login-password">密碼</label>
               <Password
                 v-model="password"
+                type="password"
                 input-id="login-password"
                 :input-style="{ flex: 1 }"
                 :feedback="false"
                 :disabled="loading"
+                toggleMask
               />
             </div>
           </div>
@@ -120,6 +156,7 @@ const onLogin = () => {
 .form-item {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   gap: 8px;
 }
 

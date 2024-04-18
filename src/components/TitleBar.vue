@@ -1,6 +1,14 @@
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
+
 const minimizeWindow = () => window.ipcRenderer.minimizeWindow();
 const closeWindow = () => window.ipcRenderer.closeWindow();
+
+const version = ref(window.app.version);
+
+onMounted(() => {
+  document.title = `rts-map v${version.value}`;
+});
 </script>
 
 <template>
@@ -12,7 +20,9 @@ const closeWindow = () => window.ipcRenderer.closeWindow();
         alt="app-icon"
         draggable="false"
       />
-      <span>rts-map</span>
+      <span
+        >rts-map <span class="app-version">v{{ version }}</span></span
+      >
     </div>
     <div class="window-actions">
       <button
@@ -58,6 +68,11 @@ const closeWindow = () => window.ipcRenderer.closeWindow();
 .app-icon {
   height: 18px;
   width: 18px;
+}
+
+.app-version {
+  opacity: 0.6;
+  font-size: 75%;
 }
 
 .window-actions {

@@ -8,5 +8,8 @@ export interface ipcMethods {
 declare global {
   interface Window {
     ipcRenderer: ipcMethods;
+    app: {
+      version: string;
+    };
   }
 }

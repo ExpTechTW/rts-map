@@ -220,8 +220,6 @@ Global.config.on("change", () => {
 });
 
 onMounted(() => {
-  console.log("mounted");
-
   Global.api.getStations().then((stations) => {
     stationStore.$patch(stations);
     isStationLoaded.value = true;
@@ -231,6 +229,7 @@ onMounted(() => {
     time.value = Date.now() - timeOffset;
   }, 500);
 
+  resize();
   window.addEventListener("resize", resize);
 });
 
