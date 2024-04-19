@@ -86,7 +86,7 @@ onMounted(() => {
   justify-content: center;
   width: 54px;
   height: 100%;
-  transition: background-color 0.1s ease-in-out;
+  transition: background-color 0.1s ease-in-out, color 0.1s ease-in-out;
   -webkit-app-region: none;
 }
 
