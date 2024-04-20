@@ -57,8 +57,10 @@
     }
   },
   "button": {
+    "add": "Add",
     "login": "Login",
     "logout": "Log Out",
+    "reset": "Reset",
     "reset_config": "Reset Configuration"
   },
   "dialog": {

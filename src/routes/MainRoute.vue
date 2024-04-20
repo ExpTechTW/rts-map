@@ -332,6 +332,7 @@ onBeforeUnmount(() => {
         <template #item="{ item }">
           <WaveView
             v-if="isStationLoaded && item.i in stationStore.$state"
+            :key="`wave-${item.i}`"
             :time="time"
             :id="item.i"
             :type="stationStore.$state[`${item.i}`].net"

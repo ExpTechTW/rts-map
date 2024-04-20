@@ -4,12 +4,6 @@ import { use } from "echarts/core";
 import { LineChart } from "echarts/charts";
 import { TitleComponent, GridComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
-import type { ComposeOption } from "echarts/core";
-import type { LineSeriesOption } from "echarts/charts";
-import type {
-  TitleComponentOption,
-  GridComponentOption,
-} from "echarts/components";
 
 import { ChartWaveData, PointData } from "@/types";
 import Global from "@/global";

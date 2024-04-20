@@ -196,13 +196,17 @@ onUnmounted(() => {
           <template v-if="k == 'alert.list'" #content>
             <div class="alert-config-list">
               <div class="alert-config-actions">
-                <Button label="新增" outlined @click.prevent="addAlertConfig">
+                <Button
+                  :label="i18n.t('button.add')"
+                  outlined
+                  @click.prevent="addAlertConfig"
+                >
                   <template #icon>
                     <MaterialSymbols name="add" style="margin-right: 8px" />
                   </template>
                 </Button>
                 <Button
-                  label="重置"
+                  :label="i18n.t('button.reset')"
                   severity="secondary"
                   outlined
                   @click.prevent="resetAlertConfig"
@@ -227,13 +231,17 @@ onUnmounted(() => {
           <template v-if="k == 'wave.list'" #content>
             <div class="wave-config-list">
               <div class="wave-config-actions">
-                <Button label="新增" outlined @click.prevent="addWaveConfig">
+                <Button
+                  :label="i18n.t('button.add')"
+                  outlined
+                  @click.prevent="addWaveConfig"
+                >
                   <template #icon>
                     <MaterialSymbols name="add" style="margin-right: 8px" />
                   </template>
                 </Button>
                 <Button
-                  label="重置"
+                  :label="i18n.t('button.reset')"
                   severity="secondary"
                   outlined
                   @click.prevent="resetWaveConfig"
