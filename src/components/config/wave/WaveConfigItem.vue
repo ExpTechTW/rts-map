@@ -31,7 +31,7 @@ const removeItem = () => {
           <MaterialSymbols name="delete" :size="20" rounded />
         </template>
       </Button>
-      <span>波形圖設定 #{{ index + 1 }}</span>
+      <span>{{ i18n.t("config.wave.enabled.$name") }} #{{ index + 1 }}</span>
     </div>
     <ConfigTile v-for="(wc, wk) in waveConfig">
       <template #title>

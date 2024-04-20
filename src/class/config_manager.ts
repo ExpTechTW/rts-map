@@ -37,10 +37,14 @@ export interface ConfigScheme {
   "monitor.enabled": boolean;
 }
 
+// Ignoring this linter error since we're destructing and removing the $version field
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { $version: _, ...scheme } = config;
+
 export class ConfigManager extends EventEmitter {
   config: ConfigScheme;
   version: number;
-  scheme: Omit<typeof config, "$version">;
+  scheme: Omit<typeof config, "$version"> = scheme;
 
   constructor() {
     super();
@@ -48,17 +52,14 @@ export class ConfigManager extends EventEmitter {
 
     if (!raw || !raw.length) {
       this.config = reactive(ConfigManager.getDefaultConfig());
-      localStorage.setItem("config", JSON.stringify(this.config));
     } else {
       this.config = reactive(JSON.parse(raw));
     }
 
-    // Ignoring this linter error since we're destructing and removing the $version field
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { $version: _, ...rest } = config;
+    validateConfig(this.config);
+    localStorage.setItem("config", JSON.stringify(this.config));
 
     this.version = config.$version;
-    this.scheme = rest;
 
     watch(this.config, (newValue) => {
       this.emit("change", newValue);
@@ -107,12 +108,34 @@ export class ConfigManager extends EventEmitter {
   }
 
   static validateConfig(config: Partial<ConfigScheme>): config is ConfigScheme {
-    if (!config) return false;
-    if (!(typeof config["alert.enabled"] == "boolean")) return false;
-    if (!Array.isArray(["alert.list"]) || config["alert.list"].reduce((acc, v) => acc ||= !validateAlertConfig(v), false)) return false;
-    if (!(typeof config["wave.enabled"] == "boolean")) return false;
-    if (!Array.isArray(["wave.list"]) || config["wave.list"].reduce((acc, v) => acc ||= !validateWaveConfig(v), false)) return false;
-    if (!(typeof config["monitor.enabled"] == "boolean")) return false;
+    if (!config) {
+      Object.assign(config, getDefaultConfig());
+      return true;
+    }
+
+    if (!(typeof config["alert.enabled"] == "boolean")) {
+      config["alert.enabled"] = scheme["alert.enabled"].$default;
+    }
+
+    if (!Array.isArray(config["alert.list"]) || config["alert.list"].reduce((acc, v) => acc ||= !validateAlertConfig(v), false)) {
+      config["alert.list"] = scheme["alert.list"].$default as AlertConfig[];
+    }
+
+    if (!(typeof config["wave.enabled"] == "boolean")) {
+      config["wave.enabled"] = scheme["wave.enabled"].$default;
+    }
+
+    if (!Array.isArray(config["wave.list"]) || config["wave.list"].reduce((acc, v) => acc ||= !validateWaveConfig(v), false)) {
+      config["wave.list"] = scheme["wave.list"].$default as WaveConfig[];
+    }
+
+    if (!(typeof config["monitor.enabled"] == "boolean")) {
+      config["monitor.enabled"] = scheme["monitor.enabled"].$default;
+    }
+
+    if (typeof config["app.locale"] != "string") {
+      config["app.locale"] = "";
+    }
 
     return true;
   }

@@ -1,7 +1,7 @@
 {
   "$locale": "ja",
-  "$name": "英語",
-  "$localized_name": "英語",
+  "$name": "Japanese",
+  "$localized_name": "日本語",
   "config": {
     "app": {
       "locale": {

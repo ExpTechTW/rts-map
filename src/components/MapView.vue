@@ -84,7 +84,7 @@ onUnmounted(() => {
         <template v-for="(station, id) in stationStore.$state">
           <RtsMarker
             v-if="station.info != undefined"
-            :key="id"
+            :key="`rts-${id}`"
             :id="id"
             :map="map"
             :station="station"
