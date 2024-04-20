@@ -1,0 +1,68 @@
+{
+  "config": {
+    "alert": {
+      "enabled": {
+        "$name": "音效",
+        "$description": "在觸發門檻到達時播放警示音效"
+      },
+      "list": {
+        "$name": "音效列表",
+        "$description": "自定義音效播放門檻",
+        "$value": {
+          "name": {
+            "$name": "音效名稱",
+            "$description": "要播放的音效的名稱"
+          },
+          "condition": {
+            "$name": "播放門檻",
+            "$description": "定義音效播放的條件，當條件測試通過時播放音效"
+          },
+          "volume": {
+            "$name": "音量",
+            "$description": "音效播放音量"
+          }
+        }
+      }
+    },
+    "wave": {
+      "enabled": {
+        "$name": "波形圖",
+        "$description": "顯示測站三軸波形圖"
+      },
+      "list": {
+        "$name": "波形圖測站列表",
+        "$description": "自定義要顯示波形圖的測站列表",
+        "$value": {
+          "id": {
+            "$name": "測站 ID",
+            "$description": "要顯示波形圖的測站 ID"
+          },
+          "axis": {
+            "$name": "顯示軸",
+            "$description": "切換是否顯示 X, Y, Z 軸"
+          }
+        }
+      }
+    },
+    "monitor": {
+      "enabled": {
+        "$name": "監測模式",
+        "$description": "監測模式將會隱藏程式標題列，停用大部分介面互動。"
+      }
+    }
+  },
+  "dialog": {
+    "common": {
+      "cancel": "取消",
+      "confirm": "確認"
+    },
+    "reset_config": {
+      "header": "重置設定",
+      "message": "你確定你要重置設定嗎？"
+    },
+    "logout": {
+      "header": "登出",
+      "message": "你確定你要登出嗎？"
+    }
+  }
+}

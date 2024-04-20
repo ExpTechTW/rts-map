@@ -2,21 +2,22 @@
 import Button from "primevue/button";
 import InputSwitch from "primevue/inputswitch";
 import InputText from "primevue/inputtext";
-import SelectButton from "primevue/selectbutton";
 
+import AlertConfigItem from "@/components/config/alert/AlertConfigItem.vue";
 import ConfigTile from "@/components/config/ConfigTile.vue";
-import MaterialSymbols from "@/components/MaterialSymbols.vue";
 import ExpansionConfigTile from "@/components/config/ExpansionConfigTile.vue";
+import MaterialSymbols from "@/components/MaterialSymbols.vue";
 import WaveConfigItem from "@/components/config/wave/WaveConfigItem.vue";
 
 import type { AlertConfig, WaveConfig } from "@/class/config_manager";
 import Global from "@/global";
 
+import { onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useConfirm } from "primevue/useconfirm";
-import { onMounted, onUnmounted, ref } from "vue";
-import AlertConfigItem from "@/components/config/alert/AlertConfigItem.vue";
+import { useI18n } from "vue-i18n";
 
+const i18n = useI18n();
 const confirm = useConfirm();
 const router = useRouter();
 const isShifted = ref(false);
@@ -58,16 +59,16 @@ const resetAlertConfig = () => {
 
 const resetConfig = () => {
   confirm.require({
-    message: "你確定你要重置設定嗎？",
-    header: "重置設定",
+    message: i18n.t("dialog.reset_config.message"),
+    header: i18n.t("dialog.reset_config.header"),
     icon: "pi pi-exclamation-triangle",
     rejectProps: {
-      label: "取消",
+      label: i18n.t("dialog.common.cancel"),
       severity: "secondary",
       text: true,
     },
     acceptProps: {
-      label: "重置",
+      label: i18n.t("dialog.common.confirm"),
       severity: "danger",
     },
     accept: () => {
@@ -78,16 +79,16 @@ const resetConfig = () => {
 
 const logout = () => {
   confirm.require({
-    message: "你確定你要登出嗎？",
-    header: "登出",
+    message: i18n.t("dialog.logout.message"),
+    header: i18n.t("dialog.logout.header"),
     icon: "pi pi-exclamation-triangle",
     rejectProps: {
-      label: "取消",
+      label: i18n.t("dialog.common.cancel"),
       severity: "secondary",
       text: true,
     },
     acceptProps: {
-      label: "登出",
+      label: i18n.t("dialog.common.confirm"),
       severity: "danger",
     },
     accept: () => {

@@ -1,4 +1,5 @@
 import { createApp, type Plugin } from 'vue';
+import { createI18n } from "vue-i18n";
 import { createPinia } from 'pinia';
 import { createMemoryHistory, createRouter } from "vue-router";
 import { GridItem, GridLayout } from "grid-layout-plus";
@@ -12,6 +13,7 @@ import MainRoute from "./routes/MainRoute.vue";
 import ConfigRoute from "./routes/ConfigRoute.vue";
 import LoginRoute from "./routes/LoginRoute.vue";
 
+import Localization from "./i18n";
 import "./index.css";
 
 const pinia = createPinia();
@@ -35,9 +37,18 @@ const router = createRouter({
   ]
 });
 
+const i18n = createI18n({
+  legacy: false,
+  locale: navigator.language,
+  fallbackLocale: "zh-TW",
+  messages: Localization,
+  missingWarn: false,
+});
+
 createApp(App)
   .use(pinia)
   .use(router)
+  .use(i18n)
   .use(PrimeVueStyled as unknown as Plugin, { ripple: true })
   .use(ConfirmationService)
   .use(ToastService)
