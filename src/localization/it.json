@@ -34,11 +34,11 @@
     "wave": {
       "enabled": {
         "$name": "Wave Chart",
-        "$description": "Display the waveform for each station on three axes"
+        "$description": "Display the waveform for each seismograph on three axes"
       },
       "list": {
-        "$name": "Wave Chart Stations",
-        "$description": "Select stations to display their waveforms",
+        "$name": "Wave Chart List",
+        "$description": "Select seismographs to display their waveforms",
         "id": {
           "$name": "Seismograph ID",
           "$description": "The ID of the seismograph to display"
