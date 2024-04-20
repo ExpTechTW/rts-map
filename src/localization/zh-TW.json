@@ -34,11 +34,11 @@
     "wave": {
       "enabled": {
         "$name": "波形圖",
-        "$description": "Display the waveform for each seismograph on three axes"
+        "$description": "顯示測站三軸波形圖"
       },
       "list": {
-        "$name": "Wave Chart List",
-        "$description": "Select seismographs to display their waveforms",
+        "$name": "波形圖測站列表",
+        "$description": "自定義要顯示波形圖的測站列表",
         "id": {
           "$name": "測站 ID",
           "$description": "要顯示波形圖的測站 ID"
