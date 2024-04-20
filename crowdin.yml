@@ -1,3 +1,3 @@
 files:
-  - source: /src/localization/zh-TW.json
+  - source: /src/localization/en.json
     translation: /src/localization/%two_letters_code%.json
