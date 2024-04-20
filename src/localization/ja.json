@@ -23,22 +23,22 @@
         },
         "condition": {
           "$name": "再生状態",
-          "$description": "When to play the sound effect"
+          "$description": "効果音を再生するタイミング"
         },
         "volume": {
           "$name": "音量",
-          "$description": "サウンドの音量"
+          "$description": "効果音の音量"
         }
       }
     },
     "wave": {
       "enabled": {
         "$name": "波形チャート",
-        "$description": "Display the waveform for each station on three axes"
+        "$description": "Display the waveform for each seismograph on three axes"
       },
       "list": {
-        "$name": "Wave Chart Stations",
-        "$description": "Select stations to display their waveforms",
+        "$name": "Wave Chart List",
+        "$description": "Select seismographs to display their waveforms",
         "id": {
           "$name": "地震計 ID",
           "$description": "表示する地震計のID"
