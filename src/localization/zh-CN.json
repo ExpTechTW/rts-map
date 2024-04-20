@@ -1,96 +1,96 @@
 {
-  "$locale": "en",
-  "$name": "English",
-  "$localized_name": "English",
+  "$locale": "zh-cn",
+  "$name": "英语",
+  "$localized_name": "英语",
   "config": {
     "app": {
       "locale": {
-        "$name": "Language",
-        "$description": "The language used for the interface"
+        "$name": "语言",
+        "$description": "界面使用的语言"
       }
     },
     "alert": {
       "enabled": {
-        "$name": "Sounds",
-        "$description": "Enable or disable sound effects"
+        "$name": "音效",
+        "$description": "启用或禁用音效"
       },
       "list": {
-        "$name": "Sound List",
-        "$description": "Configure sound effects",
+        "$name": "声音列表",
+        "$description": "配置音效效果",
         "name": {
-          "$name": "Sound Name",
-          "$description": "The name of the sound effect"
+          "$name": "音效名称",
+          "$description": "音效名称"
         },
         "condition": {
-          "$name": "Play Condition",
-          "$description": "When to play the sound effect"
+          "$name": "播放条件",
+          "$description": "定义音效播放的条件，当条件测试通过时播放音效"
         },
         "volume": {
-          "$name": "Volume",
-          "$description": "The volume level of the sound effect"
+          "$name": "音量大小",
+          "$description": "音效播放音量大小"
         }
       }
     },
     "wave": {
       "enabled": {
-        "$name": "Wave Chart",
-        "$description": "Display the waveform for each station on three axes"
+        "$name": "波形图",
+        "$description": "显示测站三轴波形图"
       },
       "list": {
-        "$name": "Wave Chart Stations",
-        "$description": "Select stations to display their waveforms",
+        "$name": "波形图列表",
+        "$description": "选择要显示其波形的站",
         "id": {
-          "$name": "Seismograph ID",
-          "$description": "The ID of the seismograph to display"
+          "$name": "测站ID",
+          "$description": "要显示波形图的测站 ID"
         },
         "axis": {
-          "$name": "Axis",
-          "$description": "Select which axis to display (X, Y, or Z)"
+          "$name": "要显示的轴",
+          "$description": "选择要显示测站的轴 (X, Y, 或 Z)"
         }
       }
     },
     "monitor": {
       "enabled": {
-        "$name": "Monitor Mode",
-        "$description": "Hides the title bar and disables most interactions for a focused monitoring experience."
+        "$name": "监测模式",
+        "$description": "隐藏标题栏并禁用大多数交互。"
       }
     }
   },
   "button": {
-    "add": "Add",
-    "login": "Login",
-    "logout": "Log Out",
-    "reset": "Reset",
-    "reset_config": "Reset Configuration"
+    "add": "添加",
+    "login": "登录",
+    "logout": "登出",
+    "reset": "重置",
+    "reset_config": "重置配置"
   },
   "dialog": {
     "common": {
-      "cancel": "Cancel",
-      "confirm": "Confirm"
+      "cancel": "取消",
+      "confirm": "确认"
     },
     "config": {
-      "header": "Configuration"
+      "header": "设置"
     },
     "reset_config": {
-      "header": "Reset Configuration",
-      "message": "Are you sure you want to reset all configurations?"
+      "header": "重置配置",
+      "message": "您确定要重置所有选项吗？"
     },
     "login": {
-      "header": "Login",
-      "subtitle": "Sign in to your ExpTech account to start using rts-map",
+      "header": "登录",
+      "subtitle": "登录到您的 ExpTech 帐户开始使用 rts-map",
       "field": {
-        "email": "Email Address",
-        "password": "Password"
+        "email": "电子邮件地址",
+        "password": "密码"
       }
     },
     "logout": {
-      "header": "Log Out",
-      "message": "Are you sure you want to log out?"
+      "header": "登出",
+      "message": "确定要退出登录吗？"
     }
   },
   "toast": {
     "login_success": {
-      "message": "Successfully logged in!"
+      "message": "登录成功！"
     }
   }
 }
