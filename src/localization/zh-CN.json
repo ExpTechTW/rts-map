@@ -34,7 +34,7 @@
     "wave": {
       "enabled": {
         "$name": "波形图",
-        "$description": "Display the waveform for each seismograph on three axes"
+        "$description": "Whether to display seismograph waveforms"
       },
       "list": {
         "$name": "Wave Chart List",
