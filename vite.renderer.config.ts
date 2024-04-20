@@ -14,6 +14,7 @@ export default defineConfig((env) => {
     root,
     mode,
     base: './',
+    publicDir: "./src/public",
     build: {
       outDir: `.vite/renderer/${name}`,
     },

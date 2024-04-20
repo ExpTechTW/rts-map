@@ -346,7 +346,7 @@ onBeforeUnmount(() => {
       <router-view></router-view>
     </div>
 
-    <audio ref="alertAudio" src="/src/assets/alert.wav"></audio>
+    <audio ref="alertAudio" src="/alert.wav"></audio>
   </div>
 </template>
 
@@ -404,7 +404,7 @@ onBeforeUnmount(() => {
 }
 
 audio {
-  display: absolute;
+  position: absolute;
   visibility: hidden;
   pointer-events: none;
   z-index: -1;
