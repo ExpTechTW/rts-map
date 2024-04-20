@@ -6,53 +6,53 @@
     "app": {
       "locale": {
         "$name": "言語",
-        "$description": "インターフェースで使用される言語"
+        "$description": "インターフェースに使用される言語"
       }
     },
     "alert": {
       "enabled": {
-        "$name": "サウンド",
-        "$description": "サウンド効果を有効または無効にする"
+        "$name": "効果音",
+        "$description": "効果音を有効または無効にする"
       },
       "list": {
-        "$name": "サウンドリスト",
-        "$description": "サウンド効果を設定する",
+        "$name": "効果音リスト",
+        "$description": "効果音の設定",
         "name": {
-          "$name": "サウンド名",
-          "$description": "サウンド効果の名前"
+          "$name": "効果音名",
+          "$description": "効果音の名前"
         },
         "condition": {
-          "$name": "再生条件",
-          "$description": "サウンド効果を再生するタイミング"
+          "$name": "再生状態",
+          "$description": "効果音を再生するタイミング"
         },
         "volume": {
           "$name": "音量",
-          "$description": "サウンド効果の音量レベル"
+          "$description": "効果音の音量"
         }
       }
     },
     "wave": {
       "enabled": {
-        "$name": "波形グラフ",
-        "$description": "各ステーションの波形を3軸で表示する"
+        "$name": "波形チャート",
+        "$description": "Display the waveform for each seismograph on three axes"
       },
       "list": {
-        "$name": "波形グラフリスト",
-        "$description": "波形を表示する地震計を選択する",
+        "$name": "Wave Chart List",
+        "$description": "Select seismographs to display their waveforms",
         "id": {
-          "$name": "地震計ID",
+          "$name": "地震計 ID",
           "$description": "表示する地震計のID"
         },
         "axis": {
           "$name": "軸",
-          "$description": "表示する軸を選択する (X、Y、またはZ)"
+          "$description": "表示する軸 (X, Y, Z) を選択してください"
         }
       }
     },
     "monitor": {
       "enabled": {
-        "$name": "モニターモード",
-        "$description": "タイトルバーを非表示にし、集中した監視エクスペリエンスのためにほとんどのインタラクションを無効にします。"
+        "$name": "監視モード",
+        "$description": "タイトルバーを隠し、集中した監視体験のためにほとんどのインタラクションを無効にします。"
       }
     }
   },
@@ -61,23 +61,23 @@
     "login": "ログイン",
     "logout": "ログアウト",
     "reset": "リセット",
-    "reset_config": "設定をリセットする"
+    "reset_config": "設定をリセット"
   },
   "dialog": {
     "common": {
       "cancel": "キャンセル",
-      "confirm": "確認"
+      "confirm": "確定"
     },
     "config": {
       "header": "設定"
     },
     "reset_config": {
-      "header": "設定をリセットする",
-      "message": "すべての設定をリセットしますか？"
+      "header": "設定をリセット",
+      "message": "本当に設定をリセットしてもよろしいですか?"
     },
     "login": {
       "header": "ログイン",
-      "subtitle": "ExpTechアカウントにサインインしてrts-mapの使用を開始する",
+      "subtitle": "rts-mapの使用を開始するには、ExpTechアカウントにサインインしてください",
       "field": {
         "email": "メールアドレス",
         "password": "パスワード"
@@ -85,12 +85,12 @@
     },
     "logout": {
       "header": "ログアウト",
-      "message": "ログアウトしますか？"
+      "message": "本当にログアウトしてよろしいですか？"
     }
   },
   "toast": {
     "login_success": {
-      "message": "ログインに成功しました！"
+      "message": "ログイン成功"
     }
   }
 }
