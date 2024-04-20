@@ -41,7 +41,7 @@ const router = createRouter({
 const i18n = createI18n({
   legacy: false,
   locale: Global.config.config["app.locale"] || navigator.language,
-  fallbackLocale: "zh-TW",
+  fallbackLocale: "en",
   messages: Localization,
   missingWarn: false,
 });
