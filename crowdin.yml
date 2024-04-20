@@ -1,0 +1,3 @@
+files:
+  - source: /src/localization/zh-TW.json
+    translation: /src/localization/%two_letters_code%.json
