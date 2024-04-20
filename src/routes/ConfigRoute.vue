@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Button from "primevue/button";
+import Dropdown from "primevue/dropdown";
 import InputSwitch from "primevue/inputswitch";
 import InputText from "primevue/inputtext";
 
@@ -13,9 +14,9 @@ import type { AlertConfig, WaveConfig } from "@/class/config_manager";
 import Global from "@/global";
 
 import { onMounted, onUnmounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { useConfirm } from "primevue/useconfirm";
-import { useI18n } from "vue-i18n";
 
 const i18n = useI18n();
 const confirm = useConfirm();
@@ -120,7 +121,7 @@ onUnmounted(() => {
 <template>
   <div id="config">
     <div class="header">
-      <div class="title">設定</div>
+      <div class="title">{{ i18n.t("dialog.config.header") }}</div>
       <Button text rounded severity="secondary" @click.prevent="closeConfig">
         <template #icon>
           <MaterialSymbols name="close" rounded />
@@ -137,18 +138,38 @@ onUnmounted(() => {
             <MaterialSymbols :name="Global.config.scheme[k].$icon" rounded />
           </template>
           <template #title>
-            <span>{{ Global.config.scheme[k].$name }}</span>
+            <span>{{ i18n.t(`config.${k}.$name`) }}</span>
           </template>
           <template #subtitle>
-            <span>{{ Global.config.scheme[k].$description }}</span>
+            <span>{{ i18n.t(`config.${k}.$description`) }}</span>
           </template>
           <template #trailing>
             <InputSwitch
               v-if="typeof Global.config.config[k] == 'boolean'"
               v-model="Global.config.config[k]"
             />
+            <Dropdown
+              v-if="k == 'app.locale'"
+              v-model="Global.config.config[k]"
+              :options="[
+                { name: 'Use System Language', value: '' },
+                ...i18n.availableLocales.map((value) => ({
+                  name: `${i18n.t('$localized_name', 0, {
+                    locale: value,
+                  })} (${i18n.t('$name', 0, { locale: value })})`,
+                  value,
+                })),
+              ]"
+              option-label="name"
+              option-value="value"
+              :placeholder="
+                i18n.availableLocales.includes(i18n.locale.value)
+                  ? i18n.t('$localized_name')
+                  : `${i18n.locale.value} (Fallback)`
+              "
+            />
             <InputText
-              v-if="typeof Global.config.config[k] == 'string'"
+              v-else-if="typeof Global.config.config[k] == 'string'"
               v-model="Global.config.config[k]"
             />
           </template>
@@ -167,10 +188,10 @@ onUnmounted(() => {
             <MaterialSymbols :name="Global.config.scheme[k].$icon" rounded />
           </template>
           <template #title>
-            <span>{{ Global.config.scheme[k].$name }}</span>
+            <span>{{ i18n.t(`config.${k}.$name`) }}</span>
           </template>
           <template #subtitle>
-            <span>{{ Global.config.scheme[k].$description }}</span>
+            <span>{{ i18n.t(`config.${k}.$description`) }}</span>
           </template>
           <template v-if="k == 'alert.list'" #content>
             <div class="alert-config-list">
@@ -237,13 +258,13 @@ onUnmounted(() => {
       </template>
       <div class="config-danger-zone">
         <Button
-          label="登出"
+          :label="i18n.t('button.logout')"
           severity="danger"
           outlined
           @click.prevent="logout"
         />
         <Button
-          label="重置設定"
+          :label="i18n.t('button.reset_config')"
           severity="danger"
           outlined
           @click.prevent="resetConfig"

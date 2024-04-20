@@ -1,17 +1,20 @@
 <script setup lang="ts">
+import AutoComplete, {
+  type AutoCompleteCompleteEvent,
+} from "primevue/autocomplete";
 import Button from "primevue/button";
 import Card from "primevue/card";
-import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 
-import { useToast } from "primevue/usetoast";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
+import { useToast } from "primevue/usetoast";
 
 import type { AuthenticationDetail } from "@exptechtw/api-wrapper";
 import Global from "@/global";
-import AutoComplete, { AutoCompleteCompleteEvent } from "primevue/autocomplete";
 
+const i18n = useI18n();
 const toast = useToast();
 const router = useRouter();
 
@@ -25,14 +28,14 @@ const onLogin = () => {
   const auth = {
     email: email.value,
     password: password.value,
-    name: "rts-map/rts-map/1.0.0/1.0.0",
+    name: `rts-map/rts-map/${window.app.version}/${window.app.version}`,
   } as AuthenticationDetail;
 
   Global.api
     .getAuthToken(auth)
     .then((token) => {
       toast.add({
-        summary: "登入成功",
+        summary: i18n.t("toast.login_success.message"),
         severity: "success",
         life: 1000,
         closable: false,
@@ -83,17 +86,19 @@ const search = (event: AutoCompleteCompleteEvent) => {
 <template>
   <div class="login">
     <form action="" @submit.prevent="onLogin">
-      <Card>
+      <Card class="login-card">
         <template #title>
-          <div class="form-title">登入</div>
+          <div class="form-title">{{ i18n.t("dialog.login.header") }}</div>
         </template>
         <template #subtitle>
-          <div class="form-subtitle">登入 ExpTech 帳號來開始使用 rts-map</div>
+          <div class="form-subtitle">{{ i18n.t("dialog.login.subtitle") }}</div>
         </template>
         <template #content>
           <div class="form-content">
             <div class="form-item">
-              <label for="login-email">電子郵件地址</label>
+              <label for="login-email">
+                {{ i18n.t("dialog.login.field.email") }}
+              </label>
               <AutoComplete
                 v-model="email"
                 type="email"
@@ -106,7 +111,9 @@ const search = (event: AutoCompleteCompleteEvent) => {
               />
             </div>
             <div class="form-item">
-              <label for="login-password">密碼</label>
+              <label for="login-password">{{
+                i18n.t("dialog.login.field.password")
+              }}</label>
               <Password
                 v-model="password"
                 type="password"
@@ -123,7 +130,7 @@ const search = (event: AutoCompleteCompleteEvent) => {
           <div class="form-actions">
             <Button
               type="submit"
-              label="登入"
+              :label="i18n.t('button.login')"
               :disabled="loading || !(email.length && password.length)"
               :loading="loading"
             />
@@ -143,7 +150,12 @@ const search = (event: AutoCompleteCompleteEvent) => {
   width: 100%;
 }
 
-.form-title {
+.login-card {
+  max-width: 40svw;
+}
+
+.form-title,
+.form-subtitle {
   text-align: center;
 }
 
@@ -168,5 +180,6 @@ const search = (event: AutoCompleteCompleteEvent) => {
 
 label {
   color: var(--p-surface-500);
+  font-size: smaller;
 }
 </style>

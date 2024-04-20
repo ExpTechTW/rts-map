@@ -1,5 +1,14 @@
 {
+  "$locale": "zh-TW",
+  "$name": "Traditional Chinese",
+  "$localized_name": "繁體中文",
   "config": {
+    "app": {
+      "locale": {
+        "$name": "顯示語言",
+        "$description": "介面顯示的語言"
+      }
+    },
     "alert": {
       "enabled": {
         "$name": "音效",
@@ -8,19 +17,17 @@
       "list": {
         "$name": "音效列表",
         "$description": "自定義音效播放門檻",
-        "$value": {
-          "name": {
-            "$name": "音效名稱",
-            "$description": "要播放的音效的名稱"
-          },
-          "condition": {
-            "$name": "播放門檻",
-            "$description": "定義音效播放的條件，當條件測試通過時播放音效"
-          },
-          "volume": {
-            "$name": "音量",
-            "$description": "音效播放音量"
-          }
+        "name": {
+          "$name": "音效名稱",
+          "$description": "要播放的音效的名稱"
+        },
+        "condition": {
+          "$name": "播放門檻",
+          "$description": "定義音效播放的條件，當條件測試通過時播放音效"
+        },
+        "volume": {
+          "$name": "音量",
+          "$description": "音效播放音量"
         }
       }
     },
@@ -32,15 +39,13 @@
       "list": {
         "$name": "波形圖測站列表",
         "$description": "自定義要顯示波形圖的測站列表",
-        "$value": {
-          "id": {
-            "$name": "測站 ID",
-            "$description": "要顯示波形圖的測站 ID"
-          },
-          "axis": {
-            "$name": "顯示軸",
-            "$description": "切換是否顯示 X, Y, Z 軸"
-          }
+        "id": {
+          "$name": "測站 ID",
+          "$description": "要顯示波形圖的測站 ID"
+        },
+        "axis": {
+          "$name": "顯示軸",
+          "$description": "切換是否顯示 X, Y, Z 軸"
         }
       }
     },
@@ -51,18 +56,39 @@
       }
     }
   },
+  "button": {
+    "login": "登入",
+    "logout": "登出",
+    "reset_config": "重置設定"
+  },
   "dialog": {
     "common": {
       "cancel": "取消",
       "confirm": "確認"
     },
+    "config": {
+      "header": "設定"
+    },
     "reset_config": {
       "header": "重置設定",
       "message": "你確定你要重置設定嗎？"
     },
+    "login": {
+      "header": "登入",
+      "subtitle": "登入 ExpTech 帳號來開始使用 rts-map",
+      "field": {
+        "email": "電子郵件地址",
+        "password": "密碼"
+      }
+    },
     "logout": {
       "header": "登出",
       "message": "你確定你要登出嗎？"
+    }
+  },
+  "toast": {
+    "login_success": {
+      "message": "登入成功！"
     }
   }
 }

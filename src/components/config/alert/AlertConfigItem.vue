@@ -1,13 +1,17 @@
 <script setup lang="ts">
+import Button from "primevue/button";
+import InputText from "primevue/inputtext";
+import MaterialSymbols from "@/components/MaterialSymbols.vue";
+import Slider from "primevue/slider";
+
+import AlertConditionConfig from "@/components/config/alert/AlertConditionConfig.vue";
 import ConfigTile from "@/components/config/ConfigTile.vue";
 
 import { AlertConfig } from "@/class/config_manager";
+import { useI18n } from "vue-i18n";
 import Global from "@/global";
-import Slider from "primevue/slider";
-import InputText from "primevue/inputtext";
-import AlertConditionConfig from "./AlertConditionConfig.vue";
-import Button from "primevue/button";
-import MaterialSymbols from "@/components/MaterialSymbols.vue";
+
+const i18n = useI18n();
 
 const props = defineProps<{
   alertConfig: AlertConfig;
@@ -33,14 +37,10 @@ const removeItem = () => {
     <template v-for="(wc, wk) in alertConfig">
       <ConfigTile>
         <template #title>
-          <span>
-            {{ Global.config.scheme["alert.list"].$value[wk].$name }}
-          </span>
+          <span>{{ i18n.t(`config.alert.list.${wk}.$name`) }}</span>
         </template>
         <template #subtitle>
-          <span>
-            {{ Global.config.scheme["alert.list"].$value[wk].$description }}
-          </span>
+          <span> {{ i18n.t(`config.alert.list.${wk}.$description`) }}</span>
         </template>
         <template #trailing>
           <InputText

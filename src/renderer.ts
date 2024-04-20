@@ -13,6 +13,7 @@ import MainRoute from "./routes/MainRoute.vue";
 import ConfigRoute from "./routes/ConfigRoute.vue";
 import LoginRoute from "./routes/LoginRoute.vue";
 
+import Global from "./global";
 import Localization from "./i18n";
 import "./index.css";
 
@@ -39,7 +40,7 @@ const router = createRouter({
 
 const i18n = createI18n({
   legacy: false,
-  locale: navigator.language,
+  locale: Global.config.config["app.locale"] || navigator.language,
   fallbackLocale: "zh-TW",
   messages: Localization,
   missingWarn: false,

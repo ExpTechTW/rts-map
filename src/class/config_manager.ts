@@ -29,6 +29,7 @@ export type WaveConfig = {
 };
 
 export interface ConfigScheme {
+  "app.locale": string;
   "alert.enabled": boolean;
   "alert.list": AlertConfig[];
   "wave.enabled": boolean;
@@ -73,6 +74,7 @@ export class ConfigManager extends EventEmitter {
     for (const key of keys) {
       if (key == "$version") continue;
       conf[key] = config[key].$default as never;
+
     }
 
     return conf as ConfigScheme;

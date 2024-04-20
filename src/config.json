@@ -1,5 +1,11 @@
 {
   "$version": 1,
+  "app.locale": {
+    "$name": "顯示語言",
+    "$description": "介面顯示的語言",
+    "$icon": "translate",
+    "$default": ""
+  },
   "alert.enabled": {
     "$name": "音效",
     "$description": "在觸發門檻到達時播放警示音效",

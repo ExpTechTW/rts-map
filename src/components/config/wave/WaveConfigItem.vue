@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import { WaveConfig } from "@/class/config_manager";
-import Global from "@/global";
+import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import SelectButton from "primevue/selectbutton";
-import ConfigTile from "../ConfigTile.vue";
-import Button from "primevue/button";
+
+import ConfigTile from "@/components/config/ConfigTile.vue";
 import MaterialSymbols from "@/components/MaterialSymbols.vue";
+
+import { WaveConfig } from "@/class/config_manager";
+
+import { useI18n } from "vue-i18n";
+import Global from "@/global";
+
+const i18n = useI18n();
 
 const props = defineProps<{
   waveConfig: WaveConfig;
@@ -29,12 +35,10 @@ const removeItem = () => {
     </div>
     <ConfigTile v-for="(wc, wk) in waveConfig">
       <template #title>
-        <span>{{ Global.config.scheme["wave.list"].$value[wk].$name }} </span>
+        <span>{{ i18n.t(`config.wave.list.${wk}.$name`) }}</span>
       </template>
       <template #subtitle>
-        <span>{{
-          Global.config.scheme["wave.list"].$value[wk].$description
-        }}</span>
+        <span>{{ i18n.t(`config.wave.list.${wk}.$description`) }}</span>
       </template>
       <template #trailing>
         <InputText

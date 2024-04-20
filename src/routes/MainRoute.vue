@@ -22,10 +22,12 @@ import {
   watch,
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 
 import type { ChartWaveData } from "@/types";
 import Global from "@/global";
 
+const i18n = useI18n();
 const rtsStore = useRtsStore();
 const stationStore = useStationStore();
 const rtwStore = reactive<Record<string, ChartWaveData>>({});
@@ -265,6 +267,10 @@ const openConfig = () => {
 
 Global.config.on("change", () => {
   resize();
+
+  if (Global.config.config["app.locale"] != i18n.locale.value) {
+    i18n.locale.value = Global.config.config["app.locale"];
+  }
 
   if (!Global.config.config["wave.enabled"]) return;
 

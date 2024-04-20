@@ -61,6 +61,8 @@ const slots = useSlots();
 .expansion-config-tile.expanded {
   grid-template-rows: min-content 1fr;
   border-bottom: 1px solid var(--p-surface-600);
+  padding-bottom: 4px;
+  margin-bottom: 4px;
 }
 
 .expansion-config-tile.disabled {
@@ -82,6 +84,7 @@ const slots = useSlots();
   display: flex;
   flex-direction: column;
   gap: 2px;
+  max-width: 360px;
   padding-left: 8px;
 }
 
