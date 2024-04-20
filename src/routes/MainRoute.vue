@@ -24,7 +24,7 @@ import {
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
-import type { ChartWaveData } from "@/types";
+import type { ChartWaveData, PointGroup } from "@/types";
 import Global from "@/global";
 
 const i18n = useI18n();
@@ -159,6 +159,17 @@ ws.on(WebSocketEvent.Rts, (rts) => {
 
 ws.on(WebSocketEvent.Rtw, (rtw) => {
   try {
+    const config = Global.config.config["wave.list"].find(
+      (v) => v.id == `${rtw.id}`
+    );
+
+    if (!config) return;
+
+    rtw.time =
+      rtw.time % 1000 >= 500
+        ? ~~(rtw.time / 1000) * 1000 + 500
+        : ~~(rtw.time / 1000) * 1000;
+
     if (rtwStore[rtw.id] == undefined) {
       rtwStore[rtw.id] = {
         X: [],
@@ -170,46 +181,93 @@ ws.on(WebSocketEvent.Rtw, (rtw) => {
     const interval = 500 / rtw.X.length;
 
     // X
-    rtwStore[rtw.id].X.push({
-      startTime: rtw.time,
-      endTime: rtw.time + 500,
-      isEmpty: false,
-      data: rtw.X.map((h, i) => {
-        const time = rtw.time + interval * i;
-        return { name: `${time}`, value: [time, h * 10000] };
-      }),
-    });
-    while (rtwStore[rtw.id].X.length > 60) {
-      rtwStore[rtw.id].X.shift();
+    if (config.axis.includes("x")) {
+      const data = {
+        startTime: rtw.time,
+        endTime: rtw.time + 500,
+        isEmpty: false,
+        data: rtw.X.map((h, i) => {
+          const time = rtw.time + interval * i;
+          return { name: `${time}`, value: [time, h * 10000] };
+        }),
+      } as PointGroup;
+
+      const targetIndex = rtwStore[rtw.id].X.findIndex(
+        (v) => v.isEmpty && v.startTime == rtw.time
+      );
+
+      if (targetIndex >= 0) {
+        rtwStore[rtw.id].X.splice(targetIndex, 1, data);
+      } else {
+        rtwStore[rtw.id].X.push(data);
+      }
+
+      while (rtwStore[rtw.id].X.length > 60) {
+        rtwStore[rtw.id].X.shift();
+      }
     }
 
     // Y
-    rtwStore[rtw.id].Y.push({
-      startTime: rtw.time,
-      endTime: rtw.time + 500,
-      isEmpty: false,
-      data: rtw.Y.map((h, i) => {
-        const time = rtw.time + interval * i;
-        return { name: `${time}`, value: [time, h * 10000] };
-      }),
-    });
-    while (rtwStore[rtw.id].Y.length > 60) {
-      rtwStore[rtw.id].Y.shift();
+    if (config.axis.includes("y")) {
+      const data = {
+        startTime: rtw.time,
+        endTime: rtw.time + 500,
+        isEmpty: false,
+        data: rtw.Y.map((h, i) => {
+          const time = rtw.time + interval * i;
+          return { name: `${time}`, value: [time, h * 10000] };
+        }),
+      } as PointGroup;
+
+      const targetIndex = rtwStore[rtw.id].Y.findIndex(
+        (v) => v.isEmpty && v.startTime == rtw.time
+      );
+
+      if (targetIndex >= 0) {
+        rtwStore[rtw.id].Y.splice(targetIndex, 1, data);
+      } else {
+        rtwStore[rtw.id].Y.push(data);
+      }
+
+      rtwStore[rtw.id].Y.push({
+        startTime: rtw.time,
+        endTime: rtw.time + 500,
+        isEmpty: false,
+        data: rtw.Y.map((h, i) => {
+          const time = rtw.time + interval * i;
+          return { name: `${time}`, value: [time, h * 10000] };
+        }),
+      });
+      while (rtwStore[rtw.id].Y.length > 60) {
+        rtwStore[rtw.id].Y.shift();
+      }
     }
 
     // Z
-    rtwStore[rtw.id].Z.push({
-      startTime: rtw.time,
-      endTime: rtw.time + 500,
-      isEmpty: false,
-      data: rtw.Z.map((h, i) => {
-        const time = rtw.time + interval * i;
-        return { name: `${time}`, value: [time, h * 10000] };
-      }),
-    });
+    if (config.axis.includes("z")) {
+      const data = {
+        startTime: rtw.time,
+        endTime: rtw.time + 500,
+        isEmpty: false,
+        data: rtw.Z.map((h, i) => {
+          const time = rtw.time + interval * i;
+          return { name: `${time}`, value: [time, h * 10000] };
+        }),
+      } as PointGroup;
 
-    while (rtwStore[rtw.id].Z.length > 60) {
-      rtwStore[rtw.id].Z.shift();
+      const targetIndex = rtwStore[rtw.id].Z.findIndex(
+        (v) => v.isEmpty && v.startTime == rtw.time
+      );
+
+      if (targetIndex >= 0) {
+        rtwStore[rtw.id].Z.splice(targetIndex, 1, data);
+      } else {
+        rtwStore[rtw.id].Z.push(data);
+      }
+
+      while (rtwStore[rtw.id].Z.length > 60) {
+        rtwStore[rtw.id].Z.shift();
+      }
     }
   } catch (error) {
     console.log(error);
