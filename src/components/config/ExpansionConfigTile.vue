@@ -84,7 +84,7 @@ const slots = useSlots();
   display: flex;
   flex-direction: column;
   gap: 2px;
-  max-width: 360px;
+  max-width: 375px;
   padding-left: 8px;
 }
 
