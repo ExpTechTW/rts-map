@@ -1,0 +1,96 @@
+{
+  "$locale": "en",
+  "$name": "English",
+  "$localized_name": "English",
+  "config": {
+    "app": {
+      "locale": {
+        "$name": "Language",
+        "$description": "The language used for the interface"
+      }
+    },
+    "alert": {
+      "enabled": {
+        "$name": "Sounds",
+        "$description": "Enable or disable sound effects"
+      },
+      "list": {
+        "$name": "Sound List",
+        "$description": "Configure sound effects",
+        "name": {
+          "$name": "Sound Name",
+          "$description": "The name of the sound effect"
+        },
+        "condition": {
+          "$name": "Play Condition",
+          "$description": "When to play the sound effect"
+        },
+        "volume": {
+          "$name": "Volume",
+          "$description": "The volume level of the sound effect"
+        }
+      }
+    },
+    "wave": {
+      "enabled": {
+        "$name": "Wave Chart",
+        "$description": "Whether to display seismograph waveforms"
+      },
+      "list": {
+        "$name": "Wave Chart List",
+        "$description": "Select seismographs to display their waveforms",
+        "id": {
+          "$name": "Seismograph ID",
+          "$description": "The ID of the seismograph to display"
+        },
+        "axis": {
+          "$name": "Axis",
+          "$description": "Select which axis to display (X, Y, or Z)"
+        }
+      }
+    },
+    "monitor": {
+      "enabled": {
+        "$name": "Monitor Mode",
+        "$description": "Hides the title bar and disables most interactions for a focused monitoring experience."
+      }
+    }
+  },
+  "button": {
+    "add": "Add",
+    "login": "Login",
+    "logout": "Log Out",
+    "reset": "Reset",
+    "reset_config": "Reset Configuration"
+  },
+  "dialog": {
+    "common": {
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "config": {
+      "header": "Configuration"
+    },
+    "reset_config": {
+      "header": "Reset Configuration",
+      "message": "Are you sure you want to reset all configurations?"
+    },
+    "login": {
+      "header": "Login",
+      "subtitle": "Sign in to your ExpTech account to start using rts-map",
+      "field": {
+        "email": "Email Address",
+        "password": "Password"
+      }
+    },
+    "logout": {
+      "header": "Log Out",
+      "message": "Are you sure you want to log out?"
+    }
+  },
+  "toast": {
+    "login_success": {
+      "message": "Successfully logged in!"
+    }
+  }
+}
