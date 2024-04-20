@@ -62,7 +62,7 @@ const slots = useSlots();
   grid-template-rows: min-content 1fr;
   border-bottom: 1px solid var(--p-surface-600);
   padding-bottom: 4px;
-  margin-bottom: 4px;
+  margin-bottom: 16px;
 }
 
 .expansion-config-tile.disabled {
