@@ -37,12 +37,14 @@ export interface ConfigScheme {
   "monitor.enabled": boolean;
 }
 
-const { $version: $version, ...rest } = config;
+// Ignoring this linter error since we're destructing and removing the $version field
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const { $version: _, ...scheme } = config;
 
 export class ConfigManager extends EventEmitter {
   config: ConfigScheme;
   version: number;
-  scheme: Omit<typeof config, "$version"> = rest;
+  scheme: Omit<typeof config, "$version"> = scheme;
 
   constructor() {
     super();
@@ -50,14 +52,12 @@ export class ConfigManager extends EventEmitter {
 
     if (!raw || !raw.length) {
       this.config = reactive(ConfigManager.getDefaultConfig());
-      localStorage.setItem("config", JSON.stringify(this.config));
     } else {
       this.config = reactive(JSON.parse(raw));
     }
 
-    if (config.$version < $version) {
-      validateConfig(this.config);
-    }
+    validateConfig(this.config);
+    localStorage.setItem("config", JSON.stringify(this.config));
 
     this.version = config.$version;
 
@@ -114,23 +114,23 @@ export class ConfigManager extends EventEmitter {
     }
 
     if (!(typeof config["alert.enabled"] == "boolean")) {
-      config["alert.enabled"] = rest["alert.enabled"].$default;
+      config["alert.enabled"] = scheme["alert.enabled"].$default;
     }
 
-    if (!Array.isArray(["alert.list"]) || config["alert.list"].reduce((acc, v) => acc ||= !validateAlertConfig(v), false)) {
-      config["alert.list"] = rest["alert.list"].$default as AlertConfig[];
+    if (!Array.isArray(config["alert.list"]) || config["alert.list"].reduce((acc, v) => acc ||= !validateAlertConfig(v), false)) {
+      config["alert.list"] = scheme["alert.list"].$default as AlertConfig[];
     }
 
     if (!(typeof config["wave.enabled"] == "boolean")) {
-      config["wave.enabled"] = rest["wave.enabled"].$default;
+      config["wave.enabled"] = scheme["wave.enabled"].$default;
     }
 
-    if (!Array.isArray(["wave.list"]) || config["wave.list"].reduce((acc, v) => acc ||= !validateWaveConfig(v), false)) {
-      config["wave.list"] = rest["wave.list"].$default as WaveConfig[];
+    if (!Array.isArray(config["wave.list"]) || config["wave.list"].reduce((acc, v) => acc ||= !validateWaveConfig(v), false)) {
+      config["wave.list"] = scheme["wave.list"].$default as WaveConfig[];
     }
 
     if (!(typeof config["monitor.enabled"] == "boolean")) {
-      config["monitor.enabled"] = rest["monitor.enabled"].$default;
+      config["monitor.enabled"] = scheme["monitor.enabled"].$default;
     }
 
     if (typeof config["app.locale"] != "string") {
@@ -139,7 +139,6 @@ export class ConfigManager extends EventEmitter {
 
     return true;
   }
-
 
   reset() {
     Object.assign(this.config, ConfigManager.getDefaultConfig());

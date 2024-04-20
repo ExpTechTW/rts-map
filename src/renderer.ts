@@ -5,6 +5,7 @@ import { createMemoryHistory, createRouter } from "vue-router";
 import { GridItem, GridLayout } from "grid-layout-plus";
 import PrimeVueStyled from 'primevue/styled';
 import ConfirmationService from 'primevue/confirmationservice';
+import FocusTrap from "primevue/focustrap";
 import ToastService from "primevue/toastservice";
 import Ripple from 'primevue/ripple';
 
@@ -54,6 +55,7 @@ createApp(App)
   .use(ConfirmationService)
   .use(ToastService)
   .directive("ripple", Ripple)
+  .directive("focustrap", FocusTrap)
   .component("GridLayout", GridLayout)
   .component("GridItem", GridItem)
   .mount('#app');

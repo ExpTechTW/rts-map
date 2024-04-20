@@ -1,0 +1,96 @@
+{
+  "$locale": "ja",
+  "$name": "Japanese",
+  "$localized_name": "日本語",
+  "config": {
+    "app": {
+      "locale": {
+        "$name": "言語",
+        "$description": "インターフェースで使用される言語"
+      }
+    },
+    "alert": {
+      "enabled": {
+        "$name": "サウンド",
+        "$description": "サウンド効果を有効または無効にする"
+      },
+      "list": {
+        "$name": "サウンドリスト",
+        "$description": "サウンド効果を設定する",
+        "name": {
+          "$name": "サウンド名",
+          "$description": "サウンド効果の名前"
+        },
+        "condition": {
+          "$name": "再生条件",
+          "$description": "サウンド効果を再生するタイミング"
+        },
+        "volume": {
+          "$name": "音量",
+          "$description": "サウンド効果の音量レベル"
+        }
+      }
+    },
+    "wave": {
+      "enabled": {
+        "$name": "波形グラフ",
+        "$description": "各ステーションの波形を3軸で表示する"
+      },
+      "list": {
+        "$name": "波形グラフリスト",
+        "$description": "波形を表示する地震計を選択する",
+        "id": {
+          "$name": "地震計ID",
+          "$description": "表示する地震計のID"
+        },
+        "axis": {
+          "$name": "軸",
+          "$description": "表示する軸を選択する (X、Y、またはZ)"
+        }
+      }
+    },
+    "monitor": {
+      "enabled": {
+        "$name": "モニターモード",
+        "$description": "タイトルバーを非表示にし、集中した監視エクスペリエンスのためにほとんどのインタラクションを無効にします。"
+      }
+    }
+  },
+  "button": {
+    "add": "追加",
+    "login": "ログイン",
+    "logout": "ログアウト",
+    "reset": "リセット",
+    "reset_config": "設定をリセットする"
+  },
+  "dialog": {
+    "common": {
+      "cancel": "キャンセル",
+      "confirm": "確認"
+    },
+    "config": {
+      "header": "設定"
+    },
+    "reset_config": {
+      "header": "設定をリセットする",
+      "message": "すべての設定をリセットしますか？"
+    },
+    "login": {
+      "header": "ログイン",
+      "subtitle": "ExpTechアカウントにサインインしてrts-mapの使用を開始する",
+      "field": {
+        "email": "メールアドレス",
+        "password": "パスワード"
+      }
+    },
+    "logout": {
+      "header": "ログアウト",
+      "message": "ログアウトしますか？"
+    }
+  },
+  "toast": {
+    "login_success": {
+      "message": "ログインに成功しました！"
+    }
+  }
+}

@@ -32,7 +32,7 @@ const removeItem = () => {
           <MaterialSymbols name="delete" :size="20" rounded />
         </template>
       </Button>
-      <span>音效設定 #{{ index + 1 }}</span>
+      <span>{{ i18n.t("config.alert.enabled.$name") }} #{{ index + 1 }}</span>
     </div>
     <template v-for="(wc, wk) in alertConfig">
       <ConfigTile>

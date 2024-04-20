@@ -216,7 +216,7 @@ onUnmounted(() => {
                   </template>
                 </Button>
                 <div class="alert-config-count">
-                  音效數量： {{ Global.config.config["alert.list"].length }}
+                  ({{ Global.config.config["alert.list"].length }})
                 </div>
               </div>
               <AlertConfigItem
@@ -251,7 +251,7 @@ onUnmounted(() => {
                   </template>
                 </Button>
                 <div class="wave-config-count">
-                  波形圖數量： {{ Global.config.config["wave.list"].length }}
+                  ({{ Global.config.config["wave.list"].length }})
                 </div>
               </div>
               <WaveConfigItem

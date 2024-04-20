@@ -29,6 +29,7 @@ onMounted(() => {
         type="button"
         id="minimize"
         class="window-action"
+        tabindex="-1"
         @click="minimizeWindow"
       >
         🗕
@@ -37,6 +38,7 @@ onMounted(() => {
         type="button"
         id="close"
         class="window-action"
+        tabindex="-1"
         @click="closeWindow"
       >
         🗙

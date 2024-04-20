@@ -10,7 +10,7 @@ import Global from "@/global";
   <TitleBar v-if="!Global.config.config['monitor.enabled']" />
   <router-view v-slot="{ Component }">
     <transition name="fade">
-      <component :is="Component" />
+      <component v-focustrap :is="Component" />
     </transition>
   </router-view>
   <Toast />

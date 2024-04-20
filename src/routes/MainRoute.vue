@@ -269,7 +269,8 @@ Global.config.on("change", () => {
   resize();
 
   if (Global.config.config["app.locale"] != i18n.locale.value) {
-    i18n.locale.value = Global.config.config["app.locale"];
+    i18n.locale.value =
+      Global.config.config["app.locale"] || navigator.language;
   }
 
   if (!Global.config.config["wave.enabled"]) return;
