@@ -6,7 +6,7 @@
     "app": {
       "locale": {
         "$name": "言語",
-        "$description": "インターフェースに使用される言語"
+        "$description": "インターフェースで使用する言語"
       }
     },
     "alert": {
@@ -34,11 +34,11 @@
     "wave": {
       "enabled": {
         "$name": "波形チャート",
-        "$description": "Display the waveform for each seismograph on three axes"
+        "$description": "各観測点の波形を3軸で表示"
       },
       "list": {
-        "$name": "Wave Chart List",
-        "$description": "Select seismographs to display their waveforms",
+        "$name": "観測点のリスト",
+        "$description": "波形を表示する観測点を選択します",
         "id": {
           "$name": "地震計 ID",
           "$description": "表示する地震計のID"
