@@ -2,7 +2,7 @@
 import ConfirmDialog from "primevue/confirmdialog";
 import Toast from "primevue/toast";
 
-import TitleBar from "@/components/TitleBar.vue";
+import TitleBar from "@/components/window/Titlebar.vue";
 import Global from "@/global";
 </script>
 

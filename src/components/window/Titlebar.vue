@@ -32,7 +32,6 @@ window.ipcRenderer.onUnmaximize(() => {
     </div>
     <div class="titlebar-action">
       <WindowControlButton type="minimize" />
-      <WindowControlButton :type="isMaximized ? 'unmaximize' : 'maximize'" />
       <WindowControlButton type="close" />
     </div>
   </div>
@@ -56,12 +55,13 @@ window.ipcRenderer.onUnmaximize(() => {
   display: flex;
   align-items: center;
   gap: 8px;
+  line-height: 24px;
   pointer-events: none;
 }
 
 .titlebar-action {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-auto-flow: column;
   height: 100%;
   -webkit-app-region: none;
 }

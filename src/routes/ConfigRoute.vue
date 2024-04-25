@@ -13,7 +13,7 @@ import WaveConfigItem from "@/components/config/wave/WaveConfigItem.vue";
 import type { AlertConfig, WaveConfig } from "@/class/config_manager";
 import Global from "@/global";
 
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { useConfirm } from "primevue/useconfirm";
@@ -35,11 +35,9 @@ const addWaveConfig = () => {
 };
 
 const resetWaveConfig = () => {
-  Global.config.config["wave.list"].splice(
-    0,
-    Global.config.config["wave.list"].length,
-    ...(Global.config.scheme["wave.list"].$default as WaveConfig[])
-  );
+  Global.config.config["wave.list"] = reactive([
+    ...Global.config.scheme["wave.list"].$default,
+  ] as WaveConfig[]);
 };
 
 const addAlertConfig = () => {
@@ -51,11 +49,9 @@ const addAlertConfig = () => {
 };
 
 const resetAlertConfig = () => {
-  Global.config.config["alert.list"].splice(
-    0,
-    Global.config.config["alert.list"].length,
-    ...(Global.config.scheme["alert.list"].$default as AlertConfig[])
-  );
+  Global.config.config["alert.list"] = reactive([
+    ...Global.config.scheme["alert.list"].$default,
+  ] as AlertConfig[]);
 };
 
 const resetConfig = () => {
@@ -73,7 +69,15 @@ const resetConfig = () => {
       severity: "danger",
     },
     accept: () => {
-      Global.config.reset();
+      resetAlertConfig();
+      resetWaveConfig();
+      for (const k in Global.config.scheme) {
+        const key = k as keyof typeof Global.config.scheme;
+        if (typeof Global.config.scheme[key].$default != "object") {
+          Global.config.config[key] = Global.config.scheme[key]
+            .$default as never;
+        }
+      }
     },
   });
 };

@@ -32,8 +32,7 @@ const findBounds = (points: PointData[]) => {
     if (max < val) max = val;
   }
 
-  let scale = props.type == "MS-Net" ? 5 : 3000;
-  scale += scale * +(localStorage.getItem("chartYScale") ?? "25");
+  let scale = props.type == "MS-Net" ? 75 : 45000;
   max = Math.ceil(max * 100) / 100;
   max += max * 0.1;
   max = Math.max(scale, max);

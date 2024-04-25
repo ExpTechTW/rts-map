@@ -75,7 +75,6 @@ export class ConfigManager extends EventEmitter {
     for (const key of keys) {
       if (key == "$version") continue;
       conf[key] = config[key].$default as never;
-
     }
 
     return conf as ConfigScheme;
@@ -138,11 +137,6 @@ export class ConfigManager extends EventEmitter {
     }
 
     return true;
-  }
-
-  reset() {
-    Object.assign(this.config, ConfigManager.getDefaultConfig());
-    localStorage.setItem("config", JSON.stringify(this.config));
   }
 }
 
