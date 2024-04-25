@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import MaterialSymbols from "@/components/MaterialSymbols.vue";
+import MaterialSymbols from "@/components/misc/MaterialSymbols.vue";
 import MapView from "@/components/MapView.vue";
 import WaveView from "@/components/WaveView.vue";
 
@@ -370,7 +370,7 @@ onBeforeUnmount(() => {
       @click.prevent="openConfig"
     >
       <template #icon>
-        <MaterialSymbols id="md-config-icon" name="settings" rounded />
+        <MaterialSymbols id="md-config-icon" icon="settings" rounded />
       </template>
     </Button>
     <div class="map-panel">

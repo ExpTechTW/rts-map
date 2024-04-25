@@ -23,8 +23,24 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
+  mainWindow.on("maximize", () => {
+    mainWindow.webContents.send("win:maximize");
+  });
+
+  mainWindow.on("unmaximize", () => {
+    mainWindow.webContents.send("win:unmaximize");
+  });
+
   ipcMain.on("win:minimize", () => {
     mainWindow.minimize();
+  });
+
+  ipcMain.on("win:maximize", () => {
+    mainWindow.maximize();
+  });
+
+  ipcMain.on("win:unmaximize", () => {
+    mainWindow.unmaximize();
   });
 
   ipcMain.on("win:close", () => {

@@ -4,7 +4,7 @@ import InputText from "primevue/inputtext";
 import SelectButton from "primevue/selectbutton";
 
 import ConfigTile from "@/components/config/ConfigTile.vue";
-import MaterialSymbols from "@/components/MaterialSymbols.vue";
+import MaterialSymbols from "@/components/misc/MaterialSymbols.vue";
 
 import { WaveConfig } from "@/class/config_manager";
 
@@ -28,7 +28,7 @@ const removeItem = () => {
     <div class="wave-config-item-actions">
       <Button severity="secondary" text rounded @click.prevent="removeItem">
         <template #icon>
-          <MaterialSymbols name="delete" :size="20" rounded />
+          <MaterialSymbols icon="delete" :size="20" rounded />
         </template>
       </Button>
       <span>{{ i18n.t("config.wave.enabled.$name") }} #{{ index + 1 }}</span>

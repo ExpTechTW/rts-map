@@ -7,7 +7,7 @@ import InputText from "primevue/inputtext";
 import AlertConfigItem from "@/components/config/alert/AlertConfigItem.vue";
 import ConfigTile from "@/components/config/ConfigTile.vue";
 import ExpansionConfigTile from "@/components/config/ExpansionConfigTile.vue";
-import MaterialSymbols from "@/components/MaterialSymbols.vue";
+import MaterialSymbols from "@/components/misc/MaterialSymbols.vue";
 import WaveConfigItem from "@/components/config/wave/WaveConfigItem.vue";
 
 import type { AlertConfig, WaveConfig } from "@/class/config_manager";
@@ -124,7 +124,7 @@ onUnmounted(() => {
       <div class="title">{{ i18n.t("dialog.config.header") }}</div>
       <Button text rounded severity="secondary" @click.prevent="closeConfig">
         <template #icon>
-          <MaterialSymbols name="close" rounded />
+          <MaterialSymbols icon="close" rounded />
         </template>
       </Button>
     </div>
@@ -135,7 +135,7 @@ onUnmounted(() => {
             #leading
             v-if="typeof Global.config.scheme[k].$icon == 'string'"
           >
-            <MaterialSymbols :name="Global.config.scheme[k].$icon" rounded />
+            <MaterialSymbols :icon="Global.config.scheme[k].$icon" rounded />
           </template>
           <template #title>
             <span>{{ i18n.t(`config.${k}.$name`) }}</span>
@@ -185,7 +185,7 @@ onUnmounted(() => {
             #leading
             v-if="typeof Global.config.scheme[k].$icon == 'string'"
           >
-            <MaterialSymbols :name="Global.config.scheme[k].$icon" rounded />
+            <MaterialSymbols :icon="Global.config.scheme[k].$icon" rounded />
           </template>
           <template #title>
             <span>{{ i18n.t(`config.${k}.$name`) }}</span>
@@ -202,7 +202,7 @@ onUnmounted(() => {
                   @click.prevent="addAlertConfig"
                 >
                   <template #icon>
-                    <MaterialSymbols name="add" style="margin-right: 8px" />
+                    <MaterialSymbols icon="add" style="margin-right: 8px" />
                   </template>
                 </Button>
                 <Button
@@ -212,7 +212,7 @@ onUnmounted(() => {
                   @click.prevent="resetAlertConfig"
                 >
                   <template #icon>
-                    <MaterialSymbols name="restore" style="margin-right: 8px" />
+                    <MaterialSymbols icon="restore" style="margin-right: 8px" />
                   </template>
                 </Button>
                 <div class="alert-config-count">
@@ -237,7 +237,7 @@ onUnmounted(() => {
                   @click.prevent="addWaveConfig"
                 >
                   <template #icon>
-                    <MaterialSymbols name="add" style="margin-right: 8px" />
+                    <MaterialSymbols icon="add" style="margin-right: 8px" />
                   </template>
                 </Button>
                 <Button
@@ -247,7 +247,7 @@ onUnmounted(() => {
                   @click.prevent="resetWaveConfig"
                 >
                   <template #icon>
-                    <MaterialSymbols name="restore" style="margin-right: 8px" />
+                    <MaterialSymbols icon="restore" style="margin-right: 8px" />
                   </template>
                 </Button>
                 <div class="wave-config-count">

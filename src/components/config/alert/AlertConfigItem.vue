@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
-import MaterialSymbols from "@/components/MaterialSymbols.vue";
+import MaterialSymbols from "@/components/misc/MaterialSymbols.vue";
 import Slider from "primevue/slider";
 
 import AlertConditionConfig from "@/components/config/alert/AlertConditionConfig.vue";
@@ -29,7 +29,7 @@ const removeItem = () => {
     <div class="alert-config-item-actions">
       <Button severity="secondary" text rounded @click.prevent="removeItem">
         <template #icon>
-          <MaterialSymbols name="delete" :size="20" rounded />
+          <MaterialSymbols icon="delete" :size="20" rounded />
         </template>
       </Button>
       <span>{{ i18n.t("config.alert.enabled.$name") }} #{{ index + 1 }}</span>

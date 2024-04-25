@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import MaterialSymbols from "@/components/MaterialSymbols.vue";
+import MaterialSymbols from "@/components/misc/MaterialSymbols.vue";
 import { ref, useSlots } from "vue";
 
 defineProps<{
@@ -34,7 +34,7 @@ const slots = useSlots();
         </div>
       </div>
       <div class="tile-trailing">
-        <MaterialSymbols name="arrow_drop_down" rounded />
+        <MaterialSymbols icon="arrow_drop_down" rounded />
       </div>
     </div>
     <div class="content">
