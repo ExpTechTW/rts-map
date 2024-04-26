@@ -1,43 +1,43 @@
 {
   "$locale": "en",
-  "$name": "English",
-  "$localized_name": "English",
+  "$name": "영어",
+  "$localized_name": "영어",
   "config": {
     "app": {
       "locale": {
-        "$name": "Language",
-        "$description": "The language used for the interface"
+        "$name": "언어",
+        "$description": "표시 언어"
       }
     },
     "alert": {
       "enabled": {
-        "$name": "Sounds",
-        "$description": "Enable or disable sound effects"
+        "$name": "음향",
+        "$description": "소리 켜기 및 끄기"
       },
       "list": {
-        "$name": "Sound List",
-        "$description": "Configure sound effects",
+        "$name": "효과음 목록",
+        "$description": "효과음 설정",
         "name": {
-          "$name": "Sound Name",
-          "$description": "The name of the sound effect"
+          "$name": "효과음 이름",
+          "$description": "효과음 이름"
         },
         "condition": {
-          "$name": "Play Condition",
+          "$name": "재생 상태",
           "$description": "When to play the sound effect"
         },
         "volume": {
-          "$name": "Volume",
-          "$description": "The volume level of the sound effect"
+          "$name": "음량",
+          "$description": "효과음의 음량 크기"
         }
       }
     },
     "wave": {
       "enabled": {
-        "$name": "Wave Chart",
-        "$description": "Whether to display seismograph waveforms"
+        "$name": "지진파형",
+        "$description": "지진파형 표시 여부"
       },
       "list": {
-        "$name": "Wave Chart List",
+        "$name": "지진파형 목록",
         "$description": "Select seismographs to display their waveforms",
         "id": {
           "$name": "Seismograph ID",
