@@ -1,7 +1,7 @@
 {
-  "$locale": "en",
-  "$name": "영어",
-  "$localized_name": "영어",
+  "$locale": "ko-KR",
+  "$name": "Korean",
+  "$localized_name": "한국어",
   "config": {
     "app": {
       "locale": {
@@ -11,8 +11,8 @@
     },
     "alert": {
       "enabled": {
-        "$name": "음향",
-        "$description": "소리 켜기 및 끄기"
+        "$name": "효과음",
+        "$description": "효과음 켜기 및 끄기"
       },
       "list": {
         "$name": "효과음 목록",
@@ -23,7 +23,7 @@
         },
         "condition": {
           "$name": "재생 상태",
-          "$description": "When to play the sound effect"
+          "$description": "효과음을 재생할 상황"
         },
         "volume": {
           "$name": "음량",
@@ -38,59 +38,59 @@
       },
       "list": {
         "$name": "지진파형 목록",
-        "$description": "Select seismographs to display their waveforms",
+        "$description": "지진파형을 표시할 지진계 선택",
         "id": {
-          "$name": "Seismograph ID",
-          "$description": "The ID of the seismograph to display"
+          "$name": "지진계 ID",
+          "$description": "표시할 지진계의 ID"
         },
         "axis": {
-          "$name": "Axis",
-          "$description": "Select which axis to display (X, Y, or Z)"
+          "$name": "축",
+          "$description": "표시할 축 선택 (X, Y 또는 Z)"
         }
       }
     },
     "monitor": {
       "enabled": {
-        "$name": "Monitor Mode",
-        "$description": "Hides the title bar and disables most interactions for a focused monitoring experience."
+        "$name": "모니터링 모드",
+        "$description": "제목 표시줄을 숨기고 집중 모니터링 환경을 위해 대부분의 상호 작용을 비활성화합니다."
       }
     }
   },
   "button": {
-    "add": "Add",
-    "login": "Login",
-    "logout": "Log Out",
-    "reset": "Reset",
-    "reset_config": "Reset Configuration"
+    "add": "추가",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "reset": "초기화",
+    "reset_config": "설정 초기화"
   },
   "dialog": {
     "common": {
-      "cancel": "Cancel",
-      "confirm": "Confirm"
+      "cancel": "취소",
+      "confirm": "확인"
     },
     "config": {
-      "header": "Configuration"
+      "header": "설정"
     },
     "reset_config": {
-      "header": "Reset Configuration",
-      "message": "Are you sure you want to reset all configurations?"
+      "header": "설정 초기화",
+      "message": "모든 설정을 초기화하시겠습니까?"
     },
     "login": {
-      "header": "Login",
-      "subtitle": "Sign in to your ExpTech account to start using rts-map",
+      "header": "로그인",
+      "subtitle": "ExpTech에 로그인하여 rts-map 사용 시작",
       "field": {
-        "email": "Email Address",
-        "password": "Password"
+        "email": "이메일 주소",
+        "password": "비밀번호"
       }
     },
     "logout": {
-      "header": "Log Out",
-      "message": "Are you sure you want to log out?"
+      "header": "로그아웃",
+      "message": "로그아웃하시겠습니까?"
     }
   },
   "toast": {
     "login_success": {
-      "message": "Successfully logged in!"
+      "message": "성공적으로 로그인했습니다!"
     }
   }
 }
